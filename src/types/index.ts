@@ -36,6 +36,7 @@ export interface AppSettings {
   darkMode: boolean;
   reminderTime?: string;
   autoSave: boolean;
+  language: 'ua' | 'en';
 }
 
 export interface AppState {

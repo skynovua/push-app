@@ -11,7 +11,7 @@ export class AppDB extends Dexie {
     
     this.version(1).stores({
       workoutSessions: '++id, date, pushUps, duration, goal',
-      settings: '++id, dailyGoal, soundEnabled, darkMode',
+      settings: '++id, dailyGoal, soundEnabled, darkMode, language',
       achievements: '++id, name, unlocked, unlockedDate'
     });
   }
@@ -28,7 +28,8 @@ export const initializeDefaults = async () => {
       dailyGoal: 50,
       soundEnabled: true,
       darkMode: false,
-      autoSave: true
+      autoSave: true,
+      language: 'ua'
     } as AppSettings);
   }
 };
@@ -80,7 +81,8 @@ export const dbUtils = {
       dailyGoal: 50,
       soundEnabled: true,
       darkMode: false,
-      autoSave: true
+      autoSave: true,
+      language: 'ua'
     } as AppSettings;
   },
 

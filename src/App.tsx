@@ -5,6 +5,7 @@ import { Stats } from './components/Stats';
 import { Settings as SettingsPage } from './components/Settings';
 import { Button } from './components/ui/button';
 import { useWorkoutStore } from './hooks/useWorkoutStore';
+import { useT } from './hooks/useTranslation';
 import { initializeDefaults } from './services/database';
 
 type Tab = 'counter' | 'stats' | 'settings';
@@ -12,6 +13,7 @@ type Tab = 'counter' | 'stats' | 'settings';
 function App() {
   const [activeTab, setActiveTab] = useState<Tab>('counter');
   const { loadSettings } = useWorkoutStore();
+  const t = useT();
 
   useEffect(() => {
     // Initialize database and load settings
@@ -24,9 +26,9 @@ function App() {
   }, [loadSettings]);
 
   const tabs = [
-    { id: 'counter' as Tab, label: 'Тренировка', icon: Activity },
-    { id: 'stats' as Tab, label: 'Статистика', icon: BarChart3 },
-    { id: 'settings' as Tab, label: 'Настройки', icon: Settings },
+    { id: 'counter' as Tab, label: t.counter.title, icon: Activity },
+    { id: 'stats' as Tab, label: t.common.stats, icon: BarChart3 },
+    { id: 'settings' as Tab, label: t.common.settings, icon: Settings },
   ];
 
   const renderContent = () => {

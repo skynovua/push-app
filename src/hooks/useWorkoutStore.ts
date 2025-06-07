@@ -28,7 +28,8 @@ export const useWorkoutStore = create<WorkoutStore>()(
         dailyGoal: 50,
         soundEnabled: true,
         darkMode: false,
-        autoSave: true
+        autoSave: true,
+        language: 'ua' as const
       },
 
       // Actions

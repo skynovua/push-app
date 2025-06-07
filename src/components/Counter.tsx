@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { useWorkoutStore } from '../hooks/useWorkoutStore';
+import { useT } from '../hooks/useTranslation';
 
 export const Counter: React.FC = () => {
   const {
@@ -20,6 +21,7 @@ export const Counter: React.FC = () => {
     setElapsedTime
   } = useWorkoutStore();
 
+  const t = useT();
   const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
 
   // Timer effect
@@ -80,12 +82,12 @@ export const Counter: React.FC = () => {
   };
 
   const getMotivationalMessage = () => {
-    if (currentCount === 0) return "Готов к тренировке?";
-    if (currentCount < dailyGoal * 0.25) return "Отличное начало! 💪";
-    if (currentCount < dailyGoal * 0.5) return "Продолжай в том же духе! 🔥";
-    if (currentCount < dailyGoal * 0.75) return "Больше половины пути! 🚀";
-    if (currentCount < dailyGoal) return "Почти у цели! 🎯";
-    return "Цель достигнута! Легенда! 🏆";
+    if (currentCount === 0) return t.counter.keepGoing;
+    if (currentCount < dailyGoal * 0.25) return t.stats.greatProgress;
+    if (currentCount < dailyGoal * 0.5) return t.stats.keepItUp;
+    if (currentCount < dailyGoal * 0.75) return t.stats.onFire;
+    if (currentCount < dailyGoal) return t.counter.almostThere;
+    return t.counter.goalReached;
   };
 
   return (
@@ -94,7 +96,7 @@ export const Counter: React.FC = () => {
       <Card className="w-full">
         <CardHeader className="pb-3">
           <CardTitle className="text-lg flex items-center justify-between">
-            <span>Прогресс к цели</span>
+            <span>{t.counter.progressToGoal}</span>
             <Badge variant={currentCount >= dailyGoal ? "default" : "secondary"}>
               {currentCount}/{dailyGoal}
             </Badge>
@@ -117,7 +119,7 @@ export const Counter: React.FC = () => {
                 {formatTime(elapsedTime)}
               </div>
               <p className="text-sm text-muted-foreground mt-1">
-                Время тренировки
+                {t.counter.sessionTime}
               </p>
             </div>
           </CardContent>
@@ -155,7 +157,7 @@ export const Counter: React.FC = () => {
       {currentCount >= dailyGoal && (
         <div className="text-center">
           <Badge className="text-lg px-4 py-2 bg-gradient-to-r from-yellow-400 to-orange-400 text-black">
-            🏆 Цель достигнута!
+            🏆 {t.counter.goalReached}
           </Badge>
         </div>
       )}
@@ -169,7 +171,7 @@ export const Counter: React.FC = () => {
             className="flex-1 h-12"
           >
             <Play className="h-5 w-5 mr-2" />
-            Начать
+            {t.common.start}
           </Button>
         ) : (
           <Button
@@ -179,7 +181,7 @@ export const Counter: React.FC = () => {
             className="flex-1 h-12"
           >
             <Pause className="h-5 w-5 mr-2" />
-            Пауза
+            {t.common.pause}
           </Button>
         )}
         
@@ -191,7 +193,7 @@ export const Counter: React.FC = () => {
           disabled={currentCount === 0 && elapsedTime === 0}
         >
           <RotateCcw className="h-5 w-5 mr-2" />
-          Сброс
+          {t.common.reset}
         </Button>
       </div>
 
@@ -204,7 +206,7 @@ export const Counter: React.FC = () => {
           variant="default"
         >
           <Save className="h-5 w-5 mr-2" />
-          Сохранить тренировку
+          {t.common.save} {t.counter.currentSession.toLowerCase()}
         </Button>
       )}
 
@@ -212,12 +214,12 @@ export const Counter: React.FC = () => {
       <div className="text-center space-y-2">
         {!isActive && currentCount === 0 && (
           <p className="text-sm text-muted-foreground">
-            Нажмите "Начать" чтобы запустить тренировку
+            {t.counter.startHint.replace('{start}', t.common.start)}
           </p>
         )}
         {isActive && (
           <p className="text-sm text-muted-foreground">
-            Нажимайте на большую кнопку для подсчета отжиманий
+            {t.counter.clickHint}
           </p>
         )}
       </div>

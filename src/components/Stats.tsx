@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, Target, Calendar, Award } from 'lucide-react';
 import { useWorkoutData } from '../hooks/useWorkoutData';
+import { useT } from '../hooks/useTranslation';
 
 export const Stats: React.FC = () => {
   const {
@@ -18,11 +19,13 @@ export const Stats: React.FC = () => {
     loading
   } = useWorkoutData();
 
+  const t = useT();
+
   if (loading) {
     return (
       <div className="p-6 space-y-6">
         <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">Загрузка статистики...</h2>
+          <h2 className="text-2xl font-bold mb-4">{t.stats.loading}</h2>
         </div>
       </div>
     );
@@ -39,8 +42,8 @@ export const Stats: React.FC = () => {
   return (
     <div className="p-6 space-y-6">
       <div className="text-center mb-6">
-        <h2 className="text-3xl font-bold">Статистика</h2>
-        <p className="text-muted-foreground">Ваш прогресс и достижения</p>
+        <h2 className="text-3xl font-bold">{t.stats.title}</h2>
+        <p className="text-muted-foreground">{t.stats.yourProgress}</p>
       </div>
       
       {/* Main Stats Grid */}
@@ -49,13 +52,13 @@ export const Stats: React.FC = () => {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
               <Target className="h-4 w-4" />
-              Всего отжиманий
+              {t.stats.totalPushUps}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalPushUps.toLocaleString()}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              За {totalSessions} тренировок
+              {t.stats.forWorkouts} {totalSessions}
             </p>
           </CardContent>
         </Card>
@@ -64,13 +67,13 @@ export const Stats: React.FC = () => {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
               <Calendar className="h-4 w-4" />
-              Сегодня
+              {t.common.today}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{todayPushUps}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              отжиманий
+              {t.stats.pushUps}
             </p>
           </CardContent>
         </Card>
@@ -79,14 +82,14 @@ export const Stats: React.FC = () => {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
               <TrendingUp className="h-4 w-4" />
-              Текущий стрик
+              {t.stats.currentStreak}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{currentStreak}</div>
             <div className="flex items-center gap-1 mt-1">
               <Badge variant="secondary" className="text-xs">
-                🔥 {currentStreak > 0 ? 'В огне!' : 'Начни сегодня!'}
+                {currentStreak > 0 ? t.stats.onFire : t.stats.startToday}
               </Badge>
             </div>
           </CardContent>
@@ -96,13 +99,13 @@ export const Stats: React.FC = () => {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
               <Award className="h-4 w-4" />
-              Лучший день
+              {t.stats.bestStreak}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{bestDay}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              отжиманий
+              {t.stats.pushUps}
             </p>
           </CardContent>
         </Card>
@@ -112,19 +115,19 @@ export const Stats: React.FC = () => {
       <div className="grid grid-cols-1 gap-4">
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Дополнительная статистика</CardTitle>
+            <CardTitle className="text-base">{t.stats.additionalStats}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex justify-between">
-              <span className="text-sm text-muted-foreground">Среднее за тренировку:</span>
-              <span className="font-medium">{averagePerSession} отжиманий</span>
+              <span className="text-sm text-muted-foreground">{t.stats.averagePerDay}:</span>
+              <span className="font-medium">{averagePerSession} {t.stats.pushUps}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-sm text-muted-foreground">За неделю:</span>
-              <span className="font-medium">{weeklyStats} отжиманий</span>
+              <span className="text-sm text-muted-foreground">{t.stats.forWeek}:</span>
+              <span className="font-medium">{weeklyStats} {t.stats.pushUps}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-sm text-muted-foreground">Всего тренировок:</span>
+              <span className="text-sm text-muted-foreground">{t.stats.totalSessions}:</span>
               <span className="font-medium">{totalSessions}</span>
             </div>
           </CardContent>
@@ -135,9 +138,9 @@ export const Stats: React.FC = () => {
       {dailyStats.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Прогресс за последние дни</CardTitle>
+            <CardTitle>{t.stats.weekProgress}</CardTitle>
             <CardDescription>
-              Количество отжиманий по дням
+              {t.stats.pushUpsPerDay}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -152,7 +155,7 @@ export const Stats: React.FC = () => {
                 <YAxis className="text-xs" />
                 <Tooltip 
                   labelFormatter={(label) => formatDate(label as string)}
-                  formatter={(value: number) => [value, 'Отжимания']}
+                  formatter={(value: number) => [value, t.stats.pushUps]}
                 />
                 <Line 
                   type="monotone" 
@@ -172,9 +175,9 @@ export const Stats: React.FC = () => {
       {dailyStats.length > 0 && (
         <Card>
           <CardHeader>
-            <CardTitle>Тренировки по дням</CardTitle>
+            <CardTitle>{t.stats.workoutsByDays}</CardTitle>
             <CardDescription>
-              Количество тренировок за день
+              {t.stats.sessionsPerDay}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -189,7 +192,7 @@ export const Stats: React.FC = () => {
                 <YAxis className="text-xs" />
                 <Tooltip 
                   labelFormatter={(label) => formatDate(label as string)}
-                  formatter={(value: number) => [value, 'Тренировки']}
+                  formatter={(value: number) => [value, t.stats.sessionsCount]}
                 />
                 <Bar 
                   dataKey="sessions" 
@@ -207,9 +210,9 @@ export const Stats: React.FC = () => {
         <Card>
           <CardContent className="text-center py-12">
             <Target className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-medium mb-2">Пока нет данных</h3>
+            <h3 className="text-lg font-medium mb-2">{t.stats.noDataYet}</h3>
             <p className="text-muted-foreground mb-4">
-              Начните свою первую тренировку, чтобы увидеть статистику
+              {t.stats.startWorkout}
             </p>
           </CardContent>
         </Card>

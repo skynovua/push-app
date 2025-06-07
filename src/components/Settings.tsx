@@ -1,15 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Settings as SettingsIcon, Sun, Moon, Volume2, VolumeX, Target, Download } from 'lucide-react';
+import { Settings as SettingsIcon, Sun, Moon, Volume2, VolumeX, Target, Download, Globe } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useWorkoutStore } from '../hooks/useWorkoutStore';
 import { useWorkoutData } from '../hooks/useWorkoutData';
+import { useT, useTranslation } from '../hooks/useTranslation';
 
 export const Settings: React.FC = () => {
   const { settings, updateSettings } = useWorkoutStore();
   const { sessions, totalPushUps } = useWorkoutData();
+  const t = useT();
+  const { locale, setLocale } = useTranslation();
   const [goalInput, setGoalInput] = useState(settings.dailyGoal.toString());
 
   useEffect(() => {
@@ -43,6 +46,11 @@ export const Settings: React.FC = () => {
     updateSettings({ autoSave: checked });
   };
 
+  const handleLanguageChange = (newLocale: 'ua' | 'en') => {
+    setLocale(newLocale);
+    updateSettings({ language: newLocale });
+  };
+
   const exportData = () => {
     const dataToExport = {
       sessions,
@@ -69,23 +77,51 @@ export const Settings: React.FC = () => {
       <div className="text-center mb-6">
         <h2 className="text-3xl font-bold flex items-center justify-center gap-2">
           <SettingsIcon className="h-8 w-8" />
-          Настройки
+          {t.settings.title}
         </h2>
-        <p className="text-muted-foreground">Персонализация приложения</p>
+        <p className="text-muted-foreground">{t.settings.subtitle}</p>
       </div>
+
+      {/* Language Settings */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Globe className="h-5 w-5" />
+            {t.settings.language}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex gap-2">
+            <Button
+              variant={locale === 'ua' ? 'default' : 'outline'}
+              onClick={() => handleLanguageChange('ua')}
+              className="flex-1"
+            >
+              {t.settings.ukrainian}
+            </Button>
+            <Button
+              variant={locale === 'en' ? 'default' : 'outline'}
+              onClick={() => handleLanguageChange('en')}
+              className="flex-1"
+            >
+              {t.settings.english}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Goal Settings */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Target className="h-5 w-5" />
-            Цели тренировок
+            {t.settings.workout}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <label htmlFor="daily-goal" className="text-sm font-medium">
-              Дневная цель отжиманий
+              {t.settings.dailyGoalLabel}
             </label>
             <input
               id="daily-goal"
@@ -97,7 +133,7 @@ export const Settings: React.FC = () => {
               className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground"
             />
             <p className="text-xs text-muted-foreground">
-              Рекомендуется: 20-100 отжиманий в день
+              {t.settings.goalRecommendation}
             </p>
           </div>
         </CardContent>
@@ -106,7 +142,7 @@ export const Settings: React.FC = () => {
       {/* App Settings */}
       <Card>
         <CardHeader>
-          <CardTitle>Настройки приложения</CardTitle>
+          <CardTitle>{t.settings.appearance}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
           {/* Dark Mode */}
@@ -114,9 +150,9 @@ export const Settings: React.FC = () => {
             <div className="flex items-center gap-3">
               {settings.darkMode ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
               <div>
-                <div className="font-medium">Темная тема</div>
+                <div className="font-medium">{settings.darkMode ? t.settings.darkMode : t.settings.lightMode}</div>
                 <div className="text-sm text-muted-foreground">
-                  Переключение между светлой и темной темой
+                  {t.settings.themeDescription}
                 </div>
               </div>
             </div>
@@ -131,9 +167,9 @@ export const Settings: React.FC = () => {
             <div className="flex items-center gap-3">
               {settings.soundEnabled ? <Volume2 className="h-5 w-5" /> : <VolumeX className="h-5 w-5" />}
               <div>
-                <div className="font-medium">Звуковые уведомления</div>
+                <div className="font-medium">{settings.soundEnabled ? t.settings.soundEnabled : t.settings.soundDisabled}</div>
                 <div className="text-sm text-muted-foreground">
-                  Звук при нажатии на счетчик
+                  {t.settings.soundDescription}
                 </div>
               </div>
             </div>
@@ -148,9 +184,9 @@ export const Settings: React.FC = () => {
             <div className="flex items-center gap-3">
               <SettingsIcon className="h-5 w-5" />
               <div>
-                <div className="font-medium">Автосохранение</div>
+                <div className="font-medium">{t.settings.autoSave}</div>
                 <div className="text-sm text-muted-foreground">
-                  Автоматически сохранять тренировки
+                  {t.settings.autoSaveDescription}
                 </div>
               </div>
             </div>
@@ -165,17 +201,17 @@ export const Settings: React.FC = () => {
       {/* Data Management */}
       <Card>
         <CardHeader>
-          <CardTitle>Управление данными</CardTitle>
+          <CardTitle>{t.settings.data}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4 text-center">
             <div className="space-y-1">
               <div className="text-2xl font-bold">{sessions.length}</div>
-              <div className="text-sm text-muted-foreground">Тренировок</div>
+              <div className="text-sm text-muted-foreground">{t.stats.totalSessions}</div>
             </div>
             <div className="space-y-1">
               <div className="text-2xl font-bold">{totalPushUps}</div>
-              <div className="text-sm text-muted-foreground">Отжиманий</div>
+              <div className="text-sm text-muted-foreground">{t.stats.totalPushUps}</div>
             </div>
           </div>
           
@@ -186,11 +222,11 @@ export const Settings: React.FC = () => {
             disabled={sessions.length === 0}
           >
             <Download className="h-4 w-4 mr-2" />
-            Экспорт данных
+            {t.settings.exportData}
           </Button>
           
           <p className="text-xs text-muted-foreground text-center">
-            Экспорт создаст JSON файл с вашими данными
+            {t.settings.exportDescription}
           </p>
         </CardContent>
       </Card>
@@ -198,20 +234,20 @@ export const Settings: React.FC = () => {
       {/* App Info */}
       <Card>
         <CardHeader>
-          <CardTitle>О приложении</CardTitle>
+          <CardTitle>{t.settings.appInfo}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex justify-between">
-            <span className="text-sm text-muted-foreground">Версия:</span>
+            <span className="text-sm text-muted-foreground">{t.settings.version}:</span>
             <Badge variant="secondary">1.0.0</Badge>
           </div>
           <div className="flex justify-between">
-            <span className="text-sm text-muted-foreground">Тип:</span>
+            <span className="text-sm text-muted-foreground">{t.settings.appType}:</span>
             <Badge variant="secondary">PWA</Badge>
           </div>
           <div className="text-center pt-4">
             <p className="text-sm text-muted-foreground">
-              Push-Up Counter - ваш персональный тренер для отжиманий
+              {t.settings.appDescription}
             </p>
           </div>
         </CardContent>
@@ -220,24 +256,24 @@ export const Settings: React.FC = () => {
       {/* Reset Warning */}
       <Card className="border-destructive/20">
         <CardHeader>
-          <CardTitle className="text-destructive">Опасная зона</CardTitle>
+          <CardTitle className="text-destructive">{t.settings.dangerZone}</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground mb-4">
-            Будьте осторожны с этими действиями. Они могут удалить ваши данные.
+            {t.settings.dangerWarning}
           </p>
           <Button
             variant="destructive"
             className="w-full"
             onClick={() => {
-              if (confirm('Вы действительно хотите очистить все данные? Это действие нельзя отменить.')) {
+              if (confirm(t.settings.confirmClear)) {
                 // Clear all data logic would go here
                 localStorage.clear();
                 window.location.reload();
               }
             }}
           >
-            Очистить все данные
+            {t.settings.clearData}
           </Button>
         </CardContent>
       </Card>
