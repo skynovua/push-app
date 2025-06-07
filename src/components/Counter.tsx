@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Play, Pause, RotateCcw, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,6 +13,7 @@ export const Counter: React.FC = () => {
     isActive,
     elapsedTime,
     dailyGoal,
+    sessionStartTime,
     incrementCount,
     resetCount,
     startSession,
@@ -22,28 +23,29 @@ export const Counter: React.FC = () => {
   } = useWorkoutStore();
 
   const t = useT();
-  const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   // Timer effect
   useEffect(() => {
-    if (isActive) {
-      const id = setInterval(() => {
-        setElapsedTime(elapsedTime + 1);
+    if (isActive && sessionStartTime) {
+      intervalRef.current = setInterval(() => {
+        const now = new Date();
+        const elapsed = Math.floor((now.getTime() - sessionStartTime.getTime()) / 1000);
+        setElapsedTime(elapsed);
       }, 1000);
-      setIntervalId(id);
     } else {
-      if (intervalId) {
-        clearInterval(intervalId);
-        setIntervalId(null);
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
       }
     }
 
     return () => {
-      if (intervalId) {
-        clearInterval(intervalId);
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
       }
     };
-  }, [isActive, elapsedTime, intervalId, setElapsedTime]);
+  }, [isActive, sessionStartTime, setElapsedTime]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -66,17 +68,17 @@ export const Counter: React.FC = () => {
   };
 
   const handleReset = () => {
-    if (intervalId) {
-      clearInterval(intervalId);
-      setIntervalId(null);
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
     }
     resetCount();
   };
 
   const handleSave = async () => {
-    if (intervalId) {
-      clearInterval(intervalId);
-      setIntervalId(null);
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
     }
     await endSession();
   };
