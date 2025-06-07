@@ -156,6 +156,49 @@ npm run test
 npm run test:coverage
 ```
 
+## 🚀 Deployment
+
+### GitHub Pages (Automatic)
+
+This project is configured with GitHub Actions for automatic deployment:
+
+1. **Fork or clone** this repository
+2. **Enable GitHub Pages** in repository settings:
+   - Go to Settings → Pages
+   - Source: "GitHub Actions"
+3. **Push to main branch** - deployment happens automatically
+4. **Access your app** at `https://yourusername.github.io/push-app/`
+
+### Manual Deployment
+
+```bash
+# Build for production
+npm run build
+
+# Deploy to GitHub Pages (requires setup)
+npm run deploy
+
+# Preview production build locally
+npm run preview
+```
+
+### Environment Variables
+
+For production deployment, ensure these are set:
+
+```bash
+NODE_ENV=production
+# Base URL for GitHub Pages (automatically handled)
+```
+
+### Custom Domain
+
+To use a custom domain:
+
+1. Add `CNAME` file to `public/` directory with your domain
+2. Update `base` in `vite.config.ts` to `'/'`
+3. Configure DNS settings with your domain provider
+
 ## 📝 Contributing
 
 1. Fork the repository
