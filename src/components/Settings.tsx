@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Settings as SettingsIcon, Sun, Moon, Volume2, VolumeX, Target, Download, Globe } from 'lucide-react';
+import { Settings as SettingsIcon, Sun, Moon, Volume2, VolumeX, Target, Download, Globe, Upload } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { ImportDialog } from './ImportDialog';
 import { useWorkoutStore } from '../hooks/useWorkoutStore';
 import { useWorkoutData } from '../hooks/useWorkoutData';
 import { useT, useTranslation } from '../hooks/useTranslation';
@@ -311,15 +312,26 @@ export const Settings: React.FC = () => {
             </div>
           </div>
           
-          <Button
-            onClick={exportData}
-            variant="outline"
-            className="w-full"
-            disabled={sessions.length === 0}
-          >
-            <Download className="h-4 w-4 mr-2" />
-            {t.settings.exportData}
-          </Button>
+          <div className="grid grid-cols-2 gap-3">
+            <Button
+              onClick={exportData}
+              variant="outline"
+              className="w-full"
+              disabled={sessions.length === 0}
+            >
+              <Download className="h-4 w-4 mr-2" />
+              {t.settings.exportData}
+            </Button>
+            
+            <ImportDialog
+              trigger={
+                <Button variant="outline" className="w-full">
+                  <Upload className="h-4 w-4 mr-2" />
+                  {t.settings.importData}
+                </Button>
+              }
+            />
+          </div>
           
           <p className="text-xs text-muted-foreground text-center">
             {t.settings.exportDescription}

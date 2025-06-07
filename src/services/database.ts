@@ -1,5 +1,5 @@
 import Dexie, { type Table } from 'dexie';
-import type { WorkoutSession, AppSettings, Achievement } from '../types';
+import type { WorkoutSession, AppSettings, Achievement, ImportData, ImportResult } from '../types';
 
 export class AppDB extends Dexie {
   workoutSessions!: Table<WorkoutSession>;
@@ -184,5 +184,110 @@ export const dbUtils = {
       newestSession,
       databaseSize: estimatedSize
     };
+  },
+
+  // Імпорт даних з JSON файлу
+  async importData(importData: ImportData): Promise<ImportResult> {
+    try {
+      const result: ImportResult = {
+        success: true,
+        imported: 0,
+        duplicates: 0,
+        errors: []
+      };
+
+      // Перевіримо формат даних
+      if (!importData.sessions || !Array.isArray(importData.sessions)) {
+        throw new Error('Некоректний формат файлу: відсутні дані про тренування');
+      }
+
+      // Отримаємо існуючі сесії для перевірки дублікатів
+      const existingSessions = await this.getAllSessions();
+      const existingSessionsMap = new Map(
+        existingSessions.map(session => [
+          `${session.date.getTime()}-${session.pushUps}-${session.duration}`,
+          session
+        ])
+      );
+
+      // Імпортуємо сесії
+      for (const sessionData of importData.sessions) {
+        try {
+          // Конвертуємо дату з рядка в Date об'єкт
+          const date = new Date(sessionData.date);
+          if (isNaN(date.getTime())) {
+            result.errors.push(`Невірна дата для сесії: ${sessionData.date}`);
+            continue;
+          }
+
+          // Створюємо ключ для перевірки дублікатів
+          const sessionKey = `${date.getTime()}-${sessionData.pushUps}-${sessionData.duration}`;
+          
+          if (existingSessionsMap.has(sessionKey)) {
+            result.duplicates++;
+            continue;
+          }
+
+          // Створюємо сесію для збереження
+          const session: WorkoutSession = {
+            id: crypto.randomUUID(),
+            date,
+            pushUps: sessionData.pushUps || 0,
+            duration: sessionData.duration || 0,
+            sets: sessionData.sets ? sessionData.sets.map(set => ({
+              ...set,
+              timestamp: new Date(set.timestamp)
+            })) : undefined,
+            goal: sessionData.goal
+          };
+
+          await db.workoutSessions.add(session);
+          result.imported++;
+        } catch (error) {
+          result.errors.push(`Помилка при імпорті сесії: ${error}`);
+        }
+      }
+
+      // Імпортуємо налаштування, якщо вони є
+      if (importData.settings) {
+        try {
+          const currentSettings = await this.getSettings();
+          const newSettings = { ...currentSettings, ...importData.settings };
+          await this.updateSettings(newSettings);
+        } catch (error) {
+          result.errors.push(`Помилка при імпорті налаштувань: ${error}`);
+        }
+      }
+
+      return result;
+    } catch (error) {
+      return {
+        success: false,
+        imported: 0,
+        duplicates: 0,
+        errors: [`Критична помилка при імпорті: ${error}`]
+      };
+    }
+  },
+
+  // Валідація імпортованих даних
+  validateImportData(data): data is ImportData {
+    if (!data || typeof data !== 'object') {
+      return false;
+    }
+
+    if (!data.sessions || !Array.isArray(data.sessions)) {
+      return false;
+    }
+
+    // Перевіримо кілька перших сесій
+    for (let i = 0; i < Math.min(data.sessions.length, 5); i++) {
+      const session = data.sessions[i];
+      if (!session.date || !session.pushUps || typeof session.pushUps !== 'number') {
+        return false;
+      }
+    }
+
+    return true;
   }
 };

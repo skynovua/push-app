@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import type { WorkoutSession, DailyStats } from '../types';
+import type { WorkoutSession, DailyStats, ImportData, ImportResult } from '../types';
 import { dbUtils } from '../services/database';
 
 export const useWorkoutData = () => {
@@ -157,6 +157,41 @@ export const useWorkoutData = () => {
     return Math.round(totalPushUps / sessions.length);
   }, [totalPushUps, sessions.length]);
 
+  // Функція імпорту даних
+  const importData = async (file: File): Promise<ImportResult> => {
+    try {
+      const text = await file.text();
+      const data = JSON.parse(text) as ImportData;
+      
+      // Валідуємо дані
+      if (!dbUtils.validateImportData(data)) {
+        return {
+          success: false,
+          imported: 0,
+          duplicates: 0,
+          errors: ['Некоректний формат файлу']
+        };
+      }
+
+      // Імпортуємо дані
+      const result = await dbUtils.importData(data);
+      
+      // Оновлюємо дані після імпорту
+      if (result.success && result.imported > 0) {
+        await loadSessions();
+      }
+      
+      return result;
+    } catch (error) {
+      return {
+        success: false,
+        imported: 0,
+        duplicates: 0,
+        errors: [`Помилка при читанні файлу: ${error}`]
+      };
+    }
+  };
+
   return {
     sessions,
     dailyStats,
@@ -167,6 +202,8 @@ export const useWorkoutData = () => {
     deleteMultipleSessions,
     deleteSessionsByDate,
     clearAllData,
+    // Функція імпорту
+    importData,
     // Статистика
     totalPushUps,
     todayPushUps,

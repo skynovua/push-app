@@ -47,3 +47,18 @@ export interface AppState {
   dailyGoal: number;
   settings: AppSettings;
 }
+
+export interface ImportData {
+  sessions: WorkoutSession[];
+  settings?: Partial<AppSettings>;
+  exportDate?: string;
+  totalPushUps?: number;
+  version?: string;
+}
+
+export interface ImportResult {
+  success: boolean;
+  imported: number;
+  duplicates: number;
+  errors: string[];
+}
