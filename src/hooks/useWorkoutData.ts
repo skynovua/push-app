@@ -63,6 +63,10 @@ export const useWorkoutData = () => {
   const clearAllData = async () => {
     try {
       await dbUtils.clearAllData();
+      // Примусово очищаємо стан сесій
+      setSessions([]);
+      setLoading(false);
+      // Потім оновлюємо дані
       await refreshData();
       return true;
     } catch (error) {

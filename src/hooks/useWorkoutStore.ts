@@ -13,6 +13,7 @@ interface WorkoutStore extends AppState {
   updateSettings: (settings: Partial<AppSettings>) => Promise<void>;
   loadSettings: () => Promise<void>;
   setElapsedTime: (time: number) => void;
+  resetStore: () => void;
 }
 
 export const useWorkoutStore = create<WorkoutStore>()(
@@ -108,6 +109,15 @@ export const useWorkoutStore = create<WorkoutStore>()(
 
       setElapsedTime: (time: number) => {
         set({ elapsedTime: time });
+      },
+
+      resetStore: () => {
+        set({
+          currentCount: 0,
+          isActive: false,
+          sessionStartTime: null,
+          elapsedTime: 0
+        });
       }
     }),
     {

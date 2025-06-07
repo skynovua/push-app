@@ -12,7 +12,16 @@ import { initializeDefaults } from './services/database';
 type Tab = 'counter' | 'stats' | 'settings';
 
 function App() {
-  const [activeTab, setActiveTab] = useState<Tab>('counter');
+  const [activeTab, setActiveTab] = useState<Tab>(() => {
+    // Відновлюємо активну вкладку з sessionStorage (тимчасово для сесії браузера)
+    try {
+      const savedTab = sessionStorage.getItem('activeTab') as Tab;
+      return savedTab && ['counter', 'stats', 'settings'].includes(savedTab) ? savedTab : 'counter';
+    } catch (error) {
+      console.warn('Failed to load activeTab from sessionStorage:', error);
+      return 'counter';
+    }
+  });
   const { loadSettings } = useWorkoutStore();
   const t = useT();
 
@@ -25,6 +34,15 @@ function App() {
     
     initialize();
   }, [loadSettings]);
+
+  const handleTabChange = (tabId: Tab) => {
+    setActiveTab(tabId);
+    try {
+      sessionStorage.setItem('activeTab', tabId);
+    } catch (error) {
+      console.warn('Failed to save activeTab to sessionStorage:', error);
+    }
+  };
 
   const tabs = [
     { id: 'counter' as Tab, label: t.counter.title, icon: Activity },
@@ -93,7 +111,7 @@ function App() {
                   key={tab.id}
                   variant={isActive ? 'default' : 'ghost'}
                   size="sm"
-                  onClick={() => setActiveTab(tab.id)}
+                  onClick={() => handleTabChange(tab.id)}
                   className={`flex flex-col items-center gap-1 h-auto py-2 px-3 ${
                     isActive ? '' : 'text-muted-foreground'
                   }`}

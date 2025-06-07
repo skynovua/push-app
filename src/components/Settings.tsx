@@ -10,6 +10,7 @@ import { useWorkoutData } from '../hooks/useWorkoutData';
 import { useT, useTranslation } from '../hooks/useTranslation';
 import { useToast } from '../utils/toast';
 import { pwaService } from '../services/pwa';
+import { clearUserDataSafely } from '../lib/utils';
 
 export const Settings: React.FC = () => {
   const { settings, updateSettings } = useWorkoutStore();
@@ -36,6 +37,8 @@ export const Settings: React.FC = () => {
     setIsInstalled(pwaService.isAppInstalled());
   }, []);
 
+  // === Settings Handlers ===
+  
   const handleGoalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setGoalInput(value);
@@ -63,6 +66,8 @@ export const Settings: React.FC = () => {
     updateSettings({ language: newLocale });
   };
 
+  // === PWA Installation ===
+  
   const handleInstallPWA = async () => {
     const success = await pwaService.install();
     if (success) {
@@ -71,6 +76,8 @@ export const Settings: React.FC = () => {
     }
   };
 
+  // === Data Management Functions ===
+  
   const handleDeleteOldSessions = async () => {
     if (confirm(t.stats.deleteOldSessions || 'Видалити тренування старіше 30 днів?')) {
       try {
@@ -116,6 +123,28 @@ export const Settings: React.FC = () => {
           type: 'error',
           title: t.common.error || 'Помилка',
           description: t.stats.errorDeletingSessions || 'Помилка при видаленні тренувань'
+        });
+      }
+    }
+  };
+
+  const handleClearAllData = async () => {
+    if (confirm(t.settings.confirmClear)) {
+      const success = await clearAllData();
+      if (success) {
+        addToast({
+          type: 'success',
+          title: t.common.success || 'Успішно',
+          description: t.settings.dataCleared
+        });
+        // Безпечно очищуємо localStorage, зберігаючи навігацію та налаштування
+        clearUserDataSafely();
+        // Залишаємося в налаштуваннях після очищення
+      } else {
+        addToast({
+          type: 'error',
+          title: t.common.error || 'Помилка',
+          description: t.settings.errorClearing
         });
       }
     }
@@ -415,28 +444,7 @@ export const Settings: React.FC = () => {
           <Button
             variant="destructive"
             className="w-full"
-            onClick={async () => {
-              if (confirm(t.settings.confirmClear)) {
-                const success = await clearAllData();
-                if (success) {
-                  addToast({
-                    type: 'success',
-                    title: t.common.success || 'Успішно',
-                    description: t.settings.dataCleared
-                  });
-                  // Також очищуємо localStorage для повного скидання
-                  localStorage.clear();
-                  // Перезавантажуємо сторінку для оновлення стану
-                  setTimeout(() => window.location.reload(), 1000);
-                } else {
-                  addToast({
-                    type: 'error',
-                    title: t.common.error || 'Помилка',
-                    description: t.settings.errorClearing
-                  });
-                }
-              }
-            }}
+            onClick={handleClearAllData}
           >
             {t.settings.clearData}
           </Button>
