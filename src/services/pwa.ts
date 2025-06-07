@@ -32,7 +32,7 @@ class PWAService {
 
     // Check if running in standalone mode
     if (window.matchMedia('(display-mode: standalone)').matches || 
-        (window.navigator as any).standalone === true) {
+        (window.navigator as unknown as { standalone?: boolean }).standalone === true) {
       this.isInstalled = true;
     }
   }
