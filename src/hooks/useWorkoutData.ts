@@ -92,6 +92,9 @@ export const useWorkoutData = () => {
         });
       }
     });
+
+    console.log('statsMap', statsMap);
+    
     
     return Array.from(statsMap.values())
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())

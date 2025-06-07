@@ -210,6 +210,9 @@ export const dbUtils = {
         ])
       );
 
+      console.log('importData.sessions', importData.sessions);
+      
+
       // Імпортуємо сесії
       for (const sessionData of importData.sessions) {
         try {
@@ -271,7 +274,7 @@ export const dbUtils = {
   },
 
   // Валідація імпортованих даних
-  validateImportData(data): data is ImportData {
+  validateImportData(data: ImportData): data is ImportData {
     if (!data || typeof data !== 'object') {
       return false;
     }
