@@ -13,7 +13,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useT } from '../hooks/useTranslation';
 import { useWorkoutData } from '../hooks/useWorkoutData';
-import { useToast } from './Toast';
+import { useToast } from '../utils/toast';
 import type { ImportResult } from '../types';
 
 interface ImportDialogProps {

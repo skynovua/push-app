@@ -6,6 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { useWorkoutStore } from '../hooks/useWorkoutStore';
 import { useT } from '../hooks/useTranslation';
+import { showToast } from '../utils/toast';
 
 export const Counter: React.FC = () => {
   const {
@@ -53,6 +54,19 @@ export const Counter: React.FC = () => {
     return `${mins}:${secs.toString().padStart(2, '0')}`;
   };
 
+  const handleIncrement = () => {
+    const wasAtGoal = currentCount >= dailyGoal;
+    incrementCount();
+    
+    // Show toast when goal is reached
+    if (!wasAtGoal && currentCount + 1 >= dailyGoal) {
+      showToast.success(
+        t.counter.goalReached,
+        `${dailyGoal} ${t.counter.pushUpsCompleted}!`
+      );
+    }
+  };
+
   const progressPercentage = Math.min((currentCount / dailyGoal) * 100, 100);
 
   const handleStart = () => {
@@ -81,6 +95,10 @@ export const Counter: React.FC = () => {
       intervalRef.current = null;
     }
     await endSession();
+    showToast.success(
+      t.counter.workoutSaved,
+      `${currentCount} ${t.counter.pushUpsCompleted}`
+    );
   };
 
   const getMotivationalMessage = () => {
@@ -131,7 +149,7 @@ export const Counter: React.FC = () => {
       {/* Main Counter Button */}
       <div className="relative">
         <button
-          onClick={incrementCount}
+          onClick={handleIncrement}
           disabled={!isActive}
           className={`
             w-48 h-48 rounded-full text-7xl font-bold shadow-2xl 

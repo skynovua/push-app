@@ -6,7 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useWorkoutData } from '../hooks/useWorkoutData';
 import { useT, useTranslation } from '../hooks/useTranslation';
 import { DeleteConfirmDialog } from './DeleteConfirmDialog';
-import { useToast } from './Toast';
+import { useToast } from '../utils/toast';
 import type { WorkoutSession } from '../types';
 
 export const WorkoutHistory: React.FC = () => {

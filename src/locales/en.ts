@@ -39,7 +39,9 @@ const enTranslations: Translations = {
     totalToday: 'Total today',
     startHint: 'Click "{start}" to start training',
     clickHint: 'Click the big button to count push-ups',
-    almostThere: 'Almost there! 🎯'
+    almostThere: 'Almost there! 🎯',
+    workoutSaved: 'Workout saved!',
+    pushUpsCompleted: 'push-ups completed'
   },
 
   // Statistics

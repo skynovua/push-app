@@ -8,7 +8,7 @@ import { ImportDialog } from './ImportDialog';
 import { useWorkoutStore } from '../hooks/useWorkoutStore';
 import { useWorkoutData } from '../hooks/useWorkoutData';
 import { useT, useTranslation } from '../hooks/useTranslation';
-import { useToast } from './Toast';
+import { useToast } from '../utils/toast';
 import { pwaService } from '../services/pwa';
 
 export const Settings: React.FC = () => {
