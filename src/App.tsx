@@ -47,9 +47,18 @@ function App() {
 
   return (
     <ToastProvider>
-      <div className="min-h-screen bg-background">
+      <div 
+        className="min-h-screen bg-background"
+        style={{ 
+          paddingLeft: 'env(safe-area-inset-left, 0px)',
+          paddingRight: 'env(safe-area-inset-right, 0px)'
+        }}
+      >
       {/* Header */}
-      <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
+      <header 
+        className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b"
+        style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
+      >
         <div className="container max-w-2xl mx-auto px-4 py-4">
           <div className="flex items-center justify-center">
             <h1 className="text-2xl font-bold flex items-center gap-2">
