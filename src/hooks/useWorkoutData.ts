@@ -26,6 +26,51 @@ export const useWorkoutData = () => {
     loadSessions();
   };
 
+  // Функції видалення
+  const deleteSession = async (sessionId: string) => {
+    try {
+      await dbUtils.deleteWorkoutSession(sessionId);
+      await refreshData();
+      return true;
+    } catch (error) {
+      console.error('Error deleting session:', error);
+      return false;
+    }
+  };
+
+  const deleteMultipleSessions = async (sessionIds: string[]) => {
+    try {
+      await dbUtils.deleteMultipleSessions(sessionIds);
+      await refreshData();
+      return true;
+    } catch (error) {
+      console.error('Error deleting multiple sessions:', error);
+      return false;
+    }
+  };
+
+  const deleteSessionsByDate = async (date: Date) => {
+    try {
+      await dbUtils.deleteSessionsByDate(date);
+      await refreshData();
+      return true;
+    } catch (error) {
+      console.error('Error deleting sessions by date:', error);
+      return false;
+    }
+  };
+
+  const clearAllData = async () => {
+    try {
+      await dbUtils.clearAllData();
+      await refreshData();
+      return true;
+    } catch (error) {
+      console.error('Error clearing all data:', error);
+      return false;
+    }
+  };
+
   // Группировка сессий по дням
   const dailyStats = useMemo(() => {
     const statsMap = new Map<string, DailyStats>();
@@ -117,6 +162,11 @@ export const useWorkoutData = () => {
     dailyStats,
     loading,
     refreshData,
+    // Функції видалення
+    deleteSession,
+    deleteMultipleSessions,
+    deleteSessionsByDate,
+    clearAllData,
     // Статистика
     totalPushUps,
     todayPushUps,

@@ -4,6 +4,7 @@ import { Counter } from './components/Counter';
 import { Stats } from './components/Stats';
 import { Settings as SettingsPage } from './components/Settings';
 import { Button } from './components/ui/button';
+import { ToastProvider } from './components/Toast';
 import { useWorkoutStore } from './hooks/useWorkoutStore';
 import { useT } from './hooks/useTranslation';
 import { initializeDefaults } from './services/database';
@@ -45,7 +46,8 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <ToastProvider>
+      <div className="min-h-screen bg-background">
       {/* Header */}
       <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
         <div className="container max-w-2xl mx-auto px-4 py-4">
@@ -59,7 +61,7 @@ function App() {
       </header>
 
       {/* Main Content */}
-      <main className="container max-w-2xl mx-auto pb-20">
+      <main className="container max-w-2xl mx-auto pb-20 px-6">
         {renderContent()}
       </main>
 
@@ -89,7 +91,8 @@ function App() {
           </div>
         </div>
       </nav>
-    </div>
+      </div>
+    </ToastProvider>
   );
 }
 

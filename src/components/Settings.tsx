@@ -7,13 +7,15 @@ import { Badge } from '@/components/ui/badge';
 import { useWorkoutStore } from '../hooks/useWorkoutStore';
 import { useWorkoutData } from '../hooks/useWorkoutData';
 import { useT, useTranslation } from '../hooks/useTranslation';
+import { useToast } from './Toast';
 import { pwaService } from '../services/pwa';
 
 export const Settings: React.FC = () => {
   const { settings, updateSettings } = useWorkoutStore();
-  const { sessions, totalPushUps } = useWorkoutData();
+  const { sessions, totalPushUps, clearAllData, deleteSessionsByDate } = useWorkoutData();
   const t = useT();
   const { locale, setLocale } = useTranslation();
+  const { addToast } = useToast();
   const [goalInput, setGoalInput] = useState(settings.dailyGoal.toString());
   const [canInstallPWA, setCanInstallPWA] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
@@ -65,6 +67,56 @@ export const Settings: React.FC = () => {
     if (success) {
       setCanInstallPWA(false);
       setIsInstalled(true);
+    }
+  };
+
+  const handleDeleteOldSessions = async () => {
+    if (confirm(t.stats.deleteOldSessions || 'Видалити тренування старіше 30 днів?')) {
+      try {
+        const { dbUtils } = await import('../services/database');
+        await dbUtils.deleteOldSessions(30);
+        addToast({
+          type: 'success',
+          title: t.common.success || 'Успішно',
+          description: t.stats.oldSessionsDeleted || 'Старі тренування видалено!'
+        });
+      } catch (error) {
+        console.error('Error deleting old sessions:', error);
+        addToast({
+          type: 'error',
+          title: t.common.error || 'Помилка',
+          description: t.stats.errorDeletingOldSessions || 'Помилка при видаленні старих тренувань'
+        });
+      }
+    }
+  };
+
+  const handleDeleteTodaySessions = async () => {
+    if (confirm(t.stats.deleteTodaySessions || 'Видалити тренування сьогоднішнього дня?')) {
+      try {
+        const today = new Date();
+        const success = await deleteSessionsByDate(today);
+        if (success) {
+          addToast({
+            type: 'success',
+            title: t.common.success || 'Успішно',
+            description: t.stats.todaySessionsDeleted || 'Сьогоднішні тренування видалено!'
+          });
+        } else {
+          addToast({
+            type: 'error',
+            title: t.common.error || 'Помилка',
+            description: t.stats.errorDeletingSessions || 'Помилка при видаленні тренувань'
+          });
+        }
+      } catch (error) {
+        console.error('Error deleting today sessions:', error);
+        addToast({
+          type: 'error',
+          title: t.common.error || 'Помилка',
+          description: t.stats.errorDeletingSessions || 'Помилка при видаленні тренувань'
+        });
+      }
     }
   };
 
@@ -133,13 +185,13 @@ export const Settings: React.FC = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Download className="h-5 w-5" />
-              Встановлення додатку
+              {t.settings.pwaInstallation}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
               <p className="text-sm text-muted-foreground">
-                Встановіть додаток на свій пристрій для швидкого доступу та роботи без інтернету
+                {t.settings.pwaDescription}
               </p>
               <Button
                 onClick={handleInstallPWA}
@@ -147,7 +199,7 @@ export const Settings: React.FC = () => {
                 disabled={isInstalled}
               >
                 <Download className="h-4 w-4 mr-2" />
-                {isInstalled ? 'Додаток встановлено' : 'Встановити додаток'}
+                {isInstalled ? t.settings.appInstalled : t.settings.installApp}
               </Button>
             </div>
           </CardContent>
@@ -272,6 +324,48 @@ export const Settings: React.FC = () => {
           <p className="text-xs text-muted-foreground text-center">
             {t.settings.exportDescription}
           </p>
+          
+          {/* Додаткові функції управління даними */}
+          <div className="grid grid-cols-1 gap-3 mt-4">
+            <Button
+              onClick={handleDeleteOldSessions}
+              variant="outline"
+              size="sm"
+              className="w-full text-orange-600 border-orange-200 hover:bg-orange-50 dark:text-orange-400 dark:border-orange-800 dark:hover:bg-orange-950"
+            >
+              🗂️ {t.settings.deleteOldData}
+            </Button>
+            
+            <Button
+              onClick={handleDeleteTodaySessions}
+              variant="outline"
+              size="sm"
+              className="w-full text-amber-600 border-amber-200 hover:bg-amber-50 dark:text-amber-400 dark:border-amber-800 dark:hover:bg-amber-950"
+            >
+              📅 {t.settings.deleteTodayData}
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Статистика бази даних */}
+      <Card>
+        <CardHeader>
+          <CardTitle>{t.settings.databaseStats}</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <div className="grid grid-cols-2 gap-4 text-center">
+            <div className="space-y-1">
+              <div className="text-lg font-bold">{sessions.length}</div>
+              <div className="text-xs text-muted-foreground">{t.settings.recordsCount}</div>
+            </div>
+            <div className="space-y-1">
+              <div className="text-lg font-bold">
+                {Math.round((sessions.length * 200) / 1024)} KB
+              </div>
+              <div className="text-xs text-muted-foreground">{t.settings.estimatedSize}</div>
+            </div>
+          </div>
         </CardContent>
       </Card>
 
@@ -309,11 +403,26 @@ export const Settings: React.FC = () => {
           <Button
             variant="destructive"
             className="w-full"
-            onClick={() => {
+            onClick={async () => {
               if (confirm(t.settings.confirmClear)) {
-                // Clear all data logic would go here
-                localStorage.clear();
-                window.location.reload();
+                const success = await clearAllData();
+                if (success) {
+                  addToast({
+                    type: 'success',
+                    title: t.common.success || 'Успішно',
+                    description: t.settings.dataCleared
+                  });
+                  // Також очищуємо localStorage для повного скидання
+                  localStorage.clear();
+                  // Перезавантажуємо сторінку для оновлення стану
+                  setTimeout(() => window.location.reload(), 1000);
+                } else {
+                  addToast({
+                    type: 'error',
+                    title: t.common.error || 'Помилка',
+                    description: t.settings.errorClearing
+                  });
+                }
               }
             }}
           >

@@ -107,5 +107,82 @@ export const dbUtils = {
         unlocked: true,
         unlockedDate: new Date()
       });
+  },
+
+  // Видалити конкретну сесію тренування
+  async deleteWorkoutSession(sessionId: string): Promise<void> {
+    await db.workoutSessions.where('id').equals(sessionId).delete();
+  },
+
+  // Видалити кілька сесій за один раз
+  async deleteMultipleSessions(sessionIds: string[]): Promise<void> {
+    await db.workoutSessions.where('id').anyOf(sessionIds).delete();
+  },
+
+  // Видалити всі сесії за певну дату
+  async deleteSessionsByDate(date: Date): Promise<void> {
+    const startOfDay = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+    const endOfDay = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59);
+    
+    await db.workoutSessions
+      .where('date')
+      .between(startOfDay, endOfDay, true, true)
+      .delete();
+  },
+
+  // Видалити старі сесії (старше певної кількості днів)
+  async deleteOldSessions(daysToKeep: number): Promise<void> {
+    const cutoffDate = new Date();
+    cutoffDate.setDate(cutoffDate.getDate() - daysToKeep);
+    
+    await db.workoutSessions.where('date').below(cutoffDate).delete();
+  },
+
+  // Очистити всі дані
+  async clearAllData(): Promise<void> {
+    await db.workoutSessions.clear();
+    await db.achievements.clear();
+    // Зберігаємо налаштування, щоб користувач не втратив свої преференції
+  },
+
+  // Повне очищення включно з налаштуваннями
+  async resetApp(): Promise<void> {
+    await db.workoutSessions.clear();
+    await db.achievements.clear();
+    await db.settings.clear();
+    // Ініціалізуємо налаштування за замовчуванням
+    await initializeDefaults();
+  },
+
+  // Отримати статистику бази даних
+  async getDatabaseStats(): Promise<{
+    totalSessions: number;
+    totalPushUps: number;
+    oldestSession?: Date;
+    newestSession?: Date;
+    databaseSize: number;
+  }> {
+    const sessions = await this.getAllSessions();
+    const totalSessions = sessions.length;
+    const totalPushUps = sessions.reduce((sum, session) => sum + session.pushUps, 0);
+    
+    let oldestSession: Date | undefined;
+    let newestSession: Date | undefined;
+    
+    if (sessions.length > 0) {
+      oldestSession = sessions[sessions.length - 1].date;
+      newestSession = sessions[0].date;
+    }
+
+    // Приблизна оцінка розміру бази даних
+    const estimatedSize = sessions.length * 200; // bytes per session estimate
+
+    return {
+      totalSessions,
+      totalPushUps,
+      oldestSession,
+      newestSession,
+      databaseSize: estimatedSize
+    };
   }
 };

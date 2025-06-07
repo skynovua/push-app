@@ -17,7 +17,11 @@ export const ua = {
     progress: 'Прогрес',
     achievements: 'Досягнення',
     export: 'Експорт',
-    import: 'Імпорт'
+    import: 'Імпорт',
+    success: 'Успішно',
+    error: 'Помилка',
+    confirm: 'Підтвердити',
+    cancel: 'Скасувати'
   },
 
   // Лічильник
@@ -63,7 +67,22 @@ export const ua = {
     forWeek: 'За тиждень',
     sessionsPerDay: 'Сесії на день',
     workoutsByDays: 'Тренування по днях',
-    sessionsCount: 'Тренування'
+    sessionsCount: 'Тренування',
+    workoutHistory: 'Історія тренувань',
+    recentWorkouts: 'Останні тренування з можливістю видалення',
+    deleteSession: 'Видалити сесію',
+    confirmDelete: 'Ви впевнені, що хочете видалити це тренування?',
+    sessionDeleted: 'Тренування видалено',
+    sessionDeletedSuccess: 'Тренування успішно видалено',
+    errorDeleting: 'Помилка при видаленні',
+    errorDeletingSession: 'Не вдалося видалити тренування',
+    errorDeletingGeneral: 'Сталася помилка при видаленні',
+    deleteOldSessions: 'Видалити тренування старіше 30 днів?',
+    deleteTodaySessions: 'Видалити тренування сьогоднішнього дня?',
+    oldSessionsDeleted: 'Старі тренування видалено!',
+    todaySessionsDeleted: 'Сьогоднішні тренування видалено!',
+    errorDeletingOldSessions: 'Помилка при видаленні старих тренувань',
+    errorDeletingSessions: 'Помилка при видаленні тренувань'
   },
 
   // Налаштування
@@ -102,7 +121,20 @@ export const ua = {
     dataExported: 'Дані експортовано успішно!',
     dataImported: 'Дані імпортовано успішно!',
     dataCleared: 'Всі дані очищено!',
-    appDescription: 'Push-Up Counter - ваш персональний тренер для віджимань'
+    errorClearing: 'Помилка при очищенні даних. Спробуйте ще раз.',
+    appDescription: 'Push-Up Counter - ваш персональний тренер для віджимань',
+    // PWA Installation
+    pwaInstallation: 'Встановлення додатку',
+    pwaDescription: 'Встановіть додаток на свій пристрій для швидкого доступу та роботи без інтернету',
+    installApp: 'Встановити додаток',
+    appInstalled: 'Додаток встановлено',
+    // Database stats
+    databaseStats: 'Статистика бази даних',
+    recordsCount: 'Записів',
+    estimatedSize: 'Приблизний розмір',
+    // Data management buttons
+    deleteOldData: 'Очистити старі дані (30+ днів)',
+    deleteTodayData: 'Видалити тренування сьогодні'
   },
 
   // Досягнення

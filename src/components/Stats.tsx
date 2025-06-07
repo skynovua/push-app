@@ -4,7 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, Target, Calendar, Award } from 'lucide-react';
 import { useWorkoutData } from '../hooks/useWorkoutData';
-import { useT } from '../hooks/useTranslation';
+import { useT, useTranslation } from '../hooks/useTranslation';
+import { WorkoutHistory } from './WorkoutHistory';
 
 export const Stats: React.FC = () => {
   const {
@@ -19,6 +20,7 @@ export const Stats: React.FC = () => {
     loading
   } = useWorkoutData();
 
+  const { locale } = useTranslation();
   const t = useT();
 
   if (loading) {
@@ -33,7 +35,8 @@ export const Stats: React.FC = () => {
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleDateString('ru-RU', { 
+    const localeCode = locale === 'ua' ? 'uk-UA' : 'en-US';
+    return date.toLocaleDateString(localeCode, { 
       month: 'short', 
       day: 'numeric' 
     });
@@ -160,10 +163,10 @@ export const Stats: React.FC = () => {
                 <Line 
                   type="monotone" 
                   dataKey="count" 
-                  stroke="hsl(var(--primary))" 
+                  stroke="var(--primary)" 
                   strokeWidth={3}
-                  dot={{ fill: "hsl(var(--primary))", strokeWidth: 2, r: 4 }}
-                  activeDot={{ r: 6, stroke: "hsl(var(--primary))", strokeWidth: 2 }}
+                  dot={{ fill: "var(--primary)", strokeWidth: 2, r: 4 }}
+                  activeDot={{ r: 6, stroke: "var(--primary)", strokeWidth: 2 }}
                 />
               </LineChart>
             </ResponsiveContainer>
@@ -196,11 +199,29 @@ export const Stats: React.FC = () => {
                 />
                 <Bar 
                   dataKey="sessions" 
-                  fill="hsl(var(--primary))"
+                  fill="var(--primary)"
                   radius={[4, 4, 0, 0]}
                 />
               </BarChart>
             </ResponsiveContainer>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Історія тренувань */}
+      {totalSessions > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Calendar className="h-5 w-5" />
+              {t.stats.workoutHistory}
+            </CardTitle>
+            <CardDescription>
+              {t.stats.recentWorkouts}
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <WorkoutHistory />
           </CardContent>
         </Card>
       )}

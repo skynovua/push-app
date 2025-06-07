@@ -19,7 +19,11 @@ const enTranslations: Translations = {
     progress: 'Progress',
     achievements: 'Achievements',
     export: 'Export',
-    import: 'Import'
+    import: 'Import',
+    success: 'Success',
+    error: 'Error',
+    confirm: 'Confirm',
+    cancel: 'Cancel'
   },
 
   // Counter
@@ -65,7 +69,22 @@ const enTranslations: Translations = {
     forWeek: 'For the week',
     sessionsPerDay: 'Sessions per day',
     workoutsByDays: 'Workouts by days',
-    sessionsCount: 'Sessions'
+    sessionsCount: 'Sessions',
+    workoutHistory: 'Workout History',
+    recentWorkouts: 'Recent workouts with delete option',
+    deleteSession: 'Delete session',
+    confirmDelete: 'Are you sure you want to delete this workout?',
+    sessionDeleted: 'Session deleted',
+    sessionDeletedSuccess: 'Session successfully deleted',
+    errorDeleting: 'Error deleting session',
+    errorDeletingSession: 'Failed to delete session',
+    errorDeletingGeneral: 'An error occurred while deleting',
+    deleteOldSessions: 'Delete workouts older than 30 days?',
+    deleteTodaySessions: 'Delete today\'s workouts?',
+    oldSessionsDeleted: 'Old workouts deleted!',
+    todaySessionsDeleted: 'Today\'s workouts deleted!',
+    errorDeletingOldSessions: 'Error deleting old workouts',
+    errorDeletingSessions: 'Error deleting workouts'
   },
 
   // Settings
@@ -104,7 +123,20 @@ const enTranslations: Translations = {
     dataExported: 'Data exported successfully!',
     dataImported: 'Data imported successfully!',
     dataCleared: 'All data cleared!',
-    appDescription: 'Push-Up Counter - your personal push-up trainer'
+    errorClearing: 'Error clearing data. Please try again.',
+    appDescription: 'Push-Up Counter - your personal push-up trainer',
+    // PWA Installation
+    pwaInstallation: 'App Installation',
+    pwaDescription: 'Install the app on your device for quick access and offline work',
+    installApp: 'Install App',
+    appInstalled: 'App Installed',
+    // Database stats
+    databaseStats: 'Database Statistics',
+    recordsCount: 'Records',
+    estimatedSize: 'Estimated Size',
+    // Data management buttons
+    deleteOldData: 'Clear old data (30+ days)',
+    deleteTodayData: 'Delete today\'s workouts'
   },
 
   // Achievements
