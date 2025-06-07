@@ -23,7 +23,7 @@ export const Stats: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="p-6 space-y-6">
+      <div className="py-6 space-y-6">
         <div className="text-center">
           <h2 className="text-2xl font-bold mb-4">{t.stats.loading}</h2>
         </div>
@@ -40,7 +40,7 @@ export const Stats: React.FC = () => {
   };
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="py-6 space-y-6">
       <div className="text-center mb-6">
         <h2 className="text-3xl font-bold">{t.stats.title}</h2>
         <p className="text-muted-foreground">{t.stats.yourProgress}</p>

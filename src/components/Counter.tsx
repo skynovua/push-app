@@ -93,7 +93,7 @@ export const Counter: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col items-center p-6 space-y-6 max-w-md mx-auto">
+    <div className="flex flex-col items-center py-6 space-y-6 max-w-md mx-auto">
       {/* Progress Card */}
       <Card className="w-full">
         <CardHeader className="pb-3">
