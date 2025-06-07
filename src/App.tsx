@@ -61,12 +61,18 @@ function App() {
       </header>
 
       {/* Main Content */}
-      <main className="container max-w-2xl mx-auto pb-20 px-6">
+      <main 
+        className="container max-w-2xl mx-auto pb-20 px-6"
+        style={{ marginBottom: 'env(safe-area-inset-bottom, 0px)' }}
+      >
         {renderContent()}
       </main>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-t">
+      <nav 
+        className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-t"
+        style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+      >
         <div className="container max-w-2xl mx-auto px-4">
           <div className="flex justify-around py-2">
             {tabs.map((tab) => {
