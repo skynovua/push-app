@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { useWorkoutStore } from '../hooks/useWorkoutStore';
 import { useWorkoutData } from '../hooks/useWorkoutData';
 import { useT, useTranslation } from '../hooks/useTranslation';
+import { pwaService } from '../services/pwa';
 
 export const Settings: React.FC = () => {
   const { settings, updateSettings } = useWorkoutStore();
@@ -14,6 +15,8 @@ export const Settings: React.FC = () => {
   const t = useT();
   const { locale, setLocale } = useTranslation();
   const [goalInput, setGoalInput] = useState(settings.dailyGoal.toString());
+  const [canInstallPWA, setCanInstallPWA] = useState(false);
+  const [isInstalled, setIsInstalled] = useState(false);
 
   useEffect(() => {
     // Apply dark mode to document
@@ -23,6 +26,12 @@ export const Settings: React.FC = () => {
       document.documentElement.classList.remove('dark');
     }
   }, [settings.darkMode]);
+
+  useEffect(() => {
+    // Check PWA installation status
+    setCanInstallPWA(pwaService.canInstall());
+    setIsInstalled(pwaService.isAppInstalled());
+  }, []);
 
   const handleGoalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -49,6 +58,14 @@ export const Settings: React.FC = () => {
   const handleLanguageChange = (newLocale: 'ua' | 'en') => {
     setLocale(newLocale);
     updateSettings({ language: newLocale });
+  };
+
+  const handleInstallPWA = async () => {
+    const success = await pwaService.install();
+    if (success) {
+      setCanInstallPWA(false);
+      setIsInstalled(true);
+    }
   };
 
   const exportData = () => {
@@ -109,6 +126,33 @@ export const Settings: React.FC = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* PWA Installation */}
+      {(canInstallPWA || !isInstalled) && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Download className="h-5 w-5" />
+              Встановлення додатку
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              <p className="text-sm text-muted-foreground">
+                Встановіть додаток на свій пристрій для швидкого доступу та роботи без інтернету
+              </p>
+              <Button
+                onClick={handleInstallPWA}
+                className="w-full"
+                disabled={isInstalled}
+              >
+                <Download className="h-4 w-4 mr-2" />
+                {isInstalled ? 'Додаток встановлено' : 'Встановити додаток'}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Goal Settings */}
       <Card>

@@ -38,10 +38,28 @@ class PWAService {
   }
 
   canInstall(): boolean {
+    // For iOS Safari, check if not already in standalone mode
+    if (this.isIOSSafari()) {
+      return !this.isInstalled;
+    }
+    
     return !!this.deferredPrompt && !this.isInstalled;
   }
 
+  private isIOSSafari(): boolean {
+    const userAgent = window.navigator.userAgent;
+    const isIOS = /iPad|iPhone|iPod/.test(userAgent);
+    const isSafari = /Safari/.test(userAgent) && !/Chrome|CriOS|FxiOS/.test(userAgent);
+    return isIOS && isSafari;
+  }
+
   async install(): Promise<boolean> {
+    // For iOS Safari, show installation instructions
+    if (this.isIOSSafari()) {
+      this.showIOSInstallInstructions();
+      return false; // Can't programmatically install on iOS
+    }
+
     if (!this.deferredPrompt) {
       return false;
     }
@@ -60,6 +78,15 @@ class PWAService {
       console.error('Error during PWA installation:', error);
       return false;
     }
+  }
+
+  private showIOSInstallInstructions(): void {
+    const message = `Щоб встановити додаток на iOS:
+1. Натисніть кнопку "Поделиться" внизу екрану
+2. Прокрутіть вниз і виберіть "На екран Домой"
+3. Натисніть "Добавить"`;
+    
+    alert(message);
   }
 
   isAppInstalled(): boolean {
