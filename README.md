@@ -151,12 +151,6 @@ npm run build
 # Upload dist/ folder to Netlify
 ```
 
-### GitHub Pages
-```bash
-npm run build
-# Deploy dist/ folder to gh-pages branch
-```
-
 ## 🧪 Testing
 
 ```bash
@@ -167,27 +161,11 @@ npm run test
 npm run test:coverage
 ```
 
-## 🚀 Deployment
-
-### GitHub Pages (Automatic)
-
-This project is configured with GitHub Actions for automatic deployment:
-
-1. **Fork or clone** this repository
-2. **Enable GitHub Pages** in repository settings:
-   - Go to Settings → Pages
-   - Source: "GitHub Actions"
-3. **Push to main branch** - deployment happens automatically
-4. **Access your app** at `https://yourusername.github.io/push-app/`
-
-### Manual Deployment
+### Manual Build and Preview
 
 ```bash
 # Build for production
 npm run build
-
-# Deploy to GitHub Pages (requires setup)
-npm run deploy
 
 # Preview production build locally
 npm run preview

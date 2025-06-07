@@ -414,9 +414,9 @@ export const Stats: React.FC = () => {
               <Line 
                 type="monotone" 
                 dataKey="count" 
-                stroke="hsl(var(--primary))" 
+                stroke="var(--primary)" 
                 strokeWidth={2}
-                dot={{ fill: "hsl(var(--primary))" }}
+                dot={{ fill: "var(--primary)" }}
               />
             </LineChart>
           </ResponsiveContainer>
