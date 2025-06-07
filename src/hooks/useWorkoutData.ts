@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import type { WorkoutSession, DailyStats, ImportData, ImportResult } from '../types';
+import type { WorkoutSession, DailyStats, ImportData, ImportResult, TimePeriod, PeriodStats } from '../types';
 import { dbUtils } from '../services/database';
 
 export const useWorkoutData = () => {
@@ -91,10 +91,7 @@ export const useWorkoutData = () => {
           duration: session.duration
         });
       }
-    });
-
-    console.log('statsMap', statsMap);
-    
+    });    
     
     return Array.from(statsMap.values())
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
@@ -195,6 +192,174 @@ export const useWorkoutData = () => {
     }
   };
 
+  // Функції для різних періодів статистики
+  const getStatsForPeriod = (period: TimePeriod): PeriodStats[] => {
+    let data: PeriodStats[] = [];
+
+    switch (period) {
+      case 'daily':
+        // Останні 7 днів
+        data = getLast7DaysStats();
+        break;
+      case 'weekly':
+        // Останні 12 тижнів
+        data = getLast12WeeksStats();
+        break;
+      case 'monthly':
+        // Останні 12 місяців
+        data = getLast12MonthsStats();
+        break;
+      case 'yearly':
+        // За роки
+        data = getYearlyStats();
+        break;
+    }
+
+    return data;
+  };
+
+  const getLast7DaysStats = (): PeriodStats[] => {
+    const last7Days: PeriodStats[] = [];
+    const now = new Date();
+
+    for (let i = 6; i >= 0; i--) {
+      const date = new Date(now);
+      date.setDate(date.getDate() - i);
+      const dateKey = date.toISOString().split('T')[0];
+
+      const dayStats = sessions
+        .filter(session => {
+          const sessionDate = session.date.toISOString().split('T')[0];
+          return sessionDate === dateKey;
+        })
+        .reduce(
+          (acc, session) => ({
+            count: acc.count + session.pushUps,
+            sessions: acc.sessions + 1,
+            duration: acc.duration + session.duration
+          }),
+          { count: 0, sessions: 0, duration: 0 }
+        );
+
+      last7Days.push({
+        date: dateKey,
+        count: dayStats.count,
+        sessions: dayStats.sessions,
+        duration: dayStats.duration,
+        label: date.toLocaleDateString('uk-UA', { 
+          month: 'short', 
+          day: 'numeric' 
+        })
+      });
+    }
+
+    return last7Days;
+  };
+
+  const getLast12WeeksStats = (): PeriodStats[] => {
+    const last12Weeks: PeriodStats[] = [];
+    const now = new Date();
+
+    for (let i = 11; i >= 0; i--) {
+      const weekStart = new Date(now);
+      weekStart.setDate(weekStart.getDate() - (i * 7) - weekStart.getDay());
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekStart.getDate() + 6);
+
+      const weekStats = sessions
+        .filter(session => {
+          const sessionDate = new Date(session.date);
+          return sessionDate >= weekStart && sessionDate <= weekEnd;
+        })
+        .reduce(
+          (acc, session) => ({
+            count: acc.count + session.pushUps,
+            sessions: acc.sessions + 1,
+            duration: acc.duration + session.duration
+          }),
+          { count: 0, sessions: 0, duration: 0 }
+        );
+
+      last12Weeks.push({
+        date: weekStart.toISOString().split('T')[0],
+        count: weekStats.count,
+        sessions: weekStats.sessions,
+        duration: weekStats.duration,
+        label: `${weekStart.getDate()}/${weekStart.getMonth() + 1}`
+      });
+    }
+
+    return last12Weeks;
+  };
+
+  const getLast12MonthsStats = (): PeriodStats[] => {
+    const last12Months: PeriodStats[] = [];
+    const now = new Date();
+
+    for (let i = 11; i >= 0; i--) {
+      const monthDate = new Date(now.getFullYear(), now.getMonth() - i, 1);
+
+      const monthStats = sessions
+        .filter(session => {
+          const sessionDate = new Date(session.date);
+          return sessionDate.getFullYear() === monthDate.getFullYear() &&
+                 sessionDate.getMonth() === monthDate.getMonth();
+        })
+        .reduce(
+          (acc, session) => ({
+            count: acc.count + session.pushUps,
+            sessions: acc.sessions + 1,
+            duration: acc.duration + session.duration
+          }),
+          { count: 0, sessions: 0, duration: 0 }
+        );
+
+      last12Months.push({
+        date: monthDate.toISOString().split('T')[0],
+        count: monthStats.count,
+        sessions: monthStats.sessions,
+        duration: monthStats.duration,
+        label: monthDate.toLocaleDateString('uk-UA', { 
+          month: 'short',
+          year: monthDate.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
+        })
+      });
+    }
+
+    return last12Months;
+  };
+
+  const getYearlyStats = (): PeriodStats[] => {
+    const yearlyData = new Map<number, { count: number; sessions: number; duration: number }>();
+
+    sessions.forEach(session => {
+      const year = new Date(session.date).getFullYear();
+      const existing = yearlyData.get(year);
+
+      if (existing) {
+        existing.count += session.pushUps;
+        existing.sessions += 1;
+        existing.duration += session.duration;
+      } else {
+        yearlyData.set(year, {
+          count: session.pushUps,
+          sessions: 1,
+          duration: session.duration
+        });
+      }
+    });
+
+    return Array.from(yearlyData.entries())
+      .sort(([a], [b]) => a - b)
+      .map(([year, stats]) => ({
+        date: `${year}-01-01`,
+        count: stats.count,
+        sessions: stats.sessions,
+        duration: stats.duration,
+        label: year.toString()
+      }));
+  };
+
   return {
     sessions,
     dailyStats,
@@ -214,6 +379,8 @@ export const useWorkoutData = () => {
     currentStreak,
     bestDay,
     averagePerSession,
-    totalSessions: sessions.length
+    totalSessions: sessions.length,
+    // Нові функції для періодів
+    getStatsForPeriod
   };
 };

@@ -79,6 +79,25 @@ export const ua = {
     errorDeletingGeneral: 'Сталася помилка при видаленні',
     deleteOldSessions: 'Видалити тренування старіше 30 днів?',
     deleteTodaySessions: 'Видалити тренування сьогоднішнього дня?',
+    // Періоди часу
+    timePeriods: {
+      daily: 'Щодня',
+      weekly: 'Щотижня',
+      monthly: 'Щомісяця',
+      yearly: 'Щороку'
+    },
+    chartTitles: {
+      daily: 'Віджимання за останні 7 днів',
+      weekly: 'Віджимання за останні 12 тижнів',
+      monthly: 'Віджимання за останні 12 місяців',
+      yearly: 'Віджимання за роки'
+    },
+    periodLabels: {
+      lastWeek: 'Останній тиждень',
+      last12Weeks: 'Останні 12 тижнів',
+      last12Months: 'Останні 12 місяців',
+      years: 'За роки'
+    },
     oldSessionsDeleted: 'Старі тренування видалено!',
     todaySessionsDeleted: 'Сьогоднішні тренування видалено!',
     errorDeletingOldSessions: 'Помилка при видаленні старих тренувань',

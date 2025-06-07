@@ -1,15 +1,14 @@
 import React from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, Target, Calendar, Award } from 'lucide-react';
 import { useWorkoutData } from '../hooks/useWorkoutData';
-import { useT, useTranslation } from '../hooks/useTranslation';
+import { useT } from '../hooks/useTranslation';
 import { WorkoutHistory } from './WorkoutHistory';
+import { StatsChart } from './StatsChart';
 
 export const Stats: React.FC = () => {
   const {
-    dailyStats,
     totalPushUps,
     todayPushUps,
     weeklyStats,
@@ -20,7 +19,6 @@ export const Stats: React.FC = () => {
     loading
   } = useWorkoutData();
 
-  const { locale } = useTranslation();
   const t = useT();
 
   if (loading) {
@@ -32,15 +30,6 @@ export const Stats: React.FC = () => {
       </div>
     );
   }
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const localeCode = locale === 'ua' ? 'uk-UA' : 'en-US';
-    return date.toLocaleDateString(localeCode, { 
-      month: 'short', 
-      day: 'numeric' 
-    });
-  };
 
   return (
     <div className="py-6 space-y-6">
@@ -137,76 +126,8 @@ export const Stats: React.FC = () => {
         </Card>
       </div>
 
-      {/* Progress Chart */}
-      {dailyStats.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>{t.stats.weekProgress}</CardTitle>
-            <CardDescription>
-              {t.stats.pushUpsPerDay}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={250}>
-              <LineChart data={dailyStats}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis 
-                  dataKey="date" 
-                  tickFormatter={formatDate}
-                  className="text-xs"
-                />
-                <YAxis className="text-xs" />
-                <Tooltip 
-                  labelFormatter={(label) => formatDate(label as string)}
-                  formatter={(value: number) => [value, t.stats.pushUps]}
-                />
-                <Line 
-                  type="monotone" 
-                  dataKey="count" 
-                  stroke="var(--primary)" 
-                  strokeWidth={3}
-                  dot={{ fill: "var(--primary)", strokeWidth: 2, r: 4 }}
-                  activeDot={{ r: 6, stroke: "var(--primary)", strokeWidth: 2 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Sessions Chart */}
-      {dailyStats.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>{t.stats.workoutsByDays}</CardTitle>
-            <CardDescription>
-              {t.stats.sessionsPerDay}
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={dailyStats}>
-                <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
-                <XAxis 
-                  dataKey="date" 
-                  tickFormatter={formatDate}
-                  className="text-xs"
-                />
-                <YAxis className="text-xs" />
-                <Tooltip 
-                  labelFormatter={(label) => formatDate(label as string)}
-                  formatter={(value: number) => [value, t.stats.sessionsCount]}
-                />
-                <Bar 
-                  dataKey="sessions" 
-                  fill="var(--primary)"
-                  radius={[4, 4, 0, 0]}
-                />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-      )}
+      {/* Progress Charts - New Tabbed Interface */}
+      {totalSessions > 0 && <StatsChart />}
 
       {/* Історія тренувань */}
       {totalSessions > 0 && (

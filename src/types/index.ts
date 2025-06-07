@@ -62,3 +62,13 @@ export interface ImportResult {
   duplicates: number;
   errors: string[];
 }
+
+export type TimePeriod = 'daily' | 'weekly' | 'monthly' | 'yearly';
+
+export interface PeriodStats {
+  date: string;
+  count: number;
+  sessions: number;
+  duration: number;
+  label: string;
+}

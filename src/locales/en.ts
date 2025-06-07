@@ -84,7 +84,26 @@ const enTranslations: Translations = {
     oldSessionsDeleted: 'Old workouts deleted!',
     todaySessionsDeleted: 'Today\'s workouts deleted!',
     errorDeletingOldSessions: 'Error deleting old workouts',
-    errorDeletingSessions: 'Error deleting workouts'
+    errorDeletingSessions: 'Error deleting workouts',
+    // Time periods
+    timePeriods: {
+      daily: 'Daily',
+      weekly: 'Weekly',
+      monthly: 'Monthly',
+      yearly: 'Yearly'
+    },
+    chartTitles: {
+      daily: 'Push-ups for the last 7 days',
+      weekly: 'Push-ups for the last 12 weeks',
+      monthly: 'Push-ups for the last 12 months',
+      yearly: 'Push-ups by years'
+    },
+    periodLabels: {
+      lastWeek: 'Last week',
+      last12Weeks: 'Last 12 weeks',
+      last12Months: 'Last 12 months',
+      years: 'By years'
+    }
   },
 
   // Settings

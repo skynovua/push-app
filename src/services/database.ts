@@ -208,10 +208,7 @@ export const dbUtils = {
           `${session.date.getTime()}-${session.pushUps}-${session.duration}`,
           session
         ])
-      );
-
-      console.log('importData.sessions', importData.sessions);
-      
+      );      
 
       // Імпортуємо сесії
       for (const sessionData of importData.sessions) {
