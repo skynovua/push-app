@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Settings as SettingsIcon, Sun, Moon, Volume2, VolumeX, Target, Download, Globe, Upload } from 'lucide-react';
+import React, { useState } from 'react';
+import { Settings as SettingsIcon, Sun, Moon, Volume2, VolumeX, Target, Download, Globe, Upload, Archive, Calendar } from 'lucide-react';
 
 // Shared imports
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
@@ -20,14 +20,6 @@ export const SettingsFeature: React.FC = () => {
   const { locale, setLocale } = useTranslation();
   const { isDarkMode, toggleTheme } = useTheme();
   const [goalInput, setGoalInput] = useState(settings.dailyGoal.toString());
-  const [canInstallPWA, setCanInstallPWA] = useState(false);
-  const [isInstalled, setIsInstalled] = useState(false);
-
-  useEffect(() => {
-    // Check PWA installation status
-    setCanInstallPWA(pwaService.canInstall());
-    setIsInstalled(pwaService.isAppInstalled());
-  }, []);
 
   // === Settings Handlers ===
   
@@ -62,11 +54,7 @@ export const SettingsFeature: React.FC = () => {
   // === PWA Installation ===
   
   const handleInstallPWA = async () => {
-    const success = await pwaService.install();
-    if (success) {
-      setCanInstallPWA(false);
-      setIsInstalled(true);
-    }
+    await pwaService.install();
   };
 
   // === Data Management Functions ===
@@ -181,33 +169,6 @@ export const SettingsFeature: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* PWA Installation */}
-      {(canInstallPWA || !isInstalled) && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Download className="h-5 w-5" />
-              {t.settings.pwaInstallation}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              <p className="text-sm text-muted-foreground">
-                {t.settings.pwaDescription}
-              </p>
-              <Button
-                onClick={handleInstallPWA}
-                className="w-full"
-                disabled={isInstalled}
-              >
-                <Download className="h-4 w-4 mr-2" />
-                {isInstalled ? t.settings.appInstalled : t.settings.installApp}
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
       {/* iOS PWA Status */}
       <IOSPWAStatus onInstallClick={handleInstallPWA} />
 
@@ -316,7 +277,7 @@ export const SettingsFeature: React.FC = () => {
             </div>
           </div>
           
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid gap-3 sm:grid-cols-2">
             <Button
               onClick={exportData}
               variant="outline"
@@ -342,23 +303,25 @@ export const SettingsFeature: React.FC = () => {
           </p>
           
           {/* Додаткові функції управління даними */}
-          <div className="grid grid-cols-1 gap-3 mt-4">
+          <div className="grid gap-3 mt-4 sm:grid-cols-2">
             <Button
               onClick={handleDeleteOldSessions}
               variant="outline"
               size="sm"
-              className="w-full text-orange-600 border-orange-200 hover:bg-orange-50 dark:text-orange-400 dark:border-orange-800 dark:hover:bg-orange-950"
+              className="w-full"
             >
-              🗂️ {t.settings.deleteOldData}
+              <Archive className="h-4 w-4 mr-2" />
+              {t.settings.deleteOldData}
             </Button>
             
             <Button
               onClick={handleDeleteTodaySessions}
               variant="outline"
               size="sm"
-              className="w-full text-amber-600 border-amber-200 hover:bg-amber-50 dark:text-amber-400 dark:border-amber-800 dark:hover:bg-amber-950"
+              className="w-full"
             >
-              📅 {t.settings.deleteTodayData}
+              <Calendar className="h-4 w-4 mr-2" />
+              {t.settings.deleteTodayData}
             </Button>
           </div>
         </CardContent>

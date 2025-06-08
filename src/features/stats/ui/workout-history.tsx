@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Trash2, Clock, Calendar } from 'lucide-react';
+import { Trash2, Clock, Calendar, Target, Trophy, Flame } from 'lucide-react';
 import { Button } from '@/shared/ui/button';
 import { Badge } from '@/shared/ui/badge';
 import { Card, CardContent } from '@/shared/ui/card';
@@ -101,17 +101,20 @@ export const WorkoutHistory: React.FC = () => {
                 <div className="space-x-2">
                   {session.goal && session.pushUps >= session.goal && (
                     <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100">
-                      🎯 Ціль досягнута
+                      <Target className="h-3 w-3 mr-1" />
+                      Ціль досягнута
                     </Badge>
                   )}
                   {session.pushUps >= 50 && (
                     <Badge variant="secondary" className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100">
-                      💪 Відмінно
+                      <Trophy className="h-3 w-3 mr-1" />
+                      Відмінно
                     </Badge>
                   )}
                   {session.pushUps >= 100 && (
                     <Badge variant="secondary" className="bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-100">
-                      🔥 Топ
+                      <Flame className="h-3 w-3 mr-1" />
+                      Топ
                     </Badge>
                   )}
                 </div>

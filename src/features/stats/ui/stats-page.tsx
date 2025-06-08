@@ -1,5 +1,5 @@
 import React from 'react';
-import { TrendingUp, Target, Calendar, Award } from 'lucide-react';
+import { TrendingUp, Target, Calendar, Award, Flame, Star } from 'lucide-react';
 
 // Shared imports
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card';
@@ -70,8 +70,18 @@ export const StatsFeature: React.FC = () => {
           <CardContent>
             <div className="text-2xl font-bold">{currentStreak}</div>
             <div className="flex items-center gap-1 mt-1">
-              <Badge variant="secondary" className="text-xs">
-                {currentStreak > 0 ? t.stats.onFire : t.stats.startToday}
+              <Badge variant="secondary" className="text-xs flex items-center gap-1">
+                {currentStreak > 0 ? (
+                  <>
+                    <Flame className="h-3 w-3" />
+                    {t.stats.onFire}
+                  </>
+                ) : (
+                  <>
+                    <Star className="h-3 w-3" />
+                    {t.stats.startToday}
+                  </>
+                )}
               </Badge>
             </div>
           </CardContent>

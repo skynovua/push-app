@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Smartphone, Download } from 'lucide-react';
+import { Smartphone, Download, CheckCircle, AlertTriangle, Wifi, WifiOff } from 'lucide-react';
 
 // Shared imports
 import { Badge } from '@/shared/ui/badge';
@@ -103,8 +103,9 @@ export const IOSPWAStatus: React.FC<IOSPWAStatusProps> = ({ onInstallClick }) =>
         {isStandalone ? (
           <Card>
             <CardContent>
-              <p className="text-sm">
-                ✅ {t.settings.pwaInstalled}
+              <p className="text-sm flex items-center gap-2">
+                <CheckCircle className="h-4 w-4 text-green-600" />
+                {t.settings.pwaInstalled}
               </p>
               <ul className="text-sm text-muted-foreground mt-2 list-disc list-inside">
                 <li>{t.settings.pwaFeatures.fullscreen}</li>
@@ -115,10 +116,11 @@ export const IOSPWAStatus: React.FC<IOSPWAStatusProps> = ({ onInstallClick }) =>
             </CardContent>
           </Card>
         ) : (
-          <Card className="space-y-3">
-            <div className="p-3 bg-amber-100 dark:bg-amber-950 rounded-lg">
-              <p className="text-amber-800 dark:text-amber-200 text-sm">
-                ⚠️ {t.settings.installSuggestion}
+          <div className="space-y-3">
+            <div className="p-3 bg-accent rounded-lg">
+              <p className="text-sm text-accent-foreground flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4 text-amber-600" />
+                {t.settings.installSuggestion}
               </p>
             </div>
             
@@ -132,13 +134,39 @@ export const IOSPWAStatus: React.FC<IOSPWAStatusProps> = ({ onInstallClick }) =>
                 {t.settings.showInstallInstructions}
               </Button>
             )}
-          </Card>
+          </div>
         )}
         
         {/* System Status */}
         <div className="text-xs text-muted-foreground space-y-1">
-          <p><strong>{t.settings.networkStatus}:</strong> {pwaService.isOnline() ? `🟢 ${t.settings.online}` : `🔴 ${t.settings.offline}`}</p>
-          <p><strong>{t.settings.serviceWorkerStatus}:</strong> {navigator.serviceWorker ? `🟢 ${t.settings.supported}` : `🔴 ${t.settings.notSupported}`}</p>
+          <p className="flex items-center gap-2">
+            <strong>{t.settings.networkStatus}:</strong> 
+            {pwaService.isOnline() ? (
+              <>
+                <Wifi className="h-3 w-3 text-green-600" />
+                {t.settings.online}
+              </>
+            ) : (
+              <>
+                <WifiOff className="h-3 w-3 text-red-600" />
+                {t.settings.offline}
+              </>
+            )}
+          </p>
+          <p className="flex items-center gap-2">
+            <strong>{t.settings.serviceWorkerStatus}:</strong> 
+            {navigator.serviceWorker ? (
+              <>
+                <CheckCircle className="h-3 w-3 text-green-600" />
+                {t.settings.supported}
+              </>
+            ) : (
+              <>
+                <AlertTriangle className="h-3 w-3 text-red-600" />
+                {t.settings.notSupported}
+              </>
+            )}
+          </p>
         </div>
       </CardContent>
     </Card>

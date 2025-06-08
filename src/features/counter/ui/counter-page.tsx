@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Play, Pause, RotateCcw, Save } from 'lucide-react';
+import { Play, Pause, RotateCcw, Save, Trophy } from 'lucide-react';
 
 // Shared UI
 import { Button } from '@/shared/ui/button';
@@ -211,7 +211,8 @@ export const CounterFeature: React.FC = () => {
         </p>
         {currentCount >= dailyGoal && (
           <Badge className="mx-auto">
-            🎉 {t.counter.goalReached}
+            <Trophy className="h-4 w-4 mr-1" />
+            {t.counter.goalReached}
           </Badge>
         )}
       </div>
