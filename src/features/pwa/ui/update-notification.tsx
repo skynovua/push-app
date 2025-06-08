@@ -12,6 +12,7 @@ export const UpdateNotification: React.FC<UpdateNotificationProps> = ({ onClose 
   const [isVisible, setIsVisible] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [hasShownNotification, setHasShownNotification] = useState(false);
   const t = useT();
 
   useEffect(() => {
@@ -27,14 +28,18 @@ export const UpdateNotification: React.FC<UpdateNotificationProps> = ({ onClose 
 
     // Listen for update availability
     pwaService.onUpdateAvailable(() => {
-      setIsVisible(true);
+      // Prevent showing multiple notifications
+      if (!hasShownNotification) {
+        setIsVisible(true);
+        setHasShownNotification(true);
 
-      // Try to show native notification on mobile
-      if (isMobile) {
-        pwaService.showMobileUpdateNotification(
-          t.updates.updateAvailable,
-          t.updates.updateAvailableBody
-        );
+        // Try to show native notification on mobile
+        if (isMobile) {
+          pwaService.showMobileUpdateNotification(
+            t.updates.updateAvailable,
+            t.updates.updateAvailableBody
+          );
+        }
       }
     });
 
@@ -53,21 +58,24 @@ export const UpdateNotification: React.FC<UpdateNotificationProps> = ({ onClose 
     if (isMobile) {
       pwaService.enablePullToRefresh();
     }
-  }, [t, isMobile]);
+  }, [t, isMobile, hasShownNotification]);
 
   const handleUpdate = async () => {
     setIsUpdating(true);
     try {
       await pwaService.applyUpdate();
+      // applyUpdate will reload the page, so this code won't be reached
     } catch (error) {
       console.error('Error applying update:', error);
-    } finally {
       setIsUpdating(false);
+      // Show error message to user
+      alert('Помилка при оновленні додатку. Спробуйте перезавантажити сторінку вручну.');
     }
   };
 
   const handleClose = () => {
     setIsVisible(false);
+    setHasShownNotification(false); // Reset to allow future notifications
     onClose?.();
   };
 

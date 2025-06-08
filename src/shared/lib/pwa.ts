@@ -59,13 +59,9 @@ class PWAService {
     if (event.data && event.data.type) {
       switch (event.data.type) {
         case 'UPDATE_AVAILABLE':
-          console.log('Update available');
-          if (this.updateAvailableCallback) {
-            this.updateAvailableCallback();
-          }
+          // Don't trigger callback here - it's handled in registerServiceWorker
           break;
         case 'UPDATE_INSTALLED':
-          console.log('Update installed');
           if (this.updateInstalledCallback) {
             this.updateInstalledCallback();
           }
@@ -89,16 +85,21 @@ class PWAService {
       // Send message to waiting service worker to skip waiting
       this.registration.waiting.postMessage({ type: 'SKIP_WAITING' });
 
-      // Wait for service worker to become active
+      // Wait for service worker to become active and reload
       return new Promise((resolve) => {
         navigator.serviceWorker.addEventListener(
           'controllerchange',
           () => {
+            // Reload the page to use the new service worker
+            window.location.reload();
             resolve();
           },
           { once: true }
         );
       });
+    } else {
+      // No waiting service worker, just reload to check for updates
+      window.location.reload();
     }
   }
 
@@ -138,7 +139,7 @@ class PWAService {
           }
         });
 
-        console.log('Service Worker registered successfully');
+        // Success - service worker registered
       } catch (error) {
         console.error('Service Worker registration failed:', error);
       }
@@ -458,8 +459,7 @@ class PWAService {
           ...options,
         });
       } else {
-        // Fallback to console or in-app notification
-        console.log(`Notification: ${title}`, options?.body);
+        // Fallback - no console output to avoid ESLint warnings
       }
     } catch (error) {
       console.error('Error showing notification:', error);
