@@ -1,12 +1,17 @@
 import React, { useState } from 'react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, BarChart, Bar } from 'recharts';
 import { TrendingUp, Calendar, BarChart3, Activity } from 'lucide-react';
 
 // Shared imports
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs';
+import { 
+  ChartContainer, 
+  ChartTooltip, 
+  ChartTooltipContent 
+} from '@/shared/ui/chart';
 import { useWorkoutData } from '@/shared/model';
-import { useT } from '@/shared/lib';
+import { useT, createPushUpChartConfig, formatPushUpTooltip } from '@/shared/lib';
 import type { TimePeriod, PeriodStats } from '@/shared/domain';
 
 export const StatsChart: React.FC = () => {
@@ -16,15 +21,12 @@ export const StatsChart: React.FC = () => {
 
   const currentStats = getStatsForPeriod(selectedPeriod);
 
-  const formatTooltipValue = (value: number, name: string) => {
-    if (name === 'count') {
-      return [`${value} ${t.stats.pushUps}`, t.stats.totalPushUps];
-    }
-    if (name === 'sessions') {
-      return [`${value} ${t.stats.sessionsCount}`, t.stats.sessionsCount];
-    }
-    return [value, name];
-  };
+  // Chart configuration for shadcn/ui charts
+  const chartConfig = createPushUpChartConfig({
+    totalPushUps: t.stats.totalPushUps,
+    sessionsCount: t.stats.sessionsCount,
+    pushUps: t.stats.pushUps,
+  });
 
   const getTotalForPeriod = (stats: PeriodStats[]) => {
     return stats.reduce((total, stat) => total + stat.count, 0);
@@ -132,53 +134,85 @@ export const StatsChart: React.FC = () => {
     // Для allTime використовуємо BarChart
     if (period === 'allTime') {
       return (
-        <ResponsiveContainer width="100%" height={300}>
-          <BarChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+        <ChartContainer config={chartConfig} className="aspect-auto h-[250px] w-full">
+          <BarChart data={data}>
+            <CartesianGrid 
+              strokeDasharray="3 3" 
+              stroke="var(--muted-foreground)"
+              strokeOpacity={0.3}
+            />
             <XAxis 
               dataKey="label"
-              className="text-muted-foreground"
               fontSize={12}
+              axisLine={false}
+              tickLine={false}
+              tick={{ fill: "var(--muted-foreground)" }}
             />
-            <YAxis className="text-muted-foreground" fontSize={12} />
-            <Tooltip 
-              formatter={formatTooltipValue}
-              labelClassName="text-foreground"
-              contentStyle={{
-                backgroundColor: 'var(--card)',
-                border: '1px solid var(--border)',
-                borderRadius: '6px'
-              }}
+            <YAxis 
+              fontSize={12}
+              axisLine={false}
+              tickLine={false}
+              tick={{ fill: "var(--muted-foreground)" }}
+            />
+            <ChartTooltip 
+              content={<ChartTooltipContent 
+                formatter={(value, name) => formatPushUpTooltip(
+                  value as number, 
+                  name as string, 
+                  {
+                    totalPushUps: t.stats.totalPushUps,
+                    sessionsCount: t.stats.sessionsCount,
+                    pushUps: t.stats.pushUps,
+                  }
+                )}
+              />} 
             />
             <Bar 
               dataKey="count" 
               fill="var(--primary)"
               radius={[4, 4, 0, 0]}
+              animationDuration={800}
+              animationBegin={0}
             />
           </BarChart>
-        </ResponsiveContainer>
+        </ChartContainer>
       );
     }
 
     // Для інших періодів використовуємо LineChart
     return (
-      <ResponsiveContainer width="100%" height={300}>
-        <LineChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
-          <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+      <ChartContainer config={chartConfig} className="aspect-auto h-[250px] w-full">
+        <LineChart data={data}>
+          <CartesianGrid 
+            strokeDasharray="3 3" 
+            stroke="var(--muted-foreground)"
+            strokeOpacity={0.3}
+          />
           <XAxis 
             dataKey="label"
-            className="text-muted-foreground"
             fontSize={12}
+            axisLine={false}
+            tickLine={false}
+            tick={{ fill: "var(--muted-foreground)" }}
           />
-          <YAxis className="text-muted-foreground" fontSize={12} />
-          <Tooltip 
-            formatter={formatTooltipValue}
-            labelClassName="text-foreground"
-            contentStyle={{
-              backgroundColor: 'var(--card)',
-              border: '1px solid var(--border)',
-              borderRadius: '6px'
-            }}
+          <YAxis 
+            fontSize={12}
+            axisLine={false}
+            tickLine={false}
+            tick={{ fill: "var(--muted-foreground)" }}
+          />
+          <ChartTooltip 
+            content={<ChartTooltipContent 
+              formatter={(value, name) => formatPushUpTooltip(
+                value as number, 
+                name as string, 
+                {
+                  totalPushUps: t.stats.totalPushUps,
+                  sessionsCount: t.stats.sessionsCount,
+                  pushUps: t.stats.pushUps,
+                }
+              )}
+            />} 
           />
           <Line 
             type="monotone" 
@@ -186,10 +220,12 @@ export const StatsChart: React.FC = () => {
             stroke="var(--primary)" 
             strokeWidth={3}
             dot={{ fill: "var(--primary)", strokeWidth: 2, r: 4 }}
-            activeDot={{ r: 6 }}
+            activeDot={{ r: 6, stroke: "var(--primary)", strokeWidth: 2 }}
+            animationDuration={800}
+            animationBegin={0}
           />
         </LineChart>
-      </ResponsiveContainer>
+      </ChartContainer>
     );
   };
 
@@ -201,59 +237,67 @@ export const StatsChart: React.FC = () => {
 
     return (
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <TrendingUp className="h-4 w-4 text-primary" />
+        <Card className="transition-all duration-200 hover:shadow-md">
+          <CardContent className="p-6">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <TrendingUp className="h-5 w-5 text-primary" />
+              </div>
               <div className="space-y-1">
-                <p className="text-sm font-medium leading-none">
+                <p className="text-sm font-medium text-muted-foreground">
                   {t.stats.totalPushUps}
                 </p>
-                <p className="text-2xl font-bold">{total}</p>
+                <p className="text-2xl font-bold tracking-tight">{total}</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <Activity className="h-4 w-4 text-green-500" />
+        <Card className="transition-all duration-200 hover:shadow-md">
+          <CardContent className="p-6">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 rounded-lg bg-green-500/10">
+                <Activity className="h-5 w-5 text-green-500" />
+              </div>
               <div className="space-y-1">
-                <p className="text-sm font-medium leading-none">
+                <p className="text-sm font-medium text-muted-foreground">
                   {selectedPeriod === 'allTime' ? 'Середньо за день' : t.stats.averagePerDay}
                 </p>
-                <p className="text-2xl font-bold">{average}</p>
+                <p className="text-2xl font-bold tracking-tight">{average}</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <Calendar className="h-4 w-4 text-blue-500" />
+        <Card className="transition-all duration-200 hover:shadow-md">
+          <CardContent className="p-6">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 rounded-lg bg-blue-500/10">
+                <Calendar className="h-5 w-5 text-blue-500" />
+              </div>
               <div className="space-y-1">
-                <p className="text-sm font-medium leading-none">
+                <p className="text-sm font-medium text-muted-foreground">
                   {t.stats.totalSessions}
                 </p>
-                <p className="text-2xl font-bold">{totalSessions}</p>
+                <p className="text-2xl font-bold tracking-tight">{totalSessions}</p>
               </div>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-4">
-            <div className="flex items-center space-x-2">
-              <BarChart3 className="h-4 w-4 text-orange-500" />
+        <Card className="transition-all duration-200 hover:shadow-md">
+          <CardContent className="p-6">
+            <div className="flex items-center space-x-3">
+              <div className="p-2 rounded-lg bg-orange-500/10">
+                <BarChart3 className="h-5 w-5 text-orange-500" />
+              </div>
               <div className="space-y-1">
-                <p className="text-sm font-medium leading-none">
+                <p className="text-sm font-medium text-muted-foreground">
                   Найкращий день
                 </p>
-                <p className="text-2xl font-bold">{bestDay.count}</p>
+                <p className="text-2xl font-bold tracking-tight">{bestDay.count}</p>
                 {bestDay.count > 0 && (
-                  <p className="text-xs text-muted-foreground">{bestDay.label}</p>
+                  <p className="text-xs text-muted-foreground font-medium">{bestDay.label}</p>
                 )}
               </div>
             </div>
@@ -288,17 +332,19 @@ export const StatsChart: React.FC = () => {
 
         <TabsContent value="week" className="space-y-4">
           {renderStatsCards(currentStats)}
-          <Card>
-            <CardHeader>
+          <Card className="overflow-hidden">
+            <CardHeader className="bg-gradient-to-r from-primary/5 via-transparent to-transparent">
               <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5" />
+                <div className="p-1.5 rounded-md bg-primary/10">
+                  <TrendingUp className="h-4 w-4 text-primary" />
+                </div>
                 {t.stats.chartTitles.week}
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-sm">
                 {t.stats.periodLabels.week}
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-6">
               {renderChart(currentStats, 'week')}
             </CardContent>
           </Card>
@@ -306,17 +352,19 @@ export const StatsChart: React.FC = () => {
 
         <TabsContent value="month" className="space-y-4">
           {renderStatsCards(currentStats)}
-          <Card>
-            <CardHeader>
+          <Card className="overflow-hidden">
+            <CardHeader className="bg-gradient-to-r from-primary/5 via-transparent to-transparent">
               <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5" />
+                <div className="p-1.5 rounded-md bg-primary/10">
+                  <TrendingUp className="h-4 w-4 text-primary" />
+                </div>
                 {t.stats.chartTitles.month}
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-sm">
                 {t.stats.periodLabels.month}
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-6">
               {renderChart(currentStats, 'month')}
             </CardContent>
           </Card>
@@ -324,17 +372,19 @@ export const StatsChart: React.FC = () => {
 
         <TabsContent value="year" className="space-y-4">
           {renderStatsCards(currentStats)}
-          <Card>
-            <CardHeader>
+          <Card className="overflow-hidden">
+            <CardHeader className="bg-gradient-to-r from-primary/5 via-transparent to-transparent">
               <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5" />
+                <div className="p-1.5 rounded-md bg-primary/10">
+                  <TrendingUp className="h-4 w-4 text-primary" />
+                </div>
                 {t.stats.chartTitles.year}
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-sm">
                 {t.stats.periodLabels.year}
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-6">
               {renderChart(currentStats, 'year')}
             </CardContent>
           </Card>
@@ -342,17 +392,19 @@ export const StatsChart: React.FC = () => {
 
         <TabsContent value="allTime" className="space-y-4">
           {renderStatsCards(currentStats)}
-          <Card>
-            <CardHeader>
+          <Card className="overflow-hidden">
+            <CardHeader className="bg-gradient-to-r from-orange-500/5 via-transparent to-transparent">
               <CardTitle className="flex items-center gap-2">
-                <BarChart3 className="h-5 w-5" />
+                <div className="p-1.5 rounded-md bg-orange-500/10">
+                  <BarChart3 className="h-4 w-4 text-orange-500" />
+                </div>
                 {t.stats.chartTitles.allTime}
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-sm">
                 {t.stats.periodLabels.allTime}
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-6">
               {renderChart(currentStats, 'allTime')}
             </CardContent>
           </Card>
