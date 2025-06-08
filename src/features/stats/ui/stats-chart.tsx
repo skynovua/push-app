@@ -17,8 +17,6 @@ export const StatsChart: React.FC = () => {
 
   const currentStats = getStatsForPeriod(selectedPeriod);
 
-  console.log('currentStats:', currentStats);
-
   // Chart configuration for shadcn/ui charts
   const chartConfig = createPushUpChartConfig({
     totalPushUps: t.stats.totalPushUps,
@@ -129,11 +127,30 @@ export const StatsChart: React.FC = () => {
   };
 
   const renderChart = (data: PeriodStats[], period: TimePeriod) => {
-    // Для allTime використовуємо BarChart
-    if (period === 'allTime') {
+    // Знаходимо максимальне значення для правильного масштабування YAxis
+    const maxValue = Math.max(...data.map((item) => item.count), 0);
+
+    // Створюємо красивий діапазон для YAxis
+    let yAxisMax: number;
+    if (maxValue === 0) {
+      yAxisMax = 10;
+    } else if (maxValue <= 10) {
+      yAxisMax = Math.ceil(maxValue * 1.2);
+    } else if (maxValue <= 100) {
+      yAxisMax = Math.ceil(maxValue / 10) * 10 + 10;
+    } else if (maxValue <= 1000) {
+      yAxisMax = Math.ceil(maxValue / 50) * 50 + 50;
+    } else {
+      yAxisMax = Math.ceil(maxValue / 100) * 100 + 100;
+    }
+
+    const yAxisDomain = [0, yAxisMax];
+
+    // Для year і allTime використовуємо BarChart
+    if (period === 'allTime' || period === 'year') {
       return (
         <ChartContainer config={chartConfig} className="aspect-auto h-[250px] w-full">
-          <BarChart data={data}>
+          <BarChart data={data} margin={{ left: -25, right: 12 }}>
             <CartesianGrid
               strokeDasharray="3 3"
               stroke="var(--muted-foreground)"
@@ -147,6 +164,7 @@ export const StatsChart: React.FC = () => {
               tick={{ fill: 'var(--muted-foreground)' }}
             />
             <YAxis
+              domain={yAxisDomain}
               fontSize={12}
               axisLine={false}
               tickLine={false}
@@ -176,10 +194,10 @@ export const StatsChart: React.FC = () => {
       );
     }
 
-    // Для інших періодів використовуємо LineChart
+    // Для week і month використовуємо LineChart
     return (
       <ChartContainer config={chartConfig} className="aspect-auto h-[250px] w-full">
-        <LineChart data={data} margin={{ left: -20, right: 12 }}>
+        <LineChart data={data} margin={{ left: -25, right: 12 }}>
           <CartesianGrid
             strokeDasharray="3 3"
             stroke="var(--muted-foreground)"
@@ -193,6 +211,7 @@ export const StatsChart: React.FC = () => {
             tick={{ fill: 'var(--muted-foreground)' }}
           />
           <YAxis
+            domain={yAxisDomain}
             fontSize={12}
             axisLine={false}
             tickLine={false}
