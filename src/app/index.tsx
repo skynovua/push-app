@@ -68,63 +68,61 @@ function App() {
   };
 
   return (
-    <main>
-      <ToastProvider>
-        <UpdateNotification />
-        <div
-          className="bg-background min-h-screen"
-          style={{
-            paddingLeft: 'env(safe-area-inset-left, 0px)',
-            paddingRight: 'env(safe-area-inset-right, 0px)',
-          }}
+    <ToastProvider>
+      <UpdateNotification />
+      <div
+        className="scrollable bg-background min-h-screen"
+        style={{
+          paddingLeft: 'env(safe-area-inset-left, 0px)',
+          paddingRight: 'env(safe-area-inset-right, 0px)',
+        }}
+      >
+        {/* Header */}
+        <header className="bg-background/95 supports-[backdrop-filter]:bg-background/60 z-50 border-b backdrop-blur">
+          <div className="container mx-auto max-w-2xl px-4 py-4">
+            <div className="flex items-center justify-center">
+              <h1 className="flex items-center gap-2 text-2xl font-bold">
+                <Activity className="text-primary h-8 w-8" />
+                Push-Up Counter
+              </h1>
+            </div>
+          </div>
+        </header>
+
+        {/* Main Content */}
+        <main className="container mx-auto max-w-2xl px-6 pb-20">{renderContent()}</main>
+
+        {/* Bottom Navigation */}
+        <nav
+          className="bg-background/95 supports-[backdrop-filter]:bg-background/60 fixed right-0 bottom-0 left-0 border-t backdrop-blur"
+          style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
         >
-          {/* Header */}
-          <header className="bg-background/95 supports-[backdrop-filter]:bg-background/60 z-50 border-b backdrop-blur">
-            <div className="container mx-auto max-w-2xl px-4 py-4">
-              <div className="flex items-center justify-center">
-                <h1 className="flex items-center gap-2 text-2xl font-bold">
-                  <Activity className="text-primary h-8 w-8" />
-                  Push-Up Counter
-                </h1>
-              </div>
+          <div className="container mx-auto max-w-2xl px-4">
+            <div className="flex justify-around py-2">
+              {tabs.map((tab) => {
+                const Icon = tab.icon;
+                const isActive = activeTab === tab.id;
+
+                return (
+                  <Button
+                    key={tab.id}
+                    variant={isActive ? 'default' : 'ghost'}
+                    size="sm"
+                    onClick={() => handleTabChange(tab.id)}
+                    className={`flex h-auto flex-col items-center gap-1 px-3 py-2 ${
+                      isActive ? '' : 'text-muted-foreground'
+                    }`}
+                  >
+                    <Icon className="h-5 w-5" />
+                    <span className="text-xs">{tab.label}</span>
+                  </Button>
+                );
+              })}
             </div>
-          </header>
-
-          {/* Main Content */}
-          <main className="container mx-auto max-w-2xl px-6 pb-20">{renderContent()}</main>
-
-          {/* Bottom Navigation */}
-          <nav
-            className="bg-background/95 supports-[backdrop-filter]:bg-background/60 fixed right-0 bottom-0 left-0 border-t backdrop-blur"
-            style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
-          >
-            <div className="container mx-auto max-w-2xl px-4">
-              <div className="flex justify-around py-2">
-                {tabs.map((tab) => {
-                  const Icon = tab.icon;
-                  const isActive = activeTab === tab.id;
-
-                  return (
-                    <Button
-                      key={tab.id}
-                      variant={isActive ? 'default' : 'ghost'}
-                      size="sm"
-                      onClick={() => handleTabChange(tab.id)}
-                      className={`flex h-auto flex-col items-center gap-1 px-3 py-2 ${
-                        isActive ? '' : 'text-muted-foreground'
-                      }`}
-                    >
-                      <Icon className="h-5 w-5" />
-                      <span className="text-xs">{tab.label}</span>
-                    </Button>
-                  );
-                })}
-              </div>
-            </div>
-          </nav>
-        </div>
-      </ToastProvider>
-    </main>
+          </div>
+        </nav>
+      </div>
+    </ToastProvider>
   );
 }
 

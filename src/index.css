@@ -99,6 +99,14 @@
   }
 }
 
+@layer components {
+  .scrollable {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
 /* iOS PWA specific styles */
 @media (display-mode: standalone) {
   /* Hide the address bar completely */
@@ -115,6 +123,7 @@
     overscroll-behavior: none;
     -webkit-overflow-scrolling: touch;
     touch-action: manipulation;
+    scroll-behavior: smooth;
   }
 
   /* Better touch targets for iOS */
