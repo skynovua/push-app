@@ -24,7 +24,7 @@ function App() {
       return 'counter';
     }
   });
-  const { loadSettings } = useWorkoutStore();
+  const { loadSettings, loadTodayStats } = useWorkoutStore();
   const t = useT();
 
   useEffect(() => {
@@ -32,12 +32,13 @@ function App() {
     const initialize = async () => {
       await initializeDefaults();
       await loadSettings();
+      await loadTodayStats(); // Load today's push-ups count
       // Register service worker for PWA functionality
       await pwaService.registerServiceWorker();
     };
     
     initialize();
-  }, [loadSettings]);
+  }, [loadSettings, loadTodayStats]);
 
   const handleTabChange = (tabId: Tab) => {
     setActiveTab(tabId);

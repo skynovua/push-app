@@ -52,6 +52,7 @@ export interface AppState {
   sessionStartTime: Date | null;
   elapsedTime: number;
   dailyGoal: number;
+  todayPushUps: number;
   settings: AppSettings;
 }
 

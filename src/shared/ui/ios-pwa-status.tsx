@@ -37,10 +37,19 @@ export const IOSPWAStatus: React.FC<IOSPWAStatusProps> = ({ onInstallClick }) =>
      * Check PWA installation status and device capabilities
      */
     const checkPWAStatus = () => {
-      setIsIOS(pwaService.isIOS());
-      setIsStandalone(pwaService.isStandalone());
-      setDeviceInfo(pwaService.getIOSDeviceInfo());
-      setCanInstall(pwaService.canInstall());
+      try {
+        setIsIOS(pwaService.isIOS ? pwaService.isIOS() : false);
+        setIsStandalone(pwaService.isStandalone ? pwaService.isStandalone() : false);
+        setDeviceInfo(pwaService.getIOSDeviceInfo ? pwaService.getIOSDeviceInfo() : null);
+        setCanInstall(pwaService.canInstall ? pwaService.canInstall() : false);
+      } catch (error) {
+        console.warn('PWA service methods not available:', error);
+        // Fallback detection
+        setIsIOS(/iPad|iPhone|iPod/.test(navigator.userAgent));
+        setIsStandalone(window.matchMedia('(display-mode: standalone)').matches);
+        setDeviceInfo(null);
+        setCanInstall(false);
+      }
     };
 
     checkPWAStatus();
@@ -141,7 +150,7 @@ export const IOSPWAStatus: React.FC<IOSPWAStatusProps> = ({ onInstallClick }) =>
         <div className="text-xs text-muted-foreground space-y-1">
           <p className="flex items-center gap-2">
             <strong>{t.settings.networkStatus}:</strong> 
-            {pwaService.isOnline() ? (
+            {(pwaService.isOnline ? pwaService.isOnline() : navigator.onLine) ? (
               <>
                 <Wifi className="h-3 w-3 text-green-600" />
                 {t.settings.online}

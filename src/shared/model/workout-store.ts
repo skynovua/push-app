@@ -4,6 +4,9 @@ import { dbUtils } from '../lib/database';
 import type { AppSettings, AppState } from '@/shared/domain';
 
 interface WorkoutStore extends AppState {
+  // Daily stats
+  todayPushUps: number;
+  
   // Actions
   incrementCount: () => void;
   resetCount: () => void;
@@ -14,6 +17,7 @@ interface WorkoutStore extends AppState {
   loadSettings: () => Promise<void>;
   setElapsedTime: (time: number) => void;
   resetStore: () => void;
+  loadTodayStats: () => Promise<void>;
 }
 
 export const useWorkoutStore = create<WorkoutStore>()(
@@ -25,6 +29,7 @@ export const useWorkoutStore = create<WorkoutStore>()(
       sessionStartTime: null,
       elapsedTime: 0,
       dailyGoal: 50,
+      todayPushUps: 0,
       settings: {
         dailyGoal: 50,
         soundEnabled: true,
@@ -77,6 +82,9 @@ export const useWorkoutStore = create<WorkoutStore>()(
             duration: state.elapsedTime,
             goal: state.dailyGoal
           });
+          
+          // Update today's stats after saving
+          await get().loadTodayStats();
         }
         
         set({ 
@@ -107,6 +115,12 @@ export const useWorkoutStore = create<WorkoutStore>()(
         });
       },
 
+      loadTodayStats: async () => {
+        const todaySessions = await dbUtils.getTodaySessions();
+        const todayTotal = todaySessions.reduce((total, session) => total + session.pushUps, 0);
+        set({ todayPushUps: todayTotal });
+      },
+
       setElapsedTime: (time: number) => {
         set({ elapsedTime: time });
       },
@@ -116,7 +130,8 @@ export const useWorkoutStore = create<WorkoutStore>()(
           currentCount: 0,
           isActive: false,
           sessionStartTime: null,
-          elapsedTime: 0
+          elapsedTime: 0,
+          todayPushUps: 0
         });
       }
     }),

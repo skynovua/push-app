@@ -18,17 +18,24 @@ export const CounterFeature: React.FC = () => {
     isActive,
     elapsedTime,
     dailyGoal,
+    todayPushUps,
     sessionStartTime,
     incrementCount,
     resetCount,
     startSession,
     pauseSession,
     endSession,
-    setElapsedTime
+    setElapsedTime,
+    loadTodayStats
   } = useWorkoutStore();
 
   const t = useT();
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Load today's stats on component mount
+  useEffect(() => {
+    loadTodayStats();
+  }, [loadTodayStats]);
 
   // Timer effect
   useEffect(() => {
@@ -85,9 +92,10 @@ export const CounterFeature: React.FC = () => {
   const handleSave = async () => {
     await endSession();
     showToast.success(t.counter.sessionSaved);
+    // Today's stats will be automatically updated by endSession -> loadTodayStats
   };
 
-  const progressPercentage = Math.min((currentCount / dailyGoal) * 100, 100);
+  const progressPercentage = Math.min(((todayPushUps + currentCount) / dailyGoal) * 100, 100);
 
   return (
     <div className="py-6 space-y-6">
@@ -96,8 +104,8 @@ export const CounterFeature: React.FC = () => {
         <CardHeader className="pb-3">
           <div className="flex justify-between items-center">
             <CardTitle className="text-lg">{t.counter.dailyProgress}</CardTitle>
-            <Badge variant={currentCount >= dailyGoal ? "default" : "secondary"}>
-              {currentCount}/{dailyGoal}
+            <Badge variant={(todayPushUps + currentCount) >= dailyGoal ? "default" : "secondary"}>
+              {todayPushUps + currentCount}/{dailyGoal}
             </Badge>
           </div>
         </CardHeader>
@@ -108,6 +116,16 @@ export const CounterFeature: React.FC = () => {
             <span>{Math.round(progressPercentage)}%</span>
             <span>{dailyGoal}</span>
           </div>
+          {todayPushUps > 0 && (
+            <div className="text-xs text-center text-muted-foreground">
+              {t.counter.totalToday}: {todayPushUps} + {currentCount} = {todayPushUps + currentCount}
+            </div>
+          )}
+          {todayPushUps === 0 && currentCount === 0 && (
+            <div className="text-xs text-center text-muted-foreground">
+              {t.counter.startPrompt}
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -209,7 +227,7 @@ export const CounterFeature: React.FC = () => {
         <p className="text-sm text-muted-foreground">
           {!isActive ? t.counter.startHint : t.counter.tapHint}
         </p>
-        {currentCount >= dailyGoal && (
+        {(todayPushUps + currentCount) >= dailyGoal && (
           <Badge className="mx-auto">
             <Trophy className="h-4 w-4 mr-1" />
             {t.counter.goalReached}
