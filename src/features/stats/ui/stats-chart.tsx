@@ -251,7 +251,7 @@ export const StatsChart: React.FC = () => {
     const totalSessions = stats.reduce((sum, stat) => sum + stat.sessions, 0);
 
     return (
-      <div className="mb-6 grid grid-cols-2 gap-4 lg:grid-cols-4">
+      <div className="mb-6 grid grid-cols-2 gap-4">
         <Card className="transition-all duration-200 hover:shadow-md">
           <CardContent className="p-6">
             <div className="flex items-center space-x-3">
