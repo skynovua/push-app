@@ -300,7 +300,7 @@ export const useWorkoutData = () => {
         count: weekStats.count,
         sessions: weekStats.sessions,
         duration: weekStats.duration,
-        label: `${weekStart.getDate()}/${weekStart.getMonth() + 1}`
+        label: `${weekStart.toLocaleDateString('uk-UA', { month: 'short' })} ${weekEnd.toLocaleDateString('uk-UA', { day: 'numeric' })}`
       });
     }
 
@@ -335,10 +335,7 @@ export const useWorkoutData = () => {
         count: monthStats.count,
         sessions: monthStats.sessions,
         duration: monthStats.duration,
-        label: monthDate.toLocaleDateString('uk-UA', { 
-          month: 'short',
-          year: monthDate.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
-        })
+        label: monthDate.toLocaleDateString('uk-UA', { month: 'short', year: '2-digit' })
       });
     }
 

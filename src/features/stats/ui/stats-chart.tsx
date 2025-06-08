@@ -21,12 +21,15 @@ export const StatsChart: React.FC = () => {
 
   const currentStats = getStatsForPeriod(selectedPeriod);
 
+  console.log('currentStats:', currentStats);
+  
+
   // Chart configuration for shadcn/ui charts
   const chartConfig = createPushUpChartConfig({
     totalPushUps: t.stats.totalPushUps,
     sessionsCount: t.stats.sessionsCount,
     pushUps: t.stats.pushUps,
-  });
+  });  
 
   const getTotalForPeriod = (stats: PeriodStats[]) => {
     return stats.reduce((total, stat) => total + stat.count, 0);
@@ -160,7 +163,6 @@ export const StatsChart: React.FC = () => {
                   value as number, 
                   name as string, 
                   {
-                    totalPushUps: t.stats.totalPushUps,
                     sessionsCount: t.stats.sessionsCount,
                     pushUps: t.stats.pushUps,
                   }
@@ -182,7 +184,7 @@ export const StatsChart: React.FC = () => {
     // Для інших періодів використовуємо LineChart
     return (
       <ChartContainer config={chartConfig} className="aspect-auto h-[250px] w-full">
-        <LineChart data={data}>
+        <LineChart data={data} margin={{ left: -20, right: 12 }}>
           <CartesianGrid 
             strokeDasharray="3 3" 
             stroke="var(--muted-foreground)"
@@ -207,7 +209,6 @@ export const StatsChart: React.FC = () => {
                 value as number, 
                 name as string, 
                 {
-                  totalPushUps: t.stats.totalPushUps,
                   sessionsCount: t.stats.sessionsCount,
                   pushUps: t.stats.pushUps,
                 }
@@ -218,9 +219,9 @@ export const StatsChart: React.FC = () => {
             type="monotone" 
             dataKey="count" 
             stroke="var(--primary)" 
-            strokeWidth={3}
-            dot={{ fill: "var(--primary)", strokeWidth: 2, r: 4 }}
-            activeDot={{ r: 6, stroke: "var(--primary)", strokeWidth: 2 }}
+            strokeWidth={2}
+            dot={{ fill: "var(--primary)" }}
+            activeDot={{ r: 6, stroke: "var(--primary)" }}
             animationDuration={800}
             animationBegin={0}
           />

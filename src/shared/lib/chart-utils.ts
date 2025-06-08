@@ -26,16 +26,15 @@ export const formatPushUpTooltip = (
   value: number,
   name: string,
   labels: {
-    totalPushUps: string;
     sessionsCount: string;
     pushUps: string;
   }
 ): [string, string] => {
   if (name === 'count') {
-    return [`${value} ${labels.pushUps}`, labels.totalPushUps];
+    return [`${value} `, labels.pushUps];
   }
   if (name === 'sessions') {
-    return [`${value}`, labels.sessionsCount];
+    return [`${value} `, labels.sessionsCount];
   }
   return [value.toString(), name];
 };
