@@ -10,7 +10,7 @@ export function cn(...inputs: ClassValue[]) {
 /**
  * Safely clear all user data with confirmation and error handling
  */
-export const clearUserDataSafely = async (confirmMessage: string, successMessage: string, errorMessage: string) => {
+export const clearUserDataSafely = async (confirmMessage: string, errorMessage: string) => {
   if (confirm(confirmMessage)) {
     try {
       await dbUtils.clearAllData();      
