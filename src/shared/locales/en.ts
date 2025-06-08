@@ -96,6 +96,14 @@ const enTranslations: Translations = {
     errorDeletingGeneral: 'An error occurred while deleting',
     deleteOldSessions: 'Delete workouts older than 30 days?',
     deleteTodaySessions: 'Delete today\'s workouts?',
+    // Achievement badges
+    goalAchieved: 'Goal achieved',
+    excellent: 'Excellent',
+    top: 'Top',
+    goal: 'Goal',
+    fiftyPlus: '50+',
+    hundredPlus: '100+',
+    showingRecentWorkouts: 'Showing last 10 workouts out of',
     // Additional keys
     total: 'Total',
     allTime: 'All Time',

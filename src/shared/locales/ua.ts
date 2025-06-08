@@ -94,6 +94,14 @@ export const ua = {
     errorDeletingGeneral: 'Сталася помилка при видаленні',
     deleteOldSessions: 'Видалити тренування старіше 30 днів?',
     deleteTodaySessions: 'Видалити тренування сьогоднішнього дня?',
+    // Achievement badges
+    goalAchieved: 'Ціль досягнута',
+    excellent: 'Відмінно',
+    top: 'Топ',
+    goal: 'Ціль',
+    fiftyPlus: '50+',
+    hundredPlus: '100+',
+    showingRecentWorkouts: 'Показано останні 10 тренувань з',
     // Додаткові ключі
     total: 'Всього',
     allTime: 'За весь час',
