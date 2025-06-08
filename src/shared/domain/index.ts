@@ -71,7 +71,7 @@ export interface ImportResult {
   errors: string[];
 }
 
-export type TimePeriod = 'daily' | 'weekly' | 'monthly' | 'yearly';
+export type TimePeriod = 'week' | 'month' | 'year' | 'allTime';
 
 export interface PeriodStats {
   date: string;

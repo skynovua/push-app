@@ -120,22 +120,22 @@ const enTranslations: Translations = {
     errorDeletingSessions: 'Error deleting workouts',
     // Time periods
     timePeriods: {
-      daily: 'Daily',
-      weekly: 'Weekly',
-      monthly: 'Monthly',
-      yearly: 'Yearly'
+      week: 'This Week',
+      month: 'This Month',
+      year: 'This Year',
+      allTime: 'All Time'
     },
     chartTitles: {
-      daily: 'Push-ups for the last 7 days',
-      weekly: 'Push-ups for the last 12 weeks',
-      monthly: 'Push-ups for the last 12 months',
-      yearly: 'Push-ups by years'
+      week: 'Push-ups for the last week',
+      month: 'Push-ups for the last month',
+      year: 'Push-ups for the last year',
+      allTime: 'Push-ups for all time'
     },
     periodLabels: {
-      lastWeek: 'Last week',
-      last12Weeks: 'Last 12 weeks',
-      last12Months: 'Last 12 months',
-      years: 'By years'
+      week: 'Last week',
+      month: 'Last month',
+      year: 'Last year',
+      allTime: 'All time'
     }
   },
 

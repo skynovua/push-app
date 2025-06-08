@@ -209,31 +209,33 @@ export const useWorkoutData = () => {
     let data: PeriodStats[] = [];
 
     switch (period) {
-      case 'daily':
-        // Останні 7 днів
-        data = getLast7DaysStats();
+      case 'week':
+        // За останній тиждень (7 днів)
+        data = getWeekStats();
         break;
-      case 'weekly':
-        // Останні 12 тижнів
-        data = getLast12WeeksStats();
+      case 'month':
+        // За останній місяць (30 днів)
+        data = getMonthStats();
         break;
-      case 'monthly':
-        // Останні 12 місяців
-        data = getLast12MonthsStats();
+      case 'year':
+        // За останній рік (365 днів або по місяцях)
+        data = getYearStats();
         break;
-      case 'yearly':
-        // За роки
-        data = getYearlyStats();
+      case 'allTime':
+        // За весь час (по роках)
+        data = getAllTimeStats();
         break;
     }
 
     return data;
   };
 
-  const getLast7DaysStats = (): PeriodStats[] => {
-    const last7Days: PeriodStats[] = [];
+  // Функції для статистики за різні періоди
+  const getWeekStats = (): PeriodStats[] => {
+    const weekData: PeriodStats[] = [];
     const now = new Date();
 
+    // Останні 7 днів
     for (let i = 6; i >= 0; i--) {
       const date = new Date(now);
       date.setDate(date.getDate() - i);
@@ -253,7 +255,7 @@ export const useWorkoutData = () => {
           { count: 0, sessions: 0, duration: 0 }
         );
 
-      last7Days.push({
+      weekData.push({
         date: dateKey,
         count: dayStats.count,
         sessions: dayStats.sessions,
@@ -265,14 +267,15 @@ export const useWorkoutData = () => {
       });
     }
 
-    return last7Days;
+    return weekData;
   };
 
-  const getLast12WeeksStats = (): PeriodStats[] => {
-    const last12Weeks: PeriodStats[] = [];
+  const getMonthStats = (): PeriodStats[] => {
+    const monthData: PeriodStats[] = [];
     const now = new Date();
 
-    for (let i = 11; i >= 0; i--) {
+    // Останні 4 тижні
+    for (let i = 3; i >= 0; i--) {
       const weekStart = new Date(now);
       weekStart.setDate(weekStart.getDate() - (i * 7) - weekStart.getDay());
       const weekEnd = new Date(weekStart);
@@ -292,7 +295,7 @@ export const useWorkoutData = () => {
           { count: 0, sessions: 0, duration: 0 }
         );
 
-      last12Weeks.push({
+      monthData.push({
         date: weekStart.toISOString().split('T')[0],
         count: weekStats.count,
         sessions: weekStats.sessions,
@@ -301,13 +304,14 @@ export const useWorkoutData = () => {
       });
     }
 
-    return last12Weeks;
+    return monthData;
   };
 
-  const getLast12MonthsStats = (): PeriodStats[] => {
-    const last12Months: PeriodStats[] = [];
+  const getYearStats = (): PeriodStats[] => {
+    const yearData: PeriodStats[] = [];
     const now = new Date();
 
+    // Останні 12 місяців
     for (let i = 11; i >= 0; i--) {
       const monthDate = new Date(now.getFullYear(), now.getMonth() - i, 1);
 
@@ -326,7 +330,7 @@ export const useWorkoutData = () => {
           { count: 0, sessions: 0, duration: 0 }
         );
 
-      last12Months.push({
+      yearData.push({
         date: monthDate.toISOString().split('T')[0],
         count: monthStats.count,
         sessions: monthStats.sessions,
@@ -338,22 +342,23 @@ export const useWorkoutData = () => {
       });
     }
 
-    return last12Months;
+    return yearData;
   };
 
-  const getYearlyStats = (): PeriodStats[] => {
-    const yearlyData = new Map<number, { count: number; sessions: number; duration: number }>();
+  const getAllTimeStats = (): PeriodStats[] => {
+    const allTimeData = new Map<number, { count: number; sessions: number; duration: number }>();
 
+    // Групуємо всі дані по роках
     sessions.forEach(session => {
       const year = new Date(session.date).getFullYear();
-      const existing = yearlyData.get(year);
+      const existing = allTimeData.get(year);
 
       if (existing) {
         existing.count += session.pushUps;
         existing.sessions += 1;
         existing.duration += session.duration;
       } else {
-        yearlyData.set(year, {
+        allTimeData.set(year, {
           count: session.pushUps,
           sessions: 1,
           duration: session.duration
@@ -361,7 +366,7 @@ export const useWorkoutData = () => {
       }
     });
 
-    return Array.from(yearlyData.entries())
+    return Array.from(allTimeData.entries())
       .sort(([a], [b]) => a - b)
       .map(([year, stats]) => ({
         date: `${year}-01-01`,

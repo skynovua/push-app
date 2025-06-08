@@ -10,9 +10,9 @@ import { useT } from '@/shared/lib';
 import type { TimePeriod, PeriodStats } from '@/shared/domain';
 
 export const StatsChart: React.FC = () => {
-  const { getStatsForPeriod } = useWorkoutData();
+  const { getStatsForPeriod, sessions } = useWorkoutData();
   const t = useT();
-  const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>('daily');
+  const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>('week');
 
   const currentStats = getStatsForPeriod(selectedPeriod);
 
@@ -30,19 +30,107 @@ export const StatsChart: React.FC = () => {
     return stats.reduce((total, stat) => total + stat.count, 0);
   };
 
-  const getAverageForPeriod = (stats: PeriodStats[]) => {
+  const getAverageForPeriod = (stats: PeriodStats[], period: TimePeriod) => {
     const total = getTotalForPeriod(stats);
-    const nonZeroDays = stats.filter(stat => stat.count > 0).length;
-    return nonZeroDays > 0 ? Math.round(total / nonZeroDays) : 0;
+    if (total === 0) return 0;
+    
+    let totalDays = 0;
+    
+    switch (period) {
+      case 'week': {
+        totalDays = 7; // 7 днів
+        break;
+      }
+      case 'month': {
+        totalDays = 30; // 30 днів
+        break;
+      }
+      case 'year': {
+        totalDays = 365; // 365 днів
+        break;
+      }
+      case 'allTime': {
+        // Для весь час знаходимо першу сесію
+        if (sessions.length === 0) return 0;
+        const sortedSessions = [...sessions].sort((a, b) => a.date.getTime() - b.date.getTime());
+        const firstDate = sortedSessions[0].date;
+        const daysDiff = Math.ceil(
+          (new Date().getTime() - firstDate.getTime()) / (1000 * 60 * 60 * 24)
+        );
+        totalDays = Math.max(1, daysDiff);
+        break;
+      }
+    }
+    
+    return totalDays > 0 ? Math.round(total / totalDays) : 0;
   };
 
-  const getBestDayForPeriod = (stats: PeriodStats[]) => {
-    return stats.reduce((max, stat) => stat.count > max.count ? stat : max, stats[0] || { count: 0, label: '' });
+  const getBestDayForPeriod = (period: TimePeriod) => {
+    if (sessions.length === 0) return { count: 0, label: '' };
+    
+    let filteredSessions = sessions;
+    const now = new Date();
+    
+    // Фільтруємо сесії за обраний період
+    switch (period) {
+      case 'week': {
+        const weekAgo = new Date(now);
+        weekAgo.setDate(weekAgo.getDate() - 7);
+        filteredSessions = sessions.filter(session => session.date >= weekAgo);
+        break;
+      }
+      case 'month': {
+        const monthAgo = new Date(now);
+        monthAgo.setDate(monthAgo.getDate() - 30);
+        filteredSessions = sessions.filter(session => session.date >= monthAgo);
+        break;
+      }
+      case 'year': {
+        const yearAgo = new Date(now);
+        yearAgo.setFullYear(yearAgo.getFullYear() - 1);
+        filteredSessions = sessions.filter(session => session.date >= yearAgo);
+        break;
+      }
+      case 'allTime': {
+        // Для весь час використовуємо всі сесії
+        filteredSessions = sessions;
+        break;
+      }
+    }
+    
+    if (filteredSessions.length === 0) return { count: 0, label: '' };
+    
+    // Групуємо сесії по дням і знаходимо найкращий день
+    const dailyTotals = new Map<string, number>();
+    
+    filteredSessions.forEach(session => {
+      const dateKey = session.date.toISOString().split('T')[0];
+      const existing = dailyTotals.get(dateKey) || 0;
+      dailyTotals.set(dateKey, existing + session.pushUps);
+    });
+    
+    // Знаходимо день з максимальною кількістю віджимань
+    let bestDay = { count: 0, date: '' };
+    for (const [date, count] of dailyTotals.entries()) {
+      if (count > bestDay.count) {
+        bestDay = { count, date };
+      }
+    }
+    
+    if (bestDay.count === 0) return { count: 0, label: '' };
+    
+    return {
+      count: bestDay.count,
+      label: new Date(bestDay.date).toLocaleDateString('uk-UA', { 
+        month: 'short', 
+        day: 'numeric' 
+      })
+    };
   };
 
   const renderChart = (data: PeriodStats[], period: TimePeriod) => {
-    // Для щорічної статистики використовуємо BarChart
-    if (period === 'yearly') {
+    // Для allTime використовуємо BarChart
+    if (period === 'allTime') {
       return (
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={data} margin={{ top: 5, right: 30, left: 20, bottom: 5 }}>
@@ -107,8 +195,8 @@ export const StatsChart: React.FC = () => {
 
   const renderStatsCards = (stats: PeriodStats[]) => {
     const total = getTotalForPeriod(stats);
-    const average = getAverageForPeriod(stats);
-    const bestDay = getBestDayForPeriod(stats);
+    const average = getAverageForPeriod(stats, selectedPeriod);
+    const bestDay = getBestDayForPeriod(selectedPeriod);
     const totalSessions = stats.reduce((sum, stat) => sum + stat.sessions, 0);
 
     return (
@@ -133,7 +221,7 @@ export const StatsChart: React.FC = () => {
               <Activity className="h-4 w-4 text-green-500" />
               <div className="space-y-1">
                 <p className="text-sm font-medium leading-none">
-                  {t.stats.averagePerDay}
+                  {selectedPeriod === 'allTime' ? 'Середньо за день' : t.stats.averagePerDay}
                 </p>
                 <p className="text-2xl font-bold">{average}</p>
               </div>
@@ -164,7 +252,9 @@ export const StatsChart: React.FC = () => {
                   Найкращий день
                 </p>
                 <p className="text-2xl font-bold">{bestDay.count}</p>
-                <p className="text-xs text-muted-foreground">{bestDay.label}</p>
+                {bestDay.count > 0 && (
+                  <p className="text-xs text-muted-foreground">{bestDay.label}</p>
+                )}
               </div>
             </div>
           </CardContent>
@@ -182,88 +272,88 @@ export const StatsChart: React.FC = () => {
 
       <Tabs value={selectedPeriod} onValueChange={(value) => setSelectedPeriod(value as TimePeriod)}>
         <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="daily" className="text-xs sm:text-sm">
-            {t.stats.timePeriods.daily}
+          <TabsTrigger value="week" className="text-xs sm:text-sm">
+            {t.stats.timePeriods.week}
           </TabsTrigger>
-          <TabsTrigger value="weekly" className="text-xs sm:text-sm">
-            {t.stats.timePeriods.weekly}
+          <TabsTrigger value="month" className="text-xs sm:text-sm">
+            {t.stats.timePeriods.month}
           </TabsTrigger>
-          <TabsTrigger value="monthly" className="text-xs sm:text-sm">
-            {t.stats.timePeriods.monthly}
+          <TabsTrigger value="year" className="text-xs sm:text-sm">
+            {t.stats.timePeriods.year}
           </TabsTrigger>
-          <TabsTrigger value="yearly" className="text-xs sm:text-sm">
-            {t.stats.timePeriods.yearly}
+          <TabsTrigger value="allTime" className="text-xs sm:text-sm">
+            {t.stats.timePeriods.allTime}
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="daily" className="space-y-4">
+        <TabsContent value="week" className="space-y-4">
           {renderStatsCards(currentStats)}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <TrendingUp className="h-5 w-5" />
-                {t.stats.chartTitles.daily}
+                {t.stats.chartTitles.week}
               </CardTitle>
               <CardDescription>
-                {t.stats.periodLabels.lastWeek}
+                {t.stats.periodLabels.week}
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {renderChart(currentStats, 'daily')}
+              {renderChart(currentStats, 'week')}
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="weekly" className="space-y-4">
+        <TabsContent value="month" className="space-y-4">
           {renderStatsCards(currentStats)}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <TrendingUp className="h-5 w-5" />
-                {t.stats.chartTitles.weekly}
+                {t.stats.chartTitles.month}
               </CardTitle>
               <CardDescription>
-                {t.stats.periodLabels.last12Weeks}
+                {t.stats.periodLabels.month}
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {renderChart(currentStats, 'weekly')}
+              {renderChart(currentStats, 'month')}
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="monthly" className="space-y-4">
+        <TabsContent value="year" className="space-y-4">
           {renderStatsCards(currentStats)}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <TrendingUp className="h-5 w-5" />
-                {t.stats.chartTitles.monthly}
+                {t.stats.chartTitles.year}
               </CardTitle>
               <CardDescription>
-                {t.stats.periodLabels.last12Months}
+                {t.stats.periodLabels.year}
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {renderChart(currentStats, 'monthly')}
+              {renderChart(currentStats, 'year')}
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="yearly" className="space-y-4">
+        <TabsContent value="allTime" className="space-y-4">
           {renderStatsCards(currentStats)}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <BarChart3 className="h-5 w-5" />
-                {t.stats.chartTitles.yearly}
+                {t.stats.chartTitles.allTime}
               </CardTitle>
               <CardDescription>
-                {t.stats.periodLabels.years}
+                {t.stats.periodLabels.allTime}
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {renderChart(currentStats, 'yearly')}
+              {renderChart(currentStats, 'allTime')}
             </CardContent>
           </Card>
         </TabsContent>
