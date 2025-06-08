@@ -11,7 +11,3 @@ export * from './tabs';
 export { ToastProvider } from './toast-provider';
 export { DeleteConfirmDialog } from './delete-confirm-dialog';
 export { IOSPWAStatus } from './ios-pwa-status';
-
-// Component variants
-export { badgeVariants } from './badge-variants';
-export { buttonVariants } from './button-variants';
