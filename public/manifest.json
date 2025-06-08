@@ -1,16 +1,23 @@
 {
   "name": "Push-Up Counter",
   "short_name": "PushUp",
-  "description": "Simple push-up counter and workout tracker",
+  "description": "Simple push-up counter and workout tracker with offline support",
   "theme_color": "#2563eb",
   "background_color": "#ffffff",
   "display": "standalone",
-  "orientation": "portrait",
+  "orientation": "portrait-primary",
   "scope": "/",
-  "start_url": "/",
-  "lang": "ru",
+  "start_url": "/?utm_source=pwa",
+  "lang": "uk",
   "dir": "ltr",
   "categories": ["health", "fitness", "sports"],
+  "prefer_related_applications": false,
+  "edge_side_panel": {
+    "preferred_width": 400
+  },
+  "launch_handler": {
+    "client_mode": "navigate-existing"
+  },
   "icons": [
     {
       "src": "/icon-72x72.png",

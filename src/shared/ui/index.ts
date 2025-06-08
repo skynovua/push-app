@@ -9,3 +9,4 @@ export * from './switch';
 export * from './tabs';
 export { ToastProvider } from './toast-provider';
 export { DeleteConfirmDialog } from './delete-confirm-dialog';
+export { IOSPWAStatus } from './ios-pwa-status';

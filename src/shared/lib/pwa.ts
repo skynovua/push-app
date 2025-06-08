@@ -81,12 +81,90 @@ class PWAService {
   }
 
   private showIOSInstallInstructions(): void {
-    const message = `Щоб встановити додаток на iOS:
-1. Натисніть кнопку "Поделиться" внизу екрану
-2. Прокрутіть вниз і виберіть "На екран Домой"
-3. Натисніть "Добавить"`;
+    const message = `📱 Встановлення додатку на iOS:
+
+1. Натисніть кнопку "Поділитися" (📤) внизу Safari
+2. Прокрутіть вниз і оберіть "На екран «Домой»" 
+3. Натисніть "Додати"
+
+Після встановлення:
+• Додаток працюватиме як нативний застосунок
+• Буде доступний offline
+• Отримаєте повноекранний досвід без Safari UI
+• Швидше завантаження та кращу продуктивність`;
     
-    alert(message);
+    // Create a more user-friendly modal instead of alert
+    this.createIOSInstallModal(message);
+  }
+
+  private createIOSInstallModal(message: string): void {
+    // Check if modal already exists
+    if (document.getElementById('ios-install-modal')) return;
+
+    const modal = document.createElement('div');
+    modal.id = 'ios-install-modal';
+    modal.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      padding: 20px;
+      box-sizing: border-box;
+    `;
+
+    const content = document.createElement('div');
+    content.style.cssText = `
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      max-width: 90%;
+      max-height: 80%;
+      overflow-y: auto;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+      position: relative;
+    `;
+
+    const closeBtn = document.createElement('button');
+    closeBtn.innerHTML = '×';
+    closeBtn.style.cssText = `
+      position: absolute;
+      top: 10px;
+      right: 15px;
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #666;
+      padding: 0;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    `;
+
+    const text = document.createElement('div');
+    text.style.cssText = `
+      white-space: pre-line;
+      line-height: 1.5;
+      color: #333;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    `;
+    text.textContent = message;
+
+    closeBtn.onclick = () => modal.remove();
+    modal.onclick = (e) => e.target === modal && modal.remove();
+
+    content.appendChild(closeBtn);
+    content.appendChild(text);
+    modal.appendChild(content);
+    document.body.appendChild(modal);
   }
 
   isAppInstalled(): boolean {
@@ -125,6 +203,39 @@ class PWAService {
   // Check if online
   isOnline(): boolean {
     return navigator.onLine;
+  }
+
+  // Check if running on iOS
+  isIOS(): boolean {
+    return /iPad|iPhone|iPod/.test(navigator.userAgent);
+  }
+
+  // Check if running in standalone mode (PWA installed)
+  isStandalone(): boolean {
+    return window.matchMedia('(display-mode: standalone)').matches ||
+           (window.navigator as unknown as { standalone?: boolean }).standalone === true;
+  }
+
+  // Get device info for iOS
+  getIOSDeviceInfo(): { model: string; version: string } | null {
+    if (!this.isIOS()) return null;
+
+    const userAgent = navigator.userAgent;
+    let model = 'Unknown iOS Device';
+    
+    if (/iPhone/.test(userAgent)) {
+      model = 'iPhone';
+    } else if (/iPad/.test(userAgent)) {
+      model = 'iPad';
+    } else if (/iPod/.test(userAgent)) {
+      model = 'iPod';
+    }
+
+    // Extract iOS version
+    const versionMatch = userAgent.match(/OS (\d+)_(\d+)/);
+    const version = versionMatch ? `${versionMatch[1]}.${versionMatch[2]}` : 'Unknown';
+
+    return { model, version };
   }
 
   // Register service worker

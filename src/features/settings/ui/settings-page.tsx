@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
 import { Switch } from '@/shared/ui/switch';
 import { Button } from '@/shared/ui/button';
 import { Badge } from '@/shared/ui/badge';
+import { IOSPWAStatus } from '@/shared/ui/ios-pwa-status';
 import { useWorkoutStore, useWorkoutData } from '@/shared/model';
 import { useT, useTranslation, showToast, pwaService, clearUserDataSafely, dbUtils } from '@/shared/lib';
 
@@ -216,6 +217,9 @@ export const SettingsFeature: React.FC = () => {
           </CardContent>
         </Card>
       )}
+
+      {/* iOS PWA Status */}
+      <IOSPWAStatus onInstallClick={handleInstallPWA} />
 
       {/* Goal Settings */}
       <Card>
