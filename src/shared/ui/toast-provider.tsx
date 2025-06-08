@@ -11,6 +11,9 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         expand={true}
         richColors={true}
         closeButton={true}
+        style={{
+          marginTop: 'env(safe-area-inset-top, 0px)',
+        }}
       />
     </>
   );

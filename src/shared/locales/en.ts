@@ -189,7 +189,27 @@ const enTranslations: Translations = {
     estimatedSize: 'Estimated Size',
     // Data management buttons
     deleteOldData: 'Clear old data (30+ days)',
-    deleteTodayData: 'Delete today\'s workouts'
+    deleteTodayData: 'Delete today\'s workouts',
+    // iOS PWA Status
+    iosPwaStatus: 'iOS PWA Status',
+    webVersion: 'Web Version',
+    deviceLabel: 'Device',
+    iosVersionLabel: 'iOS Version',
+    pwaInstalled: 'App installed as PWA! You get:',
+    pwaFeatures: {
+      fullscreen: 'Full-screen experience',
+      faster: 'Faster loading',
+      offline: 'Offline functionality',
+      native: 'Native look and feel'
+    },
+    installSuggestion: 'For better experience, install app on home screen',
+    showInstallInstructions: 'Show installation instructions',
+    networkStatus: 'Network',
+    serviceWorkerStatus: 'Service Worker',
+    online: 'Online',
+    offline: 'Offline',
+    supported: 'Supported',
+    notSupported: 'Not supported'
   },
 
   // Achievements

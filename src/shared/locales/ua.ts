@@ -187,7 +187,27 @@ export const ua = {
     estimatedSize: 'Приблизний розмір',
     // Data management buttons
     deleteOldData: 'Очистити старі дані (30+ днів)',
-    deleteTodayData: 'Видалити тренування сьогодні'
+    deleteTodayData: 'Видалити тренування сьогодні',
+    // iOS PWA Status
+    iosPwaStatus: 'iOS PWA Статус',
+    webVersion: 'Веб-версія',
+    deviceLabel: 'Пристрій',
+    iosVersionLabel: 'iOS версія',
+    pwaInstalled: 'Додаток встановлений як PWA! Ви отримуєте:',
+    pwaFeatures: {
+      fullscreen: 'Повноекранний досвід',
+      faster: 'Швидше завантаження',
+      offline: 'Робота в offline режимі',
+      native: 'Нативний вигляд та відчуття'
+    },
+    installSuggestion: 'Для кращого досвіду встановіть додаток на домашній екран',
+    showInstallInstructions: 'Показати інструкції з встановлення',
+    networkStatus: 'Мережа',
+    serviceWorkerStatus: 'Service Worker',
+    online: 'Online',
+    offline: 'Offline',
+    supported: 'Підтримується',
+    notSupported: 'Не підтримується'
   },
 
   // Досягнення

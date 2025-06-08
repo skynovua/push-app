@@ -8,7 +8,7 @@ import { Button } from '@/shared/ui/button';
 import { Badge } from '@/shared/ui/badge';
 import { IOSPWAStatus } from '@/shared/ui/ios-pwa-status';
 import { useWorkoutStore, useWorkoutData } from '@/shared/model';
-import { useT, useTranslation, showToast, pwaService, clearUserDataSafely, dbUtils } from '@/shared/lib';
+import { useT, useTranslation, useTheme, showToast, pwaService, clearUserDataSafely, dbUtils } from '@/shared/lib';
 
 // Components
 import { ImportDialog } from './import-dialog';
@@ -18,18 +18,10 @@ export const SettingsFeature: React.FC = () => {
   const { sessions, totalPushUps, clearAllData, deleteSessionsByDate } = useWorkoutData();
   const t = useT();
   const { locale, setLocale } = useTranslation();
+  const { isDarkMode, toggleTheme } = useTheme();
   const [goalInput, setGoalInput] = useState(settings.dailyGoal.toString());
   const [canInstallPWA, setCanInstallPWA] = useState(false);
   const [isInstalled, setIsInstalled] = useState(false);
-
-  useEffect(() => {
-    // Apply dark mode to document
-    if (settings.darkMode) {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  }, [settings.darkMode]);
 
   useEffect(() => {
     // Check PWA installation status
@@ -49,8 +41,9 @@ export const SettingsFeature: React.FC = () => {
     }
   };
 
-  const handleDarkModeToggle = (checked: boolean) => {
-    updateSettings({ darkMode: checked });
+  // Use theme hook instead of direct settings update
+  const handleDarkModeToggle = () => {
+    toggleTheme();
   };
 
   const handleSoundToggle = (checked: boolean) => {
@@ -256,16 +249,16 @@ export const SettingsFeature: React.FC = () => {
           {/* Dark Mode */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              {settings.darkMode ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+              {isDarkMode ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
               <div>
-                <div className="font-medium">{settings.darkMode ? t.settings.darkMode : t.settings.lightMode}</div>
+                <div className="font-medium">{isDarkMode ? t.settings.darkMode : t.settings.lightMode}</div>
                 <div className="text-sm text-muted-foreground">
                   {t.settings.themeDescription}
                 </div>
               </div>
             </div>
             <Switch
-              checked={settings.darkMode}
+              checked={isDarkMode}
               onCheckedChange={handleDarkModeToggle}
             />
           </div>

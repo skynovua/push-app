@@ -1,10 +1,11 @@
+import { useTheme } from "@/shared/lib"
 import { Toaster as Sonner, type ToasterProps } from "sonner"
 
 const Toaster = ({ ...props }: ToasterProps) => {
+  const {  theme } = useTheme()
   return (
     <Sonner
-      theme="system"
-      className="toaster group"
+      theme={theme as "light" | "dark"}
       style={
         {
           "--normal-bg": "var(--popover)",
