@@ -35,7 +35,7 @@ export const useTheme = () => {
     if (shouldBeDark !== isDarkMode) {
       updateSettings({ darkMode: shouldBeDark });
     }
-  }, []);
+  }, [isDarkMode, updateSettings]);
 
   // Listen for system theme changes
   useEffect(() => {
