@@ -13,9 +13,7 @@ export function cn(...inputs: ClassValue[]) {
 export const clearUserDataSafely = async (confirmMessage: string, successMessage: string, errorMessage: string) => {
   if (confirm(confirmMessage)) {
     try {
-      await dbUtils.clearAllData();
-      showToast.success(successMessage);
-      
+      await dbUtils.clearAllData();      
       // Also clear localStorage user data while preserving system preferences
       const themePreference = localStorage.getItem('theme');
       const languagePreference = localStorage.getItem('language');

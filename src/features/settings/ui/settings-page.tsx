@@ -120,13 +120,12 @@ export const SettingsFeature: React.FC = () => {
     if (confirm(t.settings.confirmClear)) {
       const success = await clearAllData();
       if (success) {
-        showToast.success(t.settings.dataCleared);
-        // Safely clear localStorage while preserving navigation and settings
         await clearUserDataSafely(
           t.settings.confirmClear,
           t.settings.dataCleared,
           t.settings.errorClearing
         );
+        showToast.success(t.settings.dataCleared);
       } else {
         showToast.error(t.settings.errorClearing);
       }
