@@ -58,6 +58,7 @@ export const UpdateNotification: React.FC<UpdateNotificationProps> = ({ onClose 
       await pwaService.applyUpdate();
     } catch (error) {
       console.error('Error applying update:', error);
+    } finally {
       setIsUpdating(false);
     }
   };
