@@ -121,10 +121,7 @@ export const SettingsFeature: React.FC = () => {
     if (confirm(t.settings.confirmClear)) {
       const success = await clearAllData();
       if (success) {
-        await clearUserDataSafely(
-          t.settings.confirmClear,
-          t.settings.errorClearing
-        );
+        await clearUserDataSafely();
         showToast.success(t.settings.dataCleared);
       } else {
         showToast.error(t.settings.errorClearing);
