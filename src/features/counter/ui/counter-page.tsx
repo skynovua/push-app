@@ -1,16 +1,15 @@
 import React, { useEffect, useRef } from 'react';
-import { Play, Pause, RotateCcw, Save, Trophy } from 'lucide-react';
+import { Pause, Play, RotateCcw, Save, Trophy } from 'lucide-react';
 
+import { showToast } from '@/shared/lib/toast';
+import { useT } from '@/shared/lib/translation';
+// Shared Model & Utils
+import { useWorkoutStore } from '@/shared/model/workout-store';
+import { Badge } from '@/shared/ui/badge';
 // Shared UI
 import { Button } from '@/shared/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
 import { Progress } from '@/shared/ui/progress';
-import { Badge } from '@/shared/ui/badge';
-
-// Shared Model & Utils
-import { useWorkoutStore } from '@/shared/model/workout-store';
-import { useT } from '@/shared/lib/translation';
-import { showToast } from '@/shared/lib/toast';
 
 export const CounterFeature: React.FC = () => {
   const {
@@ -26,7 +25,7 @@ export const CounterFeature: React.FC = () => {
     pauseSession,
     endSession,
     setElapsedTime,
-    loadTodayStats
+    loadTodayStats,
   } = useWorkoutStore();
 
   const t = useT();
@@ -98,33 +97,32 @@ export const CounterFeature: React.FC = () => {
   const progressPercentage = Math.min(((todayPushUps + currentCount) / dailyGoal) * 100, 100);
 
   return (
-    <div className="py-6 space-y-6">
+    <div className="space-y-6 py-6">
       {/* Goal Progress */}
       <Card>
         <CardHeader className="pb-3">
-          <div className="flex justify-between items-center">
+          <div className="flex items-center justify-between">
             <CardTitle className="text-lg">{t.counter.dailyProgress}</CardTitle>
-            <Badge variant={(todayPushUps + currentCount) >= dailyGoal ? "default" : "secondary"}>
+            <Badge variant={todayPushUps + currentCount >= dailyGoal ? 'default' : 'secondary'}>
               {todayPushUps + currentCount}/{dailyGoal}
             </Badge>
           </div>
         </CardHeader>
         <CardContent className="space-y-2">
           <Progress value={progressPercentage} className="h-3" />
-          <div className="flex justify-between text-sm text-muted-foreground">
+          <div className="text-muted-foreground flex justify-between text-sm">
             <span>0</span>
             <span>{Math.round(progressPercentage)}%</span>
             <span>{dailyGoal}</span>
           </div>
           {todayPushUps > 0 && (
-            <div className="text-xs text-center text-muted-foreground">
-              {t.counter.totalToday}: {todayPushUps} + {currentCount} = {todayPushUps + currentCount}
+            <div className="text-muted-foreground text-center text-xs">
+              {t.counter.totalToday}: {todayPushUps} + {currentCount} ={' '}
+              {todayPushUps + currentCount}
             </div>
           )}
           {todayPushUps === 0 && currentCount === 0 && (
-            <div className="text-xs text-center text-muted-foreground">
-              {t.counter.startPrompt}
-            </div>
+            <div className="text-muted-foreground text-center text-xs">{t.counter.startPrompt}</div>
           )}
         </CardContent>
       </Card>
@@ -140,16 +138,12 @@ export const CounterFeature: React.FC = () => {
             <button
               onClick={incrementCount}
               disabled={!isActive}
-              className="w-48 h-48 mx-auto rounded-full border-4 border-primary bg-primary/10 hover:bg-primary/20 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center group"
+              className="border-primary bg-primary/10 hover:bg-primary/20 group mx-auto flex h-48 w-48 items-center justify-center rounded-full border-4 transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50"
               aria-label={t.counter.clickToIncrement}
             >
               <div className="text-center">
-                <div className="text-6xl font-bold text-primary">
-                  {currentCount}
-                </div>
-                <div className="text-sm text-muted-foreground mt-2">
-                  {t.counter.pushUps}
-                </div>
+                <div className="text-primary text-6xl font-bold">{currentCount}</div>
+                <div className="text-muted-foreground mt-2 text-sm">{t.counter.pushUps}</div>
               </div>
             </button>
           </div>
@@ -167,7 +161,7 @@ export const CounterFeature: React.FC = () => {
               </div>
             </div>
           ) : (
-            <div className="text-center text-muted-foreground">
+            <div className="text-muted-foreground text-center">
               <p>{t.counter.startPrompt}</p>
             </div>
           )}
@@ -177,59 +171,45 @@ export const CounterFeature: React.FC = () => {
       {/* Control Buttons */}
       <div className="flex gap-3">
         {!isActive ? (
-          <Button
-            onClick={handleStart}
-            size="lg"
-            className="flex-1 h-12"
-          >
-            <Play className="h-5 w-5 mr-2" />
+          <Button onClick={handleStart} size="lg" className="h-12 flex-1">
+            <Play className="mr-2 h-5 w-5" />
             {t.common.start}
           </Button>
         ) : (
-          <Button
-            onClick={handlePause}
-            variant="outline"
-            size="lg"
-            className="flex-1 h-12"
-          >
-            <Pause className="h-5 w-5 mr-2" />
+          <Button onClick={handlePause} variant="outline" size="lg" className="h-12 flex-1">
+            <Pause className="mr-2 h-5 w-5" />
             {t.common.pause}
           </Button>
         )}
-        
+
         <Button
           onClick={handleReset}
           variant="outline"
           size="lg"
-          className="flex-1 h-12"
+          className="h-12 flex-1"
           disabled={currentCount === 0 && elapsedTime === 0}
         >
-          <RotateCcw className="h-5 w-5 mr-2" />
+          <RotateCcw className="mr-2 h-5 w-5" />
           {t.common.reset}
         </Button>
       </div>
 
       {/* Save Session Button */}
       {currentCount > 0 && (
-        <Button
-          onClick={handleSave}
-          size="lg"
-          className="w-full h-12"
-          variant="default"
-        >
-          <Save className="h-5 w-5 mr-2" />
+        <Button onClick={handleSave} size="lg" className="h-12 w-full" variant="default">
+          <Save className="mr-2 h-5 w-5" />
           {t.common.save} {t.counter.currentSession.toLowerCase()}
         </Button>
       )}
 
       {/* Hints */}
-      <div className="text-center space-y-2">
-        <p className="text-sm text-muted-foreground">
+      <div className="space-y-2 text-center">
+        <p className="text-muted-foreground text-sm">
           {!isActive ? t.counter.startHint : t.counter.tapHint}
         </p>
-        {(todayPushUps + currentCount) >= dailyGoal && (
+        {todayPushUps + currentCount >= dailyGoal && (
           <Badge className="mx-auto">
-            <Trophy className="h-4 w-4 mr-1" />
+            <Trophy className="mr-1 h-4 w-4" />
             {t.counter.goalReached}
           </Badge>
         )}

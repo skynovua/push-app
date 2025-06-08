@@ -1,14 +1,34 @@
 import React, { useState } from 'react';
-import { Settings as SettingsIcon, Sun, Moon, Volume2, VolumeX, Target, Download, Globe, Upload, Archive, Calendar } from 'lucide-react';
+import {
+  Archive,
+  Calendar,
+  Download,
+  Globe,
+  Moon,
+  Settings as SettingsIcon,
+  Sun,
+  Target,
+  Upload,
+  Volume2,
+  VolumeX,
+} from 'lucide-react';
 
+import {
+  clearUserDataSafely,
+  dbUtils,
+  pwaService,
+  showToast,
+  useT,
+  useTheme,
+  useTranslation,
+} from '@/shared/lib';
+import { useWorkoutData, useWorkoutStore } from '@/shared/model';
+import { Badge } from '@/shared/ui/badge';
+import { Button } from '@/shared/ui/button';
 // Shared imports
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
-import { Switch } from '@/shared/ui/switch';
-import { Button } from '@/shared/ui/button';
-import { Badge } from '@/shared/ui/badge';
 import { IOSPWAStatus } from '@/shared/ui/ios-pwa-status';
-import { useWorkoutStore, useWorkoutData } from '@/shared/model';
-import { useT, useTranslation, useTheme, showToast, pwaService, clearUserDataSafely, dbUtils } from '@/shared/lib';
+import { Switch } from '@/shared/ui/switch';
 
 // Components
 import { ImportDialog } from './import-dialog';
@@ -22,11 +42,11 @@ export const SettingsFeature: React.FC = () => {
   const [goalInput, setGoalInput] = useState(settings.dailyGoal.toString());
 
   // === Settings Handlers ===
-  
+
   const handleGoalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setGoalInput(value);
-    
+
     const numValue = parseInt(value);
     if (!isNaN(numValue) && numValue > 0 && numValue <= 1000) {
       updateSettings({ dailyGoal: numValue });
@@ -52,20 +72,18 @@ export const SettingsFeature: React.FC = () => {
   };
 
   // === PWA Installation ===
-  
+
   const handleInstallPWA = async () => {
     await pwaService.install();
   };
 
   // === Data Management Functions ===
-  
+
   const handleDeleteOldSessions = async () => {
     if (confirm(t.stats.deleteOldSessions || 'Видалити тренування старіше 30 днів?')) {
       try {
         await dbUtils.deleteOldSessions(30);
-        showToast.success(
-          t.stats.oldSessionsDeleted || 'Старі тренування видалено!'
-        );
+        showToast.success(t.stats.oldSessionsDeleted || 'Старі тренування видалено!');
       } catch (error) {
         console.error('Error deleting old sessions:', error);
         showToast.error(
@@ -81,19 +99,13 @@ export const SettingsFeature: React.FC = () => {
         const today = new Date();
         const success = await deleteSessionsByDate(today);
         if (success) {
-          showToast.success(
-            t.stats.todaySessionsDeleted || 'Сьогоднішні тренування видалено!'
-          );
+          showToast.success(t.stats.todaySessionsDeleted || 'Сьогоднішні тренування видалено!');
         } else {
-          showToast.error(
-            t.stats.errorDeletingSessions || 'Помилка при видаленні тренувань'
-          );
+          showToast.error(t.stats.errorDeletingSessions || 'Помилка при видаленні тренувань');
         }
       } catch (error) {
         console.error('Error deleting today sessions:', error);
-        showToast.error(
-          t.stats.errorDeletingSessions || 'Помилка при видаленні тренувань'
-        );
+        showToast.error(t.stats.errorDeletingSessions || 'Помилка при видаленні тренувань');
       }
     }
   };
@@ -116,25 +128,25 @@ export const SettingsFeature: React.FC = () => {
       settings,
       exportDate: new Date().toISOString(),
       totalPushUps,
-      version: '1.0'
+      version: '1.0',
     };
 
     const dataStr = JSON.stringify(dataToExport, null, 2);
     const dataBlob = new Blob([dataStr], { type: 'application/json' });
     const url = URL.createObjectURL(dataBlob);
-    
+
     const link = document.createElement('a');
     link.href = url;
     link.download = `pushup-data-${new Date().toISOString().split('T')[0]}.json`;
     link.click();
-    
+
     URL.revokeObjectURL(url);
   };
 
   return (
-    <div className="py-6 space-y-6">
-      <div className="text-center mb-6">
-        <h2 className="text-3xl font-bold flex items-center justify-center gap-2">
+    <div className="space-y-6 py-6">
+      <div className="mb-6 text-center">
+        <h2 className="flex items-center justify-center gap-2 text-3xl font-bold">
           <SettingsIcon className="h-8 w-8" />
           {t.settings.title}
         </h2>
@@ -192,11 +204,9 @@ export const SettingsFeature: React.FC = () => {
               max="1000"
               value={goalInput}
               onChange={handleGoalChange}
-              className="w-full px-3 py-2 border border-input rounded-md bg-background text-foreground"
+              className="border-input bg-background text-foreground w-full rounded-md border px-3 py-2"
             />
-            <p className="text-xs text-muted-foreground">
-              {t.settings.goalRecommendation}
-            </p>
+            <p className="text-muted-foreground text-xs">{t.settings.goalRecommendation}</p>
           </div>
         </CardContent>
       </Card>
@@ -212,33 +222,31 @@ export const SettingsFeature: React.FC = () => {
             <div className="flex items-center gap-3">
               {isDarkMode ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
               <div>
-                <div className="font-medium">{isDarkMode ? t.settings.darkMode : t.settings.lightMode}</div>
-                <div className="text-sm text-muted-foreground">
-                  {t.settings.themeDescription}
+                <div className="font-medium">
+                  {isDarkMode ? t.settings.darkMode : t.settings.lightMode}
                 </div>
+                <div className="text-muted-foreground text-sm">{t.settings.themeDescription}</div>
               </div>
             </div>
-            <Switch
-              checked={isDarkMode}
-              onCheckedChange={handleDarkModeToggle}
-            />
+            <Switch checked={isDarkMode} onCheckedChange={handleDarkModeToggle} />
           </div>
 
           {/* Sound */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              {settings.soundEnabled ? <Volume2 className="h-5 w-5" /> : <VolumeX className="h-5 w-5" />}
+              {settings.soundEnabled ? (
+                <Volume2 className="h-5 w-5" />
+              ) : (
+                <VolumeX className="h-5 w-5" />
+              )}
               <div>
-                <div className="font-medium">{settings.soundEnabled ? t.settings.soundEnabled : t.settings.soundDisabled}</div>
-                <div className="text-sm text-muted-foreground">
-                  {t.settings.soundDescription}
+                <div className="font-medium">
+                  {settings.soundEnabled ? t.settings.soundEnabled : t.settings.soundDisabled}
                 </div>
+                <div className="text-muted-foreground text-sm">{t.settings.soundDescription}</div>
               </div>
             </div>
-            <Switch
-              checked={settings.soundEnabled}
-              onCheckedChange={handleSoundToggle}
-            />
+            <Switch checked={settings.soundEnabled} onCheckedChange={handleSoundToggle} />
           </div>
 
           {/* Auto Save */}
@@ -247,15 +255,12 @@ export const SettingsFeature: React.FC = () => {
               <SettingsIcon className="h-5 w-5" />
               <div>
                 <div className="font-medium">{t.settings.autoSave}</div>
-                <div className="text-sm text-muted-foreground">
+                <div className="text-muted-foreground text-sm">
                   {t.settings.autoSaveDescription}
                 </div>
               </div>
             </div>
-            <Switch
-              checked={settings.autoSave}
-              onCheckedChange={handleAutoSaveToggle}
-            />
+            <Switch checked={settings.autoSave} onCheckedChange={handleAutoSaveToggle} />
           </div>
         </CardContent>
       </Card>
@@ -269,14 +274,14 @@ export const SettingsFeature: React.FC = () => {
           <div className="grid grid-cols-2 gap-4 text-center">
             <div className="space-y-1">
               <div className="text-2xl font-bold">{sessions.length}</div>
-              <div className="text-sm text-muted-foreground">{t.stats.totalSessions}</div>
+              <div className="text-muted-foreground text-sm">{t.stats.totalSessions}</div>
             </div>
             <div className="space-y-1">
               <div className="text-2xl font-bold">{totalPushUps}</div>
-              <div className="text-sm text-muted-foreground">{t.stats.totalPushUps}</div>
+              <div className="text-muted-foreground text-sm">{t.stats.totalPushUps}</div>
             </div>
           </div>
-          
+
           <div className="grid gap-3 sm:grid-cols-2">
             <Button
               onClick={exportData}
@@ -284,43 +289,43 @@ export const SettingsFeature: React.FC = () => {
               className="w-full"
               disabled={sessions.length === 0}
             >
-              <Download className="h-4 w-4 mr-2" />
+              <Download className="mr-2 h-4 w-4" />
               {t.settings.exportData}
             </Button>
-            
+
             <ImportDialog
               trigger={
                 <Button variant="outline" className="w-full">
-                  <Upload className="h-4 w-4 mr-2" />
+                  <Upload className="mr-2 h-4 w-4" />
                   {t.settings.importData}
                 </Button>
               }
             />
           </div>
-          
-          <p className="text-xs text-muted-foreground text-center">
+
+          <p className="text-muted-foreground text-center text-xs">
             {t.settings.exportDescription}
           </p>
-          
+
           {/* Додаткові функції управління даними */}
-          <div className="grid gap-3 mt-4 sm:grid-cols-2">
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
             <Button
               onClick={handleDeleteOldSessions}
               variant="outline"
               size="sm"
               className="w-full"
             >
-              <Archive className="h-4 w-4 mr-2" />
+              <Archive className="mr-2 h-4 w-4" />
               {t.settings.deleteOldData}
             </Button>
-            
+
             <Button
               onClick={handleDeleteTodaySessions}
               variant="outline"
               size="sm"
               className="w-full"
             >
-              <Calendar className="h-4 w-4 mr-2" />
+              <Calendar className="mr-2 h-4 w-4" />
               {t.settings.deleteTodayData}
             </Button>
           </div>
@@ -336,13 +341,13 @@ export const SettingsFeature: React.FC = () => {
           <div className="grid grid-cols-2 gap-4 text-center">
             <div className="space-y-1">
               <div className="text-lg font-bold">{sessions.length}</div>
-              <div className="text-xs text-muted-foreground">{t.settings.recordsCount}</div>
+              <div className="text-muted-foreground text-xs">{t.settings.recordsCount}</div>
             </div>
             <div className="space-y-1">
               <div className="text-lg font-bold">
                 {Math.round((sessions.length * 200) / 1024)} KB
               </div>
-              <div className="text-xs text-muted-foreground">{t.settings.estimatedSize}</div>
+              <div className="text-muted-foreground text-xs">{t.settings.estimatedSize}</div>
             </div>
           </div>
         </CardContent>
@@ -355,17 +360,15 @@ export const SettingsFeature: React.FC = () => {
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex justify-between">
-            <span className="text-sm text-muted-foreground">{t.settings.version}:</span>
+            <span className="text-muted-foreground text-sm">{t.settings.version}:</span>
             <Badge variant="secondary">1.0.0</Badge>
           </div>
           <div className="flex justify-between">
-            <span className="text-sm text-muted-foreground">{t.settings.appType}:</span>
+            <span className="text-muted-foreground text-sm">{t.settings.appType}:</span>
             <Badge variant="secondary">PWA</Badge>
           </div>
-          <div className="text-center pt-4">
-            <p className="text-sm text-muted-foreground">
-              {t.settings.appDescription}
-            </p>
+          <div className="pt-4 text-center">
+            <p className="text-muted-foreground text-sm">{t.settings.appDescription}</p>
           </div>
         </CardContent>
       </Card>
@@ -376,14 +379,8 @@ export const SettingsFeature: React.FC = () => {
           <CardTitle className="text-destructive">{t.settings.dangerZone}</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground mb-4">
-            {t.settings.dangerWarning}
-          </p>
-          <Button
-            variant="destructive"
-            className="w-full"
-            onClick={handleClearAllData}
-          >
+          <p className="text-muted-foreground mb-4 text-sm">{t.settings.dangerWarning}</p>
+          <Button variant="destructive" className="w-full" onClick={handleClearAllData}>
             {t.settings.clearData}
           </Button>
         </CardContent>

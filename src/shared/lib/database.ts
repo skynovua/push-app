@@ -1,5 +1,6 @@
 import Dexie, { type Table } from 'dexie';
-import type { WorkoutSession, AppSettings, Achievement, ImportData, ImportResult } from '../domain';
+
+import type { Achievement, AppSettings, ImportData, ImportResult, WorkoutSession } from '../domain';
 
 export class AppDB extends Dexie {
   workoutSessions!: Table<WorkoutSession>;
@@ -8,11 +9,11 @@ export class AppDB extends Dexie {
 
   constructor() {
     super('PushUpCounterDB');
-    
+
     this.version(1).stores({
       workoutSessions: '++id, date, pushUps, duration, goal',
       settings: '++id, dailyGoal, soundEnabled, darkMode, language',
-      achievements: '++id, name, unlocked, unlockedDate'
+      achievements: '++id, name, unlocked, unlockedDate',
     });
   }
 }
@@ -22,14 +23,14 @@ export const db = new AppDB();
 // Инициализация настроек по умолчанию
 export const initializeDefaults = async () => {
   const existingSettings = await db.settings.toArray();
-  
+
   if (existingSettings.length === 0) {
     await db.settings.add({
       dailyGoal: 50,
       soundEnabled: true,
       darkMode: false,
       autoSave: true,
-      language: 'ua'
+      language: 'ua',
     } as AppSettings);
   }
 };
@@ -41,7 +42,7 @@ export const dbUtils = {
     const id = crypto.randomUUID();
     await db.workoutSessions.add({
       ...session,
-      id
+      id,
     });
     return id;
   },
@@ -53,10 +54,7 @@ export const dbUtils = {
 
   // Получить сессии за определенный период
   async getSessionsByDateRange(startDate: Date, endDate: Date): Promise<WorkoutSession[]> {
-    return await db.workoutSessions
-      .where('date')
-      .between(startDate, endDate, true, true)
-      .toArray();
+    return await db.workoutSessions.where('date').between(startDate, endDate, true, true).toArray();
   },
 
   // Получить сегодняшние сессии
@@ -64,7 +62,7 @@ export const dbUtils = {
     const today = new Date();
     const startOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
     const endOfDay = new Date(today.getFullYear(), today.getMonth(), today.getDate(), 23, 59, 59);
-    
+
     return await this.getSessionsByDateRange(startOfDay, endOfDay);
   },
 
@@ -77,13 +75,16 @@ export const dbUtils = {
   // Получить настройки
   async getSettings(): Promise<AppSettings> {
     const settings = await db.settings.toArray();
-    return settings[0] || {
-      dailyGoal: 50,
-      soundEnabled: true,
-      darkMode: false,
-      autoSave: true,
-      language: 'ua'
-    } as AppSettings;
+    return (
+      settings[0] ||
+      ({
+        dailyGoal: 50,
+        soundEnabled: true,
+        darkMode: false,
+        autoSave: true,
+        language: 'ua',
+      } as AppSettings)
+    );
   },
 
   // Обновить настройки
@@ -100,13 +101,10 @@ export const dbUtils = {
 
   // Разблокировать достижение
   async unlockAchievement(achievementId: string): Promise<void> {
-    await db.achievements
-      .where('id')
-      .equals(achievementId)
-      .modify({
-        unlocked: true,
-        unlockedDate: new Date()
-      });
+    await db.achievements.where('id').equals(achievementId).modify({
+      unlocked: true,
+      unlockedDate: new Date(),
+    });
   },
 
   // Видалити конкретну сесію тренування
@@ -123,18 +121,15 @@ export const dbUtils = {
   async deleteSessionsByDate(date: Date): Promise<void> {
     const startOfDay = new Date(date.getFullYear(), date.getMonth(), date.getDate());
     const endOfDay = new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59);
-    
-    await db.workoutSessions
-      .where('date')
-      .between(startOfDay, endOfDay, true, true)
-      .delete();
+
+    await db.workoutSessions.where('date').between(startOfDay, endOfDay, true, true).delete();
   },
 
   // Видалити старі сесії (старше певної кількості днів)
   async deleteOldSessions(daysToKeep: number): Promise<void> {
     const cutoffDate = new Date();
     cutoffDate.setDate(cutoffDate.getDate() - daysToKeep);
-    
+
     await db.workoutSessions.where('date').below(cutoffDate).delete();
   },
 
@@ -165,10 +160,10 @@ export const dbUtils = {
     const sessions = await this.getAllSessions();
     const totalSessions = sessions.length;
     const totalPushUps = sessions.reduce((sum, session) => sum + session.pushUps, 0);
-    
+
     let oldestSession: Date | undefined;
     let newestSession: Date | undefined;
-    
+
     if (sessions.length > 0) {
       oldestSession = sessions[sessions.length - 1].date;
       newestSession = sessions[0].date;
@@ -182,7 +177,7 @@ export const dbUtils = {
       totalPushUps,
       oldestSession,
       newestSession,
-      databaseSize: estimatedSize
+      databaseSize: estimatedSize,
     };
   },
 
@@ -193,7 +188,7 @@ export const dbUtils = {
         success: true,
         imported: 0,
         duplicates: 0,
-        errors: []
+        errors: [],
       };
 
       // Перевіримо формат даних
@@ -204,11 +199,11 @@ export const dbUtils = {
       // Отримаємо існуючі сесії для перевірки дублікатів
       const existingSessions = await this.getAllSessions();
       const existingSessionsMap = new Map(
-        existingSessions.map(session => [
+        existingSessions.map((session) => [
           `${session.date.getTime()}-${session.pushUps}-${session.duration}`,
-          session
+          session,
         ])
-      );      
+      );
 
       // Імпортуємо сесії
       for (const sessionData of importData.sessions) {
@@ -222,7 +217,7 @@ export const dbUtils = {
 
           // Створюємо ключ для перевірки дублікатів
           const sessionKey = `${date.getTime()}-${sessionData.pushUps}-${sessionData.duration}`;
-          
+
           if (existingSessionsMap.has(sessionKey)) {
             result.duplicates++;
             continue;
@@ -234,11 +229,13 @@ export const dbUtils = {
             date,
             pushUps: sessionData.pushUps || 0,
             duration: sessionData.duration || 0,
-            sets: sessionData.sets ? sessionData.sets.map(set => ({
-              ...set,
-              timestamp: new Date(set.timestamp)
-            })) : undefined,
-            goal: sessionData.goal
+            sets: sessionData.sets
+              ? sessionData.sets.map((set) => ({
+                  ...set,
+                  timestamp: new Date(set.timestamp),
+                }))
+              : undefined,
+            goal: sessionData.goal,
           };
 
           await db.workoutSessions.add(session);
@@ -265,7 +262,7 @@ export const dbUtils = {
         success: false,
         imported: 0,
         duplicates: 0,
-        errors: [`Критична помилка при імпорті: ${error}`]
+        errors: [`Критична помилка при імпорті: ${error}`],
       };
     }
   },
@@ -289,5 +286,5 @@ export const dbUtils = {
     }
 
     return true;
-  }
+  },
 };

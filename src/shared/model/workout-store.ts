@@ -1,12 +1,14 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { dbUtils } from '../lib/database';
+
 import type { AppSettings, AppState } from '@/shared/domain';
+
+import { dbUtils } from '../lib/database';
 
 interface WorkoutStore extends AppState {
   // Daily stats
   todayPushUps: number;
-  
+
   // Actions
   incrementCount: () => void;
   resetCount: () => void;
@@ -35,7 +37,7 @@ export const useWorkoutStore = create<WorkoutStore>()(
         soundEnabled: true,
         darkMode: false,
         autoSave: true,
-        language: 'ua' as const
+        language: 'ua' as const,
       },
 
       // Actions
@@ -43,7 +45,7 @@ export const useWorkoutStore = create<WorkoutStore>()(
         const state = get();
         if (state.isActive) {
           set({ currentCount: state.currentCount + 1 });
-          
+
           // Play sound if enabled
           if (state.settings.soundEnabled) {
             playClickSound();
@@ -52,19 +54,19 @@ export const useWorkoutStore = create<WorkoutStore>()(
       },
 
       resetCount: () => {
-        set({ 
-          currentCount: 0, 
+        set({
+          currentCount: 0,
           elapsedTime: 0,
           isActive: false,
-          sessionStartTime: null 
+          sessionStartTime: null,
         });
       },
 
       startSession: () => {
-        set({ 
-          isActive: true, 
+        set({
+          isActive: true,
           sessionStartTime: new Date(),
-          elapsedTime: 0
+          elapsedTime: 0,
         });
       },
 
@@ -80,38 +82,38 @@ export const useWorkoutStore = create<WorkoutStore>()(
             date: state.sessionStartTime,
             pushUps: state.currentCount,
             duration: state.elapsedTime,
-            goal: state.dailyGoal
+            goal: state.dailyGoal,
           });
-          
+
           // Update today's stats after saving
           await get().loadTodayStats();
         }
-        
-        set({ 
+
+        set({
           currentCount: 0,
           isActive: false,
           sessionStartTime: null,
-          elapsedTime: 0
+          elapsedTime: 0,
         });
       },
 
       updateSettings: async (newSettings: Partial<AppSettings>) => {
         const state = get();
         const updatedSettings = { ...state.settings, ...newSettings };
-        
-        set({ 
+
+        set({
           settings: updatedSettings,
-          dailyGoal: updatedSettings.dailyGoal 
+          dailyGoal: updatedSettings.dailyGoal,
         });
-        
+
         await dbUtils.updateSettings(updatedSettings);
       },
 
       loadSettings: async () => {
         const settings = await dbUtils.getSettings();
-        set({ 
+        set({
           settings,
-          dailyGoal: settings.dailyGoal 
+          dailyGoal: settings.dailyGoal,
         });
       },
 
@@ -131,16 +133,16 @@ export const useWorkoutStore = create<WorkoutStore>()(
           isActive: false,
           sessionStartTime: null,
           elapsedTime: 0,
-          todayPushUps: 0
+          todayPushUps: 0,
         });
-      }
+      },
     }),
     {
       name: 'workout-store',
       partialize: (state) => ({
         settings: state.settings,
-        dailyGoal: state.dailyGoal
-      })
+        dailyGoal: state.dailyGoal,
+      }),
     }
   )
 );
@@ -151,17 +153,18 @@ const playClickSound = () => {
     const audio = new Audio();
     audio.volume = 0.3;
     // Create a simple click sound using Web Audio API
-    const audioContext = new (window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+    const audioContext = new (window.AudioContext ||
+      (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
     const oscillator = audioContext.createOscillator();
     const gainNode = audioContext.createGain();
-    
+
     oscillator.connect(gainNode);
     gainNode.connect(audioContext.destination);
-    
+
     oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
     gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
     gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
-    
+
     oscillator.start();
     oscillator.stop(audioContext.currentTime + 0.1);
   } catch (error) {

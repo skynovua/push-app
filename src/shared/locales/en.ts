@@ -23,7 +23,7 @@ const enTranslations: Translations = {
     success: 'Success',
     error: 'Error',
     confirm: 'Confirm',
-    cancel: 'Cancel'
+    cancel: 'Cancel',
   },
 
   // Counter
@@ -53,7 +53,7 @@ const enTranslations: Translations = {
     time: 'Time',
     count: 'Count',
     startPrompt: 'Click "Start" to begin training',
-    tapHint: 'Tap to count push-ups'
+    tapHint: 'Tap to count push-ups',
   },
 
   // Statistics
@@ -95,7 +95,7 @@ const enTranslations: Translations = {
     errorDeletingSession: 'Failed to delete session',
     errorDeletingGeneral: 'An error occurred while deleting',
     deleteOldSessions: 'Delete workouts older than 30 days?',
-    deleteTodaySessions: 'Delete today\'s workouts?',
+    deleteTodaySessions: "Delete today's workouts?",
     // Achievement badges
     goalAchieved: 'Goal achieved',
     excellent: 'Excellent',
@@ -115,7 +115,7 @@ const enTranslations: Translations = {
     streak: 'Streak',
     days: 'days',
     oldSessionsDeleted: 'Old workouts deleted!',
-    todaySessionsDeleted: 'Today\'s workouts deleted!',
+    todaySessionsDeleted: "Today's workouts deleted!",
     errorDeletingOldSessions: 'Error deleting old workouts',
     errorDeletingSessions: 'Error deleting workouts',
     // Time periods
@@ -123,20 +123,20 @@ const enTranslations: Translations = {
       week: 'This Week',
       month: 'This Month',
       year: 'This Year',
-      allTime: 'All Time'
+      allTime: 'All Time',
     },
     chartTitles: {
       week: 'Push-ups for the last week',
       month: 'Push-ups for the last month',
       year: 'Push-ups for the last year',
-      allTime: 'Push-ups for all time'
+      allTime: 'Push-ups for all time',
     },
     periodLabels: {
       week: 'Last week',
       month: 'Last month',
       year: 'Last year',
-      allTime: 'All time'
-    }
+      allTime: 'All time',
+    },
   },
 
   // Settings
@@ -197,7 +197,7 @@ const enTranslations: Translations = {
     estimatedSize: 'Estimated Size',
     // Data management buttons
     deleteOldData: 'Clear old data (30+ days)',
-    deleteTodayData: 'Delete today\'s workouts',
+    deleteTodayData: "Delete today's workouts",
     // iOS PWA Status
     iosPwaStatus: 'iOS PWA Status',
     webVersion: 'Web Version',
@@ -208,7 +208,7 @@ const enTranslations: Translations = {
       fullscreen: 'Full-screen experience',
       faster: 'Faster loading',
       offline: 'Offline functionality',
-      native: 'Native look and feel'
+      native: 'Native look and feel',
     },
     installSuggestion: 'For better experience, install app on home screen',
     showInstallInstructions: 'Show installation instructions',
@@ -217,47 +217,47 @@ const enTranslations: Translations = {
     online: 'Online',
     offline: 'Offline',
     supported: 'Supported',
-    notSupported: 'Not supported'
+    notSupported: 'Not supported',
   },
 
   // Achievements
   achievements: {
     firstPushUp: {
       name: 'First Push-up',
-      description: 'Do your first push-up'
+      description: 'Do your first push-up',
     },
     milestone10: {
       name: '10 Push-ups',
-      description: 'Reach 10 push-ups in one session'
+      description: 'Reach 10 push-ups in one session',
     },
     milestone50: {
       name: '50 Push-ups',
-      description: 'Reach 50 push-ups in one session'
+      description: 'Reach 50 push-ups in one session',
     },
     milestone100: {
       name: '100 Push-ups',
-      description: 'Reach 100 push-ups in one session'
+      description: 'Reach 100 push-ups in one session',
     },
     streak3: {
       name: '3 Days in a Row',
-      description: 'Train for 3 days in a row'
+      description: 'Train for 3 days in a row',
     },
     streak7: {
       name: 'Week of Consistency',
-      description: 'Train for 7 days in a row'
+      description: 'Train for 7 days in a row',
     },
     streak30: {
       name: 'Month of Discipline',
-      description: 'Train for 30 days in a row'
+      description: 'Train for 30 days in a row',
     },
     total100: {
       name: '100 Total',
-      description: 'Do 100 push-ups total'
+      description: 'Do 100 push-ups total',
     },
     total1000: {
       name: '1000 Total',
-      description: 'Do 1000 push-ups total'
-    }
+      description: 'Do 1000 push-ups total',
+    },
   },
 
   // Messages
@@ -270,7 +270,7 @@ const enTranslations: Translations = {
     dataLoadError: 'Data loading error',
     invalidGoal: 'Invalid goal (must be from 1 to 1000)',
     offlineMode: 'Offline mode',
-    onlineMode: 'Online mode'
+    onlineMode: 'Online mode',
   },
 
   // Days of week
@@ -281,7 +281,7 @@ const enTranslations: Translations = {
     thursday: 'Thursday',
     friday: 'Friday',
     saturday: 'Saturday',
-    sunday: 'Sunday'
+    sunday: 'Sunday',
   },
 
   // Months
@@ -297,7 +297,7 @@ const enTranslations: Translations = {
     september: 'September',
     october: 'October',
     november: 'November',
-    december: 'December'
+    december: 'December',
   },
 
   // PWA Updates
@@ -317,8 +317,8 @@ const enTranslations: Translations = {
     releaseToRefresh: 'Release to refresh',
     manualUpdate: 'Update manually',
     autoUpdateEnabled: 'Auto-update enabled',
-    newVersionInstalled: 'New version installed!'
-  }
+    newVersionInstalled: 'New version installed!',
+  },
 };
 
 export const en = enTranslations;

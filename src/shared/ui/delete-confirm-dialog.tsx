@@ -1,4 +1,7 @@
 import React from 'react';
+import { AlertTriangle, Trash2 } from 'lucide-react';
+
+import { Button } from './button';
 import {
   Dialog,
   DialogContent,
@@ -7,8 +10,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from './dialog';
-import { Button } from './button';
-import { Trash2, AlertTriangle } from 'lucide-react';
 
 interface DeleteConfirmDialogProps {
   title: string;
@@ -23,7 +24,7 @@ export const DeleteConfirmDialog: React.FC<DeleteConfirmDialogProps> = ({
   description,
   onConfirm,
   children,
-  destructive = true
+  destructive = true,
 }) => {
   const [open, setOpen] = React.useState(false);
 
@@ -34,32 +35,25 @@ export const DeleteConfirmDialog: React.FC<DeleteConfirmDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {children}
-      </DialogTrigger>
+      <DialogTrigger asChild>{children}</DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             {destructive ? (
-              <AlertTriangle className="h-5 w-5 text-destructive" />
+              <AlertTriangle className="text-destructive h-5 w-5" />
             ) : (
               <Trash2 className="h-5 w-5" />
             )}
             {title}
           </DialogTitle>
-          <DialogDescription>
-            {description}
-          </DialogDescription>
+          <DialogDescription>{description}</DialogDescription>
         </DialogHeader>
-        <div className="flex justify-end gap-3 mt-6">
+        <div className="mt-6 flex justify-end gap-3">
           <Button variant="outline" onClick={() => setOpen(false)}>
             Скасувати
           </Button>
-          <Button 
-            variant={destructive ? "destructive" : "default"} 
-            onClick={handleConfirm}
-          >
-            <Trash2 className="h-4 w-4 mr-2" />
+          <Button variant={destructive ? 'destructive' : 'default'} onClick={handleConfirm}>
+            <Trash2 className="mr-2 h-4 w-4" />
             Видалити
           </Button>
         </div>

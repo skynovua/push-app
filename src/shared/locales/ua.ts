@@ -21,7 +21,7 @@ export const ua = {
     success: 'Успішно',
     error: 'Помилка',
     confirm: 'Підтвердити',
-    cancel: 'Скасувати'
+    cancel: 'Скасувати',
   },
 
   // Лічильник
@@ -51,7 +51,7 @@ export const ua = {
     time: 'Час',
     count: 'Кількість',
     startPrompt: 'Натисніть "Старт" щоб розпочати тренування',
-    tapHint: 'Натискайте для підрахунку віджимань'
+    tapHint: 'Натискайте для підрахунку віджимань',
   },
 
   // Статистика
@@ -117,24 +117,24 @@ export const ua = {
       week: 'За тиждень',
       month: 'За місяць',
       year: 'За рік',
-      allTime: 'За весь час'
+      allTime: 'За весь час',
     },
     chartTitles: {
       week: 'Віджимання за останній тиждень',
       month: 'Віджимання за останній місяць',
       year: 'Віджимання за останній рік',
-      allTime: 'Віджимання за весь час'
+      allTime: 'Віджимання за весь час',
     },
     periodLabels: {
       week: 'Останній тиждень',
       month: 'Останній місяць',
       year: 'Останній рік',
-      allTime: 'За весь час'
+      allTime: 'За весь час',
     },
     oldSessionsDeleted: 'Старі тренування видалено!',
     todaySessionsDeleted: 'Сьогоднішні тренування видалено!',
     errorDeletingOldSessions: 'Помилка при видаленні старих тренувань',
-    errorDeletingSessions: 'Помилка при видаленні тренувань'
+    errorDeletingSessions: 'Помилка при видаленні тренувань',
   },
 
   // Налаштування
@@ -186,7 +186,8 @@ export const ua = {
     appDescription: 'Push-Up Counter - ваш персональний тренер для віджимань',
     // PWA Installation
     pwaInstallation: 'Встановлення додатку',
-    pwaDescription: 'Встановіть додаток на свій пристрій для швидкого доступу та роботи без інтернету',
+    pwaDescription:
+      'Встановіть додаток на свій пристрій для швидкого доступу та роботи без інтернету',
     installApp: 'Встановити додаток',
     appInstalled: 'Додаток встановлено',
     // Database stats
@@ -206,7 +207,7 @@ export const ua = {
       fullscreen: 'Повноекранний досвід',
       faster: 'Швидше завантаження',
       offline: 'Робота в offline режимі',
-      native: 'Нативний вигляд та відчуття'
+      native: 'Нативний вигляд та відчуття',
     },
     installSuggestion: 'Для кращого досвіду встановіть додаток на домашній екран',
     showInstallInstructions: 'Показати інструкції з встановлення',
@@ -215,47 +216,47 @@ export const ua = {
     online: 'Online',
     offline: 'Offline',
     supported: 'Підтримується',
-    notSupported: 'Не підтримується'
+    notSupported: 'Не підтримується',
   },
 
   // Досягнення
   achievements: {
     firstPushUp: {
       name: 'Перше віджимання',
-      description: 'Зробіть своє перше віджимання'
+      description: 'Зробіть своє перше віджимання',
     },
     milestone10: {
       name: '10 віджимань',
-      description: 'Досягніть 10 віджимань за одну сесію'
+      description: 'Досягніть 10 віджимань за одну сесію',
     },
     milestone50: {
       name: '50 віджимань',
-      description: 'Досягніть 50 віджимань за одну сесію'
+      description: 'Досягніть 50 віджимань за одну сесію',
     },
     milestone100: {
       name: '100 віджимань',
-      description: 'Досягніть 100 віджимань за одну сесію'
+      description: 'Досягніть 100 віджимань за одну сесію',
     },
     streak3: {
       name: '3 дні поспіль',
-      description: 'Тренуйтеся 3 дні поспіль'
+      description: 'Тренуйтеся 3 дні поспіль',
     },
     streak7: {
       name: 'Тиждень постійності',
-      description: 'Тренуйтеся 7 днів поспіль'
+      description: 'Тренуйтеся 7 днів поспіль',
     },
     streak30: {
       name: 'Місяць дисципліни',
-      description: 'Тренуйтеся 30 днів поспіль'
+      description: 'Тренуйтеся 30 днів поспіль',
     },
     total100: {
       name: '100 загалом',
-      description: 'Зробіть 100 віджимань загалом'
+      description: 'Зробіть 100 віджимань загалом',
     },
     total1000: {
       name: '1000 загалом',
-      description: 'Зробіть 1000 віджимань загалом'
-    }
+      description: 'Зробіть 1000 віджимань загалом',
+    },
   },
 
   // Повідомлення та помилки
@@ -268,7 +269,7 @@ export const ua = {
     dataLoadError: 'Помилка завантаження даних',
     invalidGoal: 'Невірна ціль (має бути від 1 до 1000)',
     offlineMode: 'Режим офлайн',
-    onlineMode: 'Онлайн режим'
+    onlineMode: 'Онлайн режим',
   },
 
   // PWA Updates
@@ -288,7 +289,7 @@ export const ua = {
     releaseToRefresh: 'Відпустіть для оновлення',
     manualUpdate: 'Оновити вручну',
     autoUpdateEnabled: 'Автооновлення увімкнено',
-    newVersionInstalled: 'Встановлено нову версію!'
+    newVersionInstalled: 'Встановлено нову версію!',
   },
 
   // Дні тижня
@@ -297,9 +298,9 @@ export const ua = {
     tuesday: 'Вівторок',
     wednesday: 'Середа',
     thursday: 'Четвер',
-    friday: 'П\'ятниця',
+    friday: "П'ятниця",
     saturday: 'Субота',
-    sunday: 'Неділя'
+    sunday: 'Неділя',
   },
 
   // Місяці
@@ -315,8 +316,8 @@ export const ua = {
     september: 'Вересень',
     october: 'Жовтень',
     november: 'Листопад',
-    december: 'Грудень'
-  }
+    december: 'Грудень',
+  },
 };
 
 export type Translations = typeof ua;

@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { Trash2, Clock, Calendar, Target, Trophy, Flame } from 'lucide-react';
-import { Button } from '@/shared/ui/button';
-import { Badge } from '@/shared/ui/badge';
-import { Card, CardContent } from '@/shared/ui/card';
-import { useWorkoutData } from '@/shared/model/workout-data';
-import { useT, useTranslation, showToast } from '@/shared/lib';
-import { DeleteConfirmDialog } from '@/shared/ui/delete-confirm-dialog';
+import { Calendar, Clock, Flame, Target, Trash2, Trophy } from 'lucide-react';
+
 import type { WorkoutSession } from '@/shared/domain';
+import { showToast, useT, useTranslation } from '@/shared/lib';
+import { useWorkoutData } from '@/shared/model/workout-data';
+import { Badge } from '@/shared/ui/badge';
+import { Button } from '@/shared/ui/button';
+import { Card, CardContent } from '@/shared/ui/card';
+import { DeleteConfirmDialog } from '@/shared/ui/delete-confirm-dialog';
 
 export const WorkoutHistory: React.FC = () => {
   const { sessions, deleteSession } = useWorkoutData();
@@ -19,22 +20,13 @@ export const WorkoutHistory: React.FC = () => {
     try {
       const success = await deleteSession(sessionId);
       if (success) {
-        showToast.success(
-          t.stats.sessionDeleted,
-          t.stats.sessionDeletedSuccess
-        );
+        showToast.success(t.stats.sessionDeleted, t.stats.sessionDeletedSuccess);
       } else {
-        showToast.error(
-          t.stats.errorDeleting,
-          t.stats.errorDeletingSession
-        );
+        showToast.error(t.stats.errorDeleting, t.stats.errorDeletingSession);
       }
     } catch (error) {
       console.error('Error deleting session:', error);
-      showToast.error(
-        t.stats.errorDeleting,
-        t.stats.errorDeletingGeneral
-      );
+      showToast.error(t.stats.errorDeleting, t.stats.errorDeletingGeneral);
     } finally {
       setDeletingId(null);
     }
@@ -46,7 +38,7 @@ export const WorkoutHistory: React.FC = () => {
       day: '2-digit',
       month: 'short',
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     }).format(date);
   };
 
@@ -55,7 +47,7 @@ export const WorkoutHistory: React.FC = () => {
     const localeCode = locale === 'ua' ? 'uk-UA' : 'en-US';
     return new Intl.DateTimeFormat(localeCode, {
       day: '2-digit',
-      month: 'short'
+      month: 'short',
     }).format(date);
   };
 
@@ -63,7 +55,7 @@ export const WorkoutHistory: React.FC = () => {
     const localeCode = locale === 'ua' ? 'uk-UA' : 'en-US';
     return new Intl.DateTimeFormat(localeCode, {
       hour: '2-digit',
-      minute: '2-digit'
+      minute: '2-digit',
     }).format(date);
   };
 
@@ -78,8 +70,8 @@ export const WorkoutHistory: React.FC = () => {
 
   if (recentSessions.length === 0) {
     return (
-      <div className="text-center py-8 px-4 text-muted-foreground">
-        <Calendar className="h-8 w-8 mx-auto mb-2" />
+      <div className="text-muted-foreground px-4 py-8 text-center">
+        <Calendar className="mx-auto mb-2 h-8 w-8" />
         <p className="text-sm sm:text-base">{t.stats.noDataYet}</p>
       </div>
     );
@@ -88,45 +80,44 @@ export const WorkoutHistory: React.FC = () => {
   return (
     <div className="space-y-3">
       {recentSessions.map((session: WorkoutSession) => (
-        <Card key={session.id} className="border border-border/50">
+        <Card key={session.id} className="border-border/50 border">
           <CardContent className="p-3 sm:p-4">
             {/* Mobile Layout: Stack elements vertically */}
             <div className="flex flex-col space-y-3 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
-              
               {/* Main content area */}
               <div className="flex items-center justify-between sm:flex-1">
                 {/* Кількість віджимань */}
                 <div className="text-center">
-                  <div className="text-xl sm:text-2xl font-bold text-primary">
+                  <div className="text-primary text-xl font-bold sm:text-2xl">
                     {session.pushUps}
                   </div>
-                  <div className="text-xs text-muted-foreground">
-                    {t.stats.pushUps}
-                  </div>
+                  <div className="text-muted-foreground text-xs">{t.stats.pushUps}</div>
                 </div>
 
                 {/* Інформація про сесію */}
-                <div className="flex-1 mx-3 sm:mx-4 space-y-1">
+                <div className="mx-3 flex-1 space-y-1 sm:mx-4">
                   {/* Mobile: Show date and time on separate lines */}
-                  <div className="sm:hidden space-y-1">
+                  <div className="space-y-1 sm:hidden">
                     <div className="flex items-center gap-2 text-xs">
-                      <Calendar className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                      <Calendar className="text-muted-foreground h-3 w-3 flex-shrink-0" />
                       <span className="truncate">{formatDate(session.date)}</span>
                     </div>
                     <div className="flex items-center gap-2 text-xs">
-                      <Clock className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-                      <span>{formatTime(session.date)} • {formatDuration(session.duration)}</span>
+                      <Clock className="text-muted-foreground h-3 w-3 flex-shrink-0" />
+                      <span>
+                        {formatTime(session.date)} • {formatDuration(session.duration)}
+                      </span>
                     </div>
                   </div>
-                  
+
                   {/* Desktop: Show date and time together */}
-                  <div className="hidden sm:block space-y-1">
+                  <div className="hidden space-y-1 sm:block">
                     <div className="flex items-center gap-2 text-sm">
-                      <Calendar className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                      <Calendar className="text-muted-foreground h-4 w-4 flex-shrink-0" />
                       <span className="truncate">{formatDateTime(session.date)}</span>
                     </div>
                     <div className="flex items-center gap-2 text-sm">
-                      <Clock className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                      <Clock className="text-muted-foreground h-4 w-4 flex-shrink-0" />
                       <span>{formatDuration(session.duration)}</span>
                     </div>
                   </div>
@@ -152,24 +143,33 @@ export const WorkoutHistory: React.FC = () => {
               </div>
 
               {/* Бейджі - на мобільному внизу, на десктопі справа */}
-              <div className="flex flex-wrap gap-1 sm:gap-2 sm:flex-nowrap">
+              <div className="flex flex-wrap gap-1 sm:flex-nowrap sm:gap-2">
                 {session.goal && session.pushUps >= session.goal && (
-                  <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-100 text-xs">
-                    <Target className="h-3 w-3 mr-1" />
+                  <Badge
+                    variant="secondary"
+                    className="bg-green-100 text-xs text-green-800 dark:bg-green-900 dark:text-green-100"
+                  >
+                    <Target className="mr-1 h-3 w-3" />
                     <span className="hidden sm:inline">{t.stats.goalAchieved}</span>
                     <span className="sm:hidden">{t.stats.goal}</span>
                   </Badge>
                 )}
                 {session.pushUps >= 50 && (
-                  <Badge variant="secondary" className="bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-100 text-xs">
-                    <Trophy className="h-3 w-3 mr-1" />
+                  <Badge
+                    variant="secondary"
+                    className="bg-blue-100 text-xs text-blue-800 dark:bg-blue-900 dark:text-blue-100"
+                  >
+                    <Trophy className="mr-1 h-3 w-3" />
                     <span className="hidden sm:inline">{t.stats.excellent}</span>
                     <span className="sm:hidden">{t.stats.fiftyPlus}</span>
                   </Badge>
                 )}
                 {session.pushUps >= 100 && (
-                  <Badge variant="secondary" className="bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-100 text-xs">
-                    <Flame className="h-3 w-3 mr-1" />
+                  <Badge
+                    variant="secondary"
+                    className="bg-purple-100 text-xs text-purple-800 dark:bg-purple-900 dark:text-purple-100"
+                  >
+                    <Flame className="mr-1 h-3 w-3" />
                     <span className="hidden sm:inline">{t.stats.top}</span>
                     <span className="sm:hidden">{t.stats.hundredPlus}</span>
                   </Badge>
@@ -177,7 +177,7 @@ export const WorkoutHistory: React.FC = () => {
               </div>
 
               {/* Кнопка видалення - на десктопі справа */}
-              <div className="hidden sm:block sm:ml-4">
+              <div className="hidden sm:ml-4 sm:block">
                 <DeleteConfirmDialog
                   title={t.stats.deleteSession}
                   description={t.stats.confirmDelete}
@@ -199,8 +199,8 @@ export const WorkoutHistory: React.FC = () => {
       ))}
 
       {sessions.length > 10 && (
-        <div className="text-center pt-4 px-4">
-          <p className="text-xs sm:text-sm text-muted-foreground">
+        <div className="px-4 pt-4 text-center">
+          <p className="text-muted-foreground text-xs sm:text-sm">
             {t.stats.showingRecentWorkouts} {sessions.length}
           </p>
         </div>

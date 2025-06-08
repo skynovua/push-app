@@ -1,15 +1,15 @@
 import React from 'react';
-import { TrendingUp, Target, Calendar, Award, Flame, Star } from 'lucide-react';
+import { Award, Calendar, Flame, Star, Target, TrendingUp } from 'lucide-react';
 
+import { useT } from '@/shared/lib';
+import { useWorkoutData } from '@/shared/model';
+import { Badge } from '@/shared/ui/badge';
 // Shared imports
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card';
-import { Badge } from '@/shared/ui/badge';
-import { useWorkoutData } from '@/shared/model';
-import { useT } from '@/shared/lib';
 
+import { StatsChart } from './stats-chart';
 // Feature-specific components
 import { WorkoutHistory } from './workout-history';
-import { StatsChart } from './stats-chart';
 
 export const StatsFeature: React.FC = () => {
   const {
@@ -20,57 +20,55 @@ export const StatsFeature: React.FC = () => {
     bestDay,
     averagePerSession,
     totalSessions,
-    loading
+    loading,
   } = useWorkoutData();
 
   const t = useT();
 
   if (loading) {
     return (
-      <div className="py-6 space-y-6">
+      <div className="space-y-6 py-6">
         <div className="text-center">
-          <h2 className="text-2xl font-bold mb-4">{t.stats.loading}</h2>
+          <h2 className="mb-4 text-2xl font-bold">{t.stats.loading}</h2>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="py-6 space-y-6">
+    <div className="space-y-6 py-6">
       {/* Header */}
       <div className="text-center">
-        <h2 className="text-2xl font-bold mb-2">{t.stats.title}</h2>
+        <h2 className="mb-2 text-2xl font-bold">{t.stats.title}</h2>
         <p className="text-muted-foreground">{t.stats.subtitle}</p>
       </div>
 
       {/* Quick Stats Grid */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-sm font-medium">
               <Calendar className="h-4 w-4" />
               {t.common.today}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{todayPushUps}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {t.stats.pushUps}
-            </p>
+            <p className="text-muted-foreground mt-1 text-xs">{t.stats.pushUps}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-sm font-medium">
               <TrendingUp className="h-4 w-4" />
               {t.stats.currentStreak}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{currentStreak}</div>
-            <div className="flex items-center gap-1 mt-1">
-              <Badge variant="secondary" className="text-xs flex items-center gap-1">
+            <div className="mt-1 flex items-center gap-1">
+              <Badge variant="secondary" className="flex items-center gap-1 text-xs">
                 {currentStreak > 0 ? (
                   <>
                     <Flame className="h-3 w-3" />
@@ -89,31 +87,27 @@ export const StatsFeature: React.FC = () => {
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-sm font-medium">
               <Target className="h-4 w-4" />
               {t.stats.total}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalPushUps}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {t.stats.allTime}
-            </p>
+            <p className="text-muted-foreground mt-1 text-xs">{t.stats.allTime}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium flex items-center gap-2">
+            <CardTitle className="flex items-center gap-2 text-sm font-medium">
               <Award className="h-4 w-4" />
               {t.stats.bestDay}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{bestDay?.count || 0}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {bestDay?.date || t.stats.noData}
-            </p>
+            <p className="text-muted-foreground mt-1 text-xs">{bestDay?.date || t.stats.noData}</p>
           </CardContent>
         </Card>
       </div>
@@ -126,11 +120,13 @@ export const StatsFeature: React.FC = () => {
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex justify-between">
-              <span className="text-sm text-muted-foreground">{t.stats.forWeek}:</span>
-              <span className="font-medium">{weeklyStats} {t.stats.pushUps}</span>
+              <span className="text-muted-foreground text-sm">{t.stats.forWeek}:</span>
+              <span className="font-medium">
+                {weeklyStats} {t.stats.pushUps}
+              </span>
             </div>
             <div className="flex justify-between">
-              <span className="text-sm text-muted-foreground">{t.stats.totalSessions}:</span>
+              <span className="text-muted-foreground text-sm">{t.stats.totalSessions}:</span>
               <span className="font-medium">{totalSessions}</span>
             </div>
           </CardContent>
@@ -142,12 +138,14 @@ export const StatsFeature: React.FC = () => {
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex justify-between">
-              <span className="text-sm text-muted-foreground">{t.stats.perSession}:</span>
+              <span className="text-muted-foreground text-sm">{t.stats.perSession}:</span>
               <span className="font-medium">{averagePerSession}</span>
             </div>
             <div className="flex justify-between">
-              <span className="text-sm text-muted-foreground">{t.stats.streak}:</span>
-              <span className="font-medium">{currentStreak} {t.stats.days}</span>
+              <span className="text-muted-foreground text-sm">{t.stats.streak}:</span>
+              <span className="font-medium">
+                {currentStreak} {t.stats.days}
+              </span>
             </div>
           </CardContent>
         </Card>
@@ -164,9 +162,7 @@ export const StatsFeature: React.FC = () => {
               <Calendar className="h-5 w-5" />
               {t.stats.workoutHistory}
             </CardTitle>
-            <CardDescription>
-              {t.stats.recentWorkouts}
-            </CardDescription>
+            <CardDescription>{t.stats.recentWorkouts}</CardDescription>
           </CardHeader>
           <CardContent>
             <WorkoutHistory />

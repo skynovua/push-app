@@ -40,8 +40,10 @@ class PWAService {
     });
 
     // Check if running in standalone mode
-    if (window.matchMedia('(display-mode: standalone)').matches || 
-        (window.navigator as unknown as { standalone?: boolean }).standalone === true) {
+    if (
+      window.matchMedia('(display-mode: standalone)').matches ||
+      (window.navigator as unknown as { standalone?: boolean }).standalone === true
+    ) {
       this.isInstalled = true;
     }
 
@@ -86,12 +88,16 @@ class PWAService {
     if (this.registration && this.registration.waiting) {
       // Send message to waiting service worker to skip waiting
       this.registration.waiting.postMessage({ type: 'SKIP_WAITING' });
-      
+
       // Wait for service worker to become active
       return new Promise((resolve) => {
-        navigator.serviceWorker.addEventListener('controllerchange', () => {
-          resolve();
-        }, { once: true });
+        navigator.serviceWorker.addEventListener(
+          'controllerchange',
+          () => {
+            resolve();
+          },
+          { once: true }
+        );
       });
     }
   }
@@ -116,7 +122,7 @@ class PWAService {
     if ('serviceWorker' in navigator) {
       try {
         this.registration = await navigator.serviceWorker.register('/sw.js');
-        
+
         // Listen for updates
         this.registration.addEventListener('updatefound', () => {
           const newWorker = this.registration!.installing;
@@ -144,7 +150,7 @@ class PWAService {
     if (this.isIOSSafari()) {
       return !this.isInstalled;
     }
-    
+
     return !!this.deferredPrompt && !this.isInstalled;
   }
 
@@ -166,8 +172,10 @@ class PWAService {
    * Check if the app is running in standalone mode (installed PWA)
    */
   isStandalone(): boolean {
-    return window.matchMedia('(display-mode: standalone)').matches || 
-           (window.navigator as unknown as { standalone?: boolean }).standalone === true;
+    return (
+      window.matchMedia('(display-mode: standalone)').matches ||
+      (window.navigator as unknown as { standalone?: boolean }).standalone === true
+    );
   }
 
   /**
@@ -186,10 +194,10 @@ class PWAService {
     }
 
     const userAgent = window.navigator.userAgent;
-    
+
     // Extract iOS version
     const versionMatch = userAgent.match(/OS (\d+)_(\d+)_?(\d+)?/);
-    const version = versionMatch 
+    const version = versionMatch
       ? `${versionMatch[1]}.${versionMatch[2]}${versionMatch[3] ? '.' + versionMatch[3] : ''}`
       : 'Unknown';
 
@@ -220,12 +228,12 @@ class PWAService {
     try {
       await this.deferredPrompt.prompt();
       const { outcome } = await this.deferredPrompt.userChoice;
-      
+
       if (outcome === 'accepted') {
         this.deferredPrompt = null;
         return true;
       }
-      
+
       return false;
     } catch (error) {
       console.error('Error during PWA installation:', error);
@@ -245,7 +253,7 @@ class PWAService {
 • Буде доступний offline
 • Отримаєте повноекранний досвід без Safari UI
 • Швидше завантаження та кращу продуктивність`;
-    
+
     // Create a more user-friendly modal instead of alert
     this.createIOSInstallModal(message);
   }
@@ -331,9 +339,15 @@ class PWAService {
     this.isPullToRefreshEnabled = true;
     this.pullToRefreshElement = element || document.body;
 
-    this.pullToRefreshElement.addEventListener('touchstart', this.handleTouchStart.bind(this), { passive: true });
-    this.pullToRefreshElement.addEventListener('touchmove', this.handleTouchMove.bind(this), { passive: false });
-    this.pullToRefreshElement.addEventListener('touchend', this.handleTouchEnd.bind(this), { passive: true });
+    this.pullToRefreshElement.addEventListener('touchstart', this.handleTouchStart.bind(this), {
+      passive: true,
+    });
+    this.pullToRefreshElement.addEventListener('touchmove', this.handleTouchMove.bind(this), {
+      passive: false,
+    });
+    this.pullToRefreshElement.addEventListener('touchend', this.handleTouchEnd.bind(this), {
+      passive: true,
+    });
   }
 
   private handleTouchStart(event: TouchEvent) {
@@ -342,7 +356,7 @@ class PWAService {
 
   private handleTouchMove(event: TouchEvent) {
     this.touchEndY = event.touches[0].clientY;
-    
+
     // Check if user is at the top of the page and pulling down
     if (window.scrollY === 0 && this.touchEndY > this.touchStartY + 100) {
       // Show pull-to-refresh indicator
@@ -352,7 +366,7 @@ class PWAService {
 
   private handleTouchEnd() {
     if (!this.isPullToRefreshEnabled) return;
-    
+
     if (window.scrollY === 0 && this.touchEndY > this.touchStartY + 150) {
       // Trigger refresh
       this.checkForUpdates();
@@ -366,7 +380,8 @@ class PWAService {
     if (!indicator) {
       indicator = document.createElement('div');
       indicator.id = 'pull-to-refresh-indicator';
-      indicator.className = 'fixed top-0 left-0 right-0 z-50 bg-blue-500 text-white text-center py-2 text-sm transition-transform duration-200 -translate-y-full';
+      indicator.className =
+        'fixed top-0 left-0 right-0 z-50 bg-blue-500 text-white text-center py-2 text-sm transition-transform duration-200 -translate-y-full';
       indicator.textContent = '⟳ Pull to refresh';
       document.body.appendChild(indicator);
     }
@@ -382,7 +397,9 @@ class PWAService {
   }
 
   private isMobileDevice(): boolean {
-    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent
+    );
   }
 
   // Show native-like update notification for mobile
@@ -395,7 +412,7 @@ class PWAService {
           icon: '/icon-192x192.png',
           badge: '/icon-192x192.png',
           tag: 'app-update',
-          requireInteraction: true
+          requireInteraction: true,
         });
 
         notification.onclick = () => {
@@ -438,7 +455,7 @@ class PWAService {
         new Notification(title, {
           icon: '/icon-192x192.png',
           badge: '/icon-192x192.png',
-          ...options
+          ...options,
         });
       } else {
         // Fallback to console or in-app notification

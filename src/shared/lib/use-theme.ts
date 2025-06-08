@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+
 import { useWorkoutStore } from '@/shared/model';
 
 /**
@@ -12,7 +13,7 @@ export const useTheme = () => {
   // Apply theme to document element when dark mode changes
   useEffect(() => {
     const root = document.documentElement;
-    
+
     if (isDarkMode) {
       root.classList.add('dark');
     } else {
@@ -27,10 +28,10 @@ export const useTheme = () => {
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme');
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    
+
     // Use saved theme or system preference if no saved theme
     const shouldBeDark = savedTheme ? savedTheme === 'dark' : prefersDark;
-    
+
     if (shouldBeDark !== isDarkMode) {
       updateSettings({ darkMode: shouldBeDark });
     }
@@ -39,7 +40,7 @@ export const useTheme = () => {
   // Listen for system theme changes
   useEffect(() => {
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
-    
+
     const handleChange = (e: MediaQueryListEvent) => {
       // Only apply system preference if no manual theme is set
       const savedTheme = localStorage.getItem('theme');
@@ -49,7 +50,7 @@ export const useTheme = () => {
     };
 
     mediaQuery.addEventListener('change', handleChange);
-    
+
     return () => {
       mediaQuery.removeEventListener('change', handleChange);
     };
@@ -69,6 +70,6 @@ export const useTheme = () => {
     toggleTheme,
     setTheme,
     setDarkMode: (dark: boolean) => setTheme(dark),
-    setLightMode: () => setTheme(false)
+    setLightMode: () => setTheme(false),
   };
 };

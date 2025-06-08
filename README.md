@@ -27,7 +27,8 @@ A modern Progressive Web Application for tracking push-up workouts, built with R
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 18+ 
+
+- Node.js 18+
 - npm or yarn
 
 ### Installation
@@ -64,18 +65,21 @@ npm run preview
 ## 🎮 How to Use
 
 ### Counter Screen
+
 1. Tap **"Начать"** (Start) to begin your workout
 2. Tap the large counter button for each push-up completed
 3. Use **"Пауза"** (Pause) to take breaks
 4. **"Сохранить тренировку"** (Save Workout) to store your session
 
 ### Stats Screen
+
 - View daily, weekly, and monthly progress
 - Track your total push-ups and current streak
 - See interactive charts of your workout history
 - Monitor personal records and achievements
 
 ### Settings Screen
+
 - Set daily push-up goals
 - Toggle dark/light theme
 - Enable/disable sound effects
@@ -114,6 +118,7 @@ src/
 ## 🔧 Configuration
 
 ### Customizing Goals
+
 Edit `src/hooks/useWorkoutStore.ts` to change default daily goals:
 
 ```typescript
@@ -124,12 +129,15 @@ const initialSettings: AppSettings = {
 ```
 
 ### Theming
+
 Modify `src/index.css` and `tailwind.config.js` for custom themes.
 
 ## 🔄 Recent Updates
 
 ### Tailwind CSS v4 Migration
+
 The project has been successfully upgraded to Tailwind CSS v4 with the following improvements:
+
 - **🚀 Faster builds**: 95% improvement in build time (from ~48s to ~2s)
 - **🎨 Better colors**: Migration to OKLCH color space for improved color accuracy
 - **⚡ Simplified config**: Removed legacy config files, using Vite plugin
@@ -140,12 +148,14 @@ For detailed migration information, see [TAILWIND_V4_MIGRATION.md](./TAILWIND_V4
 ## 🚀 Deployment
 
 ### Vercel (Recommended)
+
 ```bash
 npm install -g vercel
 vercel --prod
 ```
 
 ### Netlify
+
 ```bash
 npm run build
 # Upload dist/ folder to Netlify

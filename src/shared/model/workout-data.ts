@@ -1,6 +1,15 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+
+import type {
+  DailyStats,
+  ImportData,
+  ImportResult,
+  PeriodStats,
+  TimePeriod,
+  WorkoutSession,
+} from '@/shared/domain';
+
 import { dbUtils } from '../lib/database';
-import type { DailyStats, ImportData, ImportResult, PeriodStats, TimePeriod, WorkoutSession } from '@/shared/domain';
 
 export const useWorkoutData = () => {
   const [sessions, setSessions] = useState<WorkoutSession[]>([]);
@@ -78,11 +87,11 @@ export const useWorkoutData = () => {
   // Группировка сессий по дням
   const dailyStats = useMemo(() => {
     const statsMap = new Map<string, DailyStats>();
-    
-    sessions.forEach(session => {
+
+    sessions.forEach((session) => {
       const dateKey = session.date.toISOString().split('T')[0];
       const existing = statsMap.get(dateKey);
-      
+
       if (existing) {
         existing.count += session.pushUps;
         existing.sessions += 1;
@@ -92,11 +101,11 @@ export const useWorkoutData = () => {
           date: dateKey,
           count: session.pushUps,
           sessions: 1,
-          duration: session.duration
+          duration: session.duration,
         });
       }
-    });    
-    
+    });
+
     return Array.from(statsMap.values())
       .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
       .slice(-7); // Последние 7 дней
@@ -106,9 +115,9 @@ export const useWorkoutData = () => {
   const weeklyStats = useMemo(() => {
     const weekAgo = new Date();
     weekAgo.setDate(weekAgo.getDate() - 7);
-    
+
     return sessions
-      .filter(session => session.date >= weekAgo)
+      .filter((session) => session.date >= weekAgo)
       .reduce((total, session) => total + session.pushUps, 0);
   }, [sessions]);
 
@@ -121,21 +130,21 @@ export const useWorkoutData = () => {
   const todayPushUps = useMemo(() => {
     const today = new Date().toISOString().split('T')[0];
     return sessions
-      .filter(session => session.date.toISOString().split('T')[0] === today)
+      .filter((session) => session.date.toISOString().split('T')[0] === today)
       .reduce((total, session) => total + session.pushUps, 0);
   }, [sessions]);
 
   // Текущий стрик (дни подряд с тренировками)
   const currentStreak = useMemo(() => {
     if (sessions.length === 0) return 0;
-    
-    const sortedDates = Array.from(new Set(
-      sessions.map(s => s.date.toISOString().split('T')[0])
-    )).sort().reverse();
-    
+
+    const sortedDates = Array.from(new Set(sessions.map((s) => s.date.toISOString().split('T')[0])))
+      .sort()
+      .reverse();
+
     let streak = 0;
     const currentDate = new Date();
-    
+
     for (const date of sortedDates) {
       const checkDate = currentDate.toISOString().split('T')[0];
       if (date === checkDate) {
@@ -145,21 +154,19 @@ export const useWorkoutData = () => {
         break;
       }
     }
-    
+
     return streak;
   }, [sessions]);
 
   // Лучший день (максимум отжиманий за день)
   const bestDay = useMemo(() => {
     if (dailyStats.length === 0) return null;
-    
-    const maxDay = dailyStats.reduce((max, current) => 
-      current.count > max.count ? current : max
-    );
-    
+
+    const maxDay = dailyStats.reduce((max, current) => (current.count > max.count ? current : max));
+
     return {
       count: maxDay.count,
-      date: new Date(maxDay.date).toLocaleDateString()
+      date: new Date(maxDay.date).toLocaleDateString(),
     };
   }, [dailyStats]);
 
@@ -174,32 +181,32 @@ export const useWorkoutData = () => {
     try {
       const text = await file.text();
       const data = JSON.parse(text) as ImportData;
-      
+
       // Валідуємо дані
       if (!dbUtils.validateImportData(data)) {
         return {
           success: false,
           imported: 0,
           duplicates: 0,
-          errors: ['Некоректний формат файлу']
+          errors: ['Некоректний формат файлу'],
         };
       }
 
       // Імпортуємо дані
       const result = await dbUtils.importData(data);
-      
+
       // Оновлюємо дані після імпорту
       if (result.success && result.imported > 0) {
         await loadSessions();
       }
-      
+
       return result;
     } catch (error) {
       return {
         success: false,
         imported: 0,
         duplicates: 0,
-        errors: [`Помилка при читанні файлу: ${error}`]
+        errors: [`Помилка при читанні файлу: ${error}`],
       };
     }
   };
@@ -242,7 +249,7 @@ export const useWorkoutData = () => {
       const dateKey = date.toISOString().split('T')[0];
 
       const dayStats = sessions
-        .filter(session => {
+        .filter((session) => {
           const sessionDate = session.date.toISOString().split('T')[0];
           return sessionDate === dateKey;
         })
@@ -250,7 +257,7 @@ export const useWorkoutData = () => {
           (acc, session) => ({
             count: acc.count + session.pushUps,
             sessions: acc.sessions + 1,
-            duration: acc.duration + session.duration
+            duration: acc.duration + session.duration,
           }),
           { count: 0, sessions: 0, duration: 0 }
         );
@@ -260,10 +267,10 @@ export const useWorkoutData = () => {
         count: dayStats.count,
         sessions: dayStats.sessions,
         duration: dayStats.duration,
-        label: date.toLocaleDateString('uk-UA', { 
-          month: 'short', 
-          day: 'numeric' 
-        })
+        label: date.toLocaleDateString('uk-UA', {
+          month: 'short',
+          day: 'numeric',
+        }),
       });
     }
 
@@ -277,12 +284,12 @@ export const useWorkoutData = () => {
     // Останні 4 тижні
     for (let i = 3; i >= 0; i--) {
       const weekStart = new Date(now);
-      weekStart.setDate(weekStart.getDate() - (i * 7) - weekStart.getDay());
+      weekStart.setDate(weekStart.getDate() - i * 7 - weekStart.getDay());
       const weekEnd = new Date(weekStart);
       weekEnd.setDate(weekStart.getDate() + 6);
 
       const weekStats = sessions
-        .filter(session => {
+        .filter((session) => {
           const sessionDate = new Date(session.date);
           return sessionDate >= weekStart && sessionDate <= weekEnd;
         })
@@ -290,7 +297,7 @@ export const useWorkoutData = () => {
           (acc, session) => ({
             count: acc.count + session.pushUps,
             sessions: acc.sessions + 1,
-            duration: acc.duration + session.duration
+            duration: acc.duration + session.duration,
           }),
           { count: 0, sessions: 0, duration: 0 }
         );
@@ -300,7 +307,7 @@ export const useWorkoutData = () => {
         count: weekStats.count,
         sessions: weekStats.sessions,
         duration: weekStats.duration,
-        label: `${weekStart.toLocaleDateString('uk-UA', { month: 'short' })} ${weekEnd.toLocaleDateString('uk-UA', { day: 'numeric' })}`
+        label: `${weekStart.toLocaleDateString('uk-UA', { month: 'short' })} ${weekEnd.toLocaleDateString('uk-UA', { day: 'numeric' })}`,
       });
     }
 
@@ -316,16 +323,18 @@ export const useWorkoutData = () => {
       const monthDate = new Date(now.getFullYear(), now.getMonth() - i, 1);
 
       const monthStats = sessions
-        .filter(session => {
+        .filter((session) => {
           const sessionDate = new Date(session.date);
-          return sessionDate.getFullYear() === monthDate.getFullYear() &&
-                 sessionDate.getMonth() === monthDate.getMonth();
+          return (
+            sessionDate.getFullYear() === monthDate.getFullYear() &&
+            sessionDate.getMonth() === monthDate.getMonth()
+          );
         })
         .reduce(
           (acc, session) => ({
             count: acc.count + session.pushUps,
             sessions: acc.sessions + 1,
-            duration: acc.duration + session.duration
+            duration: acc.duration + session.duration,
           }),
           { count: 0, sessions: 0, duration: 0 }
         );
@@ -335,7 +344,7 @@ export const useWorkoutData = () => {
         count: monthStats.count,
         sessions: monthStats.sessions,
         duration: monthStats.duration,
-        label: monthDate.toLocaleDateString('uk-UA', { month: 'short', year: '2-digit' })
+        label: monthDate.toLocaleDateString('uk-UA', { month: 'short', year: '2-digit' }),
       });
     }
 
@@ -346,7 +355,7 @@ export const useWorkoutData = () => {
     const allTimeData = new Map<number, { count: number; sessions: number; duration: number }>();
 
     // Групуємо всі дані по роках
-    sessions.forEach(session => {
+    sessions.forEach((session) => {
       const year = new Date(session.date).getFullYear();
       const existing = allTimeData.get(year);
 
@@ -358,7 +367,7 @@ export const useWorkoutData = () => {
         allTimeData.set(year, {
           count: session.pushUps,
           sessions: 1,
-          duration: session.duration
+          duration: session.duration,
         });
       }
     });
@@ -370,7 +379,7 @@ export const useWorkoutData = () => {
         count: stats.count,
         sessions: stats.sessions,
         duration: stats.duration,
-        label: year.toString()
+        label: year.toString(),
       }));
   };
 
@@ -395,6 +404,6 @@ export const useWorkoutData = () => {
     averagePerSession,
     totalSessions: sessions.length,
     // Нові функції для періодів
-    getStatsForPeriod
+    getStatsForPeriod,
   };
 };

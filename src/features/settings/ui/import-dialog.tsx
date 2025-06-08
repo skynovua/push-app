@@ -1,11 +1,22 @@
-import React, { useState, useRef } from 'react';
-import { Upload, FileText, AlertCircle, CheckCircle } from 'lucide-react';
-import { useToast } from '@/shared/lib/toast';
+import React, { useRef, useState } from 'react';
+import { AlertCircle, CheckCircle, FileText, Upload } from 'lucide-react';
+
 import type { ImportResult } from '@/shared/domain';
 import { useT } from '@/shared/lib';
+import { useToast } from '@/shared/lib/toast';
 import { useWorkoutData } from '@/shared/model';
-import { Badge, Button, Card, CardContent, Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/shared/ui';
-
+import {
+  Badge,
+  Button,
+  Card,
+  CardContent,
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/shared/ui';
 
 interface ImportDialogProps {
   trigger?: React.ReactNode;
@@ -17,7 +28,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ trigger }) => {
   const [importResult, setImportResult] = useState<ImportResult | null>(null);
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  
+
   const t = useT();
   const { importData } = useWorkoutData();
   const { addToast } = useToast();
@@ -30,7 +41,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ trigger }) => {
       addToast({
         type: 'error',
         title: t.settings.importError,
-        description: t.settings.importInvalidFile
+        description: t.settings.importInvalidFile,
       });
       return;
     }
@@ -46,20 +57,20 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ trigger }) => {
         addToast({
           type: 'success',
           title: t.settings.importSuccess,
-          description: `${result.imported} ${t.settings.importSessionsAdded}${result.duplicates > 0 ? `, ${result.duplicates} ${t.settings.importDuplicates}` : ''}`
+          description: `${result.imported} ${t.settings.importSessionsAdded}${result.duplicates > 0 ? `, ${result.duplicates} ${t.settings.importDuplicates}` : ''}`,
         });
       } else {
         addToast({
           type: 'error',
           title: t.settings.importError,
-          description: result.errors.join(', ')
+          description: result.errors.join(', '),
         });
       }
     } catch (error) {
       addToast({
         type: 'error',
         title: t.settings.importError,
-        description: `${error}`
+        description: `${error}`,
       });
     } finally {
       setImporting(false);
@@ -76,7 +87,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ trigger }) => {
   const handleDrop = (event: React.DragEvent) => {
     event.preventDefault();
     setDragOver(false);
-    
+
     const file = event.dataTransfer.files[0];
     if (file) {
       handleFileSelect(file);
@@ -112,39 +123,31 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ trigger }) => {
           </Button>
         )}
       </DialogTrigger>
-      
+
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Upload className="h-5 w-5" />
             {t.settings.importData}
           </DialogTitle>
-          <DialogDescription>
-            {t.settings.importDescription}
-          </DialogDescription>
+          <DialogDescription>{t.settings.importDescription}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           {/* Зона для перетягування файлів */}
           <div
-            className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors ${
-              dragOver 
-                ? 'border-primary bg-primary/5' 
+            className={`rounded-lg border-2 border-dashed p-8 text-center transition-colors ${
+              dragOver
+                ? 'border-primary bg-primary/5'
                 : 'border-muted-foreground/25 hover:border-primary/50'
             }`}
             onDrop={handleDrop}
             onDragOver={handleDragOver}
             onDragLeave={handleDragLeave}
           >
-            <FileText className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
-            <p className="text-sm text-muted-foreground mb-4">
-              Перетягніть JSON файл сюди або
-            </p>
-            <Button 
-              variant="outline" 
-              onClick={openFileDialog}
-              disabled={importing}
-            >
+            <FileText className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
+            <p className="text-muted-foreground mb-4 text-sm">Перетягніть JSON файл сюди або</p>
+            <Button variant="outline" onClick={openFileDialog} disabled={importing}>
               {importing ? 'Імпортування...' : t.settings.importButton}
             </Button>
           </div>
@@ -155,15 +158,13 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ trigger }) => {
               <CardContent className="pt-6">
                 <div className="flex items-start gap-3">
                   {importResult.success ? (
-                    <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
+                    <CheckCircle className="mt-0.5 h-5 w-5 text-green-500" />
                   ) : (
-                    <AlertCircle className="h-5 w-5 text-red-500 mt-0.5" />
+                    <AlertCircle className="mt-0.5 h-5 w-5 text-red-500" />
                   )}
                   <div className="flex-1 space-y-2">
-                    <h4 className="font-medium">
-                      {t.settings.importResults}
-                    </h4>
-                    
+                    <h4 className="font-medium">{t.settings.importResults}</h4>
+
                     {importResult.success ? (
                       <div className="space-y-1">
                         <div className="flex gap-2">

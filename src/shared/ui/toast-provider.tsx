@@ -1,4 +1,5 @@
 import React from 'react';
+
 import { Toaster } from './sonner';
 
 // Provider component - now just the Toaster
@@ -6,7 +7,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   return (
     <>
       {children}
-      <Toaster 
+      <Toaster
         position="top-right"
         expand={true}
         richColors={true}

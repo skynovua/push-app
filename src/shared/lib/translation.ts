@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import { locales, type Locale, type Translations, detectLocale } from '../locales';
+
+import { detectLocale, locales, type Locale, type Translations } from '../locales';
 
 interface TranslationState {
   locale: Locale;
@@ -21,10 +22,10 @@ export const useTranslation = create<TranslationState>((set) => ({
     localStorage.setItem('app-language', locale);
     set({
       locale,
-      t: locales[locale]
+      t: locales[locale],
     });
   },
-  t: locales[getStoredLocale()]
+  t: locales[getStoredLocale()],
 }));
 
 // Helper hook to get current translations
