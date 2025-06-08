@@ -50,7 +50,7 @@ export const IOSPWAStatus: React.FC<IOSPWAStatusProps> = ({ onInstallClick }) =>
   };
 
   return (
-    <Card className="border-blue-200 bg-blue-50">
+    <Card className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950">
       <CardHeader className="pb-3">
         <CardTitle className="text-lg flex items-center gap-2">
           📱 iOS PWA Status
@@ -61,18 +61,18 @@ export const IOSPWAStatus: React.FC<IOSPWAStatusProps> = ({ onInstallClick }) =>
       </CardHeader>
       <CardContent className="space-y-3">
         {deviceInfo && (
-          <div className="text-sm text-gray-600">
+          <div className="text-sm text-muted-foreground">
             <p><strong>Пристрій:</strong> {deviceInfo.model}</p>
             <p><strong>iOS версія:</strong> {deviceInfo.version}</p>
           </div>
         )}
         
         {isStandalone ? (
-          <div className="p-3 bg-green-100 rounded-lg">
-            <p className="text-green-800 text-sm">
+          <div className="p-3 bg-green-100 dark:bg-green-950 rounded-lg">
+            <p className="text-green-800 dark:text-green-200 text-sm">
               ✅ Додаток встановлений як PWA! Ви отримуєте:
             </p>
-            <ul className="text-green-700 text-sm mt-2 list-disc list-inside">
+            <ul className="text-green-700 dark:text-green-300 text-sm mt-2 list-disc list-inside">
               <li>Повноекранний досвід</li>
               <li>Швидше завантаження</li>
               <li>Робота в offline режимі</li>
@@ -81,8 +81,8 @@ export const IOSPWAStatus: React.FC<IOSPWAStatusProps> = ({ onInstallClick }) =>
           </div>
         ) : (
           <div className="space-y-3">
-            <div className="p-3 bg-amber-100 rounded-lg">
-              <p className="text-amber-800 text-sm">
+            <div className="p-3 bg-amber-100 dark:bg-amber-950 rounded-lg">
+              <p className="text-amber-800 dark:text-amber-200 text-sm">
                 ⚠️ Для кращого досвіду встановіть додаток на домашній екран
               </p>
             </div>
@@ -99,7 +99,7 @@ export const IOSPWAStatus: React.FC<IOSPWAStatusProps> = ({ onInstallClick }) =>
           </div>
         )}
         
-        <div className="text-xs text-gray-500 space-y-1">
+        <div className="text-xs text-muted-foreground space-y-1">
           <p><strong>Мережа:</strong> {pwaService.isOnline() ? "🟢 Online" : "🔴 Offline"}</p>
           <p><strong>Service Worker:</strong> {navigator.serviceWorker ? "🟢 Підтримується" : "🔴 Не підтримується"}</p>
         </div>
