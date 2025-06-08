@@ -37,7 +37,7 @@ const enTranslations: Translations = {
     goalReached: 'Goal reached! 🎉',
     keepGoing: 'Ready to train?',
     totalToday: 'Total today',
-    startHint: 'Click "{start}" to start training',
+    startHint: 'Click "Start" to start training',
     clickHint: 'Click the big button to count push-ups',
     almostThere: 'Almost there! 🎯',
     workoutSaved: 'Workout saved!',
