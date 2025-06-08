@@ -76,7 +76,6 @@ function App() {
       {/* Header */}
       <header 
         className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b"
-        style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
       >
         <div className="container max-w-2xl mx-auto px-4 py-4">
           <div className="flex items-center justify-center">
@@ -91,7 +90,6 @@ function App() {
       {/* Main Content */}
       <main 
         className="container max-w-2xl mx-auto pb-20 px-6"
-        style={{ marginBottom: 'env(safe-area-inset-bottom, 0px)' }}
       >
         {renderContent()}
       </main>
@@ -99,7 +97,6 @@ function App() {
       {/* Bottom Navigation */}
       <nav 
         className="fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-t"
-        style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
       >
         <div className="container max-w-2xl mx-auto px-4">
           <div className="flex justify-around py-2">
