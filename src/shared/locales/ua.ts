@@ -258,7 +258,7 @@ export const ua = {
     }
   },
 
-  // Помилки та повідомлення
+  // Повідомлення та помилки
   messages: {
     error: 'Помилка',
     success: 'Успішно',
@@ -269,6 +269,26 @@ export const ua = {
     invalidGoal: 'Невірна ціль (має бути від 1 до 1000)',
     offlineMode: 'Режим офлайн',
     onlineMode: 'Онлайн режим'
+  },
+
+  // PWA Updates
+  updates: {
+    updateAvailable: 'Доступне оновлення',
+    updateAvailableBody: 'Нова версія додатку готова до встановлення',
+    updateInstalled: 'Оновлення встановлено',
+    updateInstalledBody: 'Додаток оновлено до останньої версії',
+    update: 'Оновити',
+    updating: 'Оновлення...',
+    later: 'Пізніше',
+    checkingForUpdates: 'Перевірка оновлень...',
+    noUpdatesAvailable: 'Оновлень немає',
+    updateError: 'Помилка оновлення',
+    updateErrorBody: 'Не вдалося завантажити оновлення. Спробуйте пізніше.',
+    pullToRefresh: 'Потягніть вниз для оновлення',
+    releaseToRefresh: 'Відпустіть для оновлення',
+    manualUpdate: 'Оновити вручну',
+    autoUpdateEnabled: 'Автооновлення увімкнено',
+    newVersionInstalled: 'Встановлено нову версію!'
   },
 
   // Дні тижня

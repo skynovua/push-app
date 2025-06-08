@@ -298,6 +298,26 @@ const enTranslations: Translations = {
     october: 'October',
     november: 'November',
     december: 'December'
+  },
+
+  // PWA Updates
+  updates: {
+    updateAvailable: 'Update available',
+    updateAvailableBody: 'New version of the app is ready to install',
+    updateInstalled: 'Update installed',
+    updateInstalledBody: 'App updated to the latest version',
+    update: 'Update',
+    updating: 'Updating...',
+    later: 'Later',
+    checkingForUpdates: 'Checking for updates...',
+    noUpdatesAvailable: 'No updates available',
+    updateError: 'Update error',
+    updateErrorBody: 'Failed to download update. Please try again later.',
+    pullToRefresh: 'Pull down to refresh',
+    releaseToRefresh: 'Release to refresh',
+    manualUpdate: 'Update manually',
+    autoUpdateEnabled: 'Auto-update enabled',
+    newVersionInstalled: 'New version installed!'
   }
 };
 

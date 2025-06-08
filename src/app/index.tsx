@@ -3,12 +3,13 @@ import { Activity, BarChart3, Settings } from 'lucide-react';
 
 // Features
 import { CounterFeature, StatsFeature, SettingsFeature } from '@/features';
+import { UpdateNotification } from '@/features/pwa/ui/update-notification';
 
 // Shared
 import { Button } from '@/shared/ui/button';
 import { ToastProvider } from '@/shared/ui/toast-provider';
 import { useWorkoutStore } from '@/shared/model';
-import { useT, initializeDefaults } from '@/shared/lib';
+import { useT, initializeDefaults, pwaService } from '@/shared/lib';
 
 type Tab = 'counter' | 'stats' | 'settings';
 
@@ -31,6 +32,8 @@ function App() {
     const initialize = async () => {
       await initializeDefaults();
       await loadSettings();
+      // Register service worker for PWA functionality
+      await pwaService.registerServiceWorker();
     };
     
     initialize();
@@ -66,6 +69,7 @@ function App() {
 
   return (
     <ToastProvider>
+      <UpdateNotification />
       <div 
         className="min-h-screen bg-background"
         style={{ 

@@ -1,7 +1,7 @@
 // Enhanced service worker for PWA functionality with iOS optimizations
-const CACHE_NAME = 'pushup-counter-v2';
-const STATIC_CACHE = 'pushup-static-v2';
-const RUNTIME_CACHE = 'pushup-runtime-v2';
+const CACHE_NAME = 'pushup-counter-v3';
+const STATIC_CACHE = 'pushup-static-v3';
+const RUNTIME_CACHE = 'pushup-runtime-v3';
 
 // Essential files to cache for offline functionality
 const urlsToCache = [
@@ -18,7 +18,7 @@ const urlsToCache = [
 
 // Install event - cache essential resources
 self.addEventListener('install', (event) => {
-  console.log('[SW] Installing service worker');
+  console.log('[SW] Installing service worker v3');
   event.waitUntil(
     caches.open(STATIC_CACHE)
       .then((cache) => {
@@ -26,15 +26,23 @@ self.addEventListener('install', (event) => {
         return cache.addAll(urlsToCache);
       })
       .then(() => {
-        // Force activation of new service worker
-        return self.skipWaiting();
+        // Don't force activation immediately - wait for user confirmation
+        console.log('[SW] Service worker installed, waiting for activation');
+        // Send message to client about update availability
+        self.clients.matchAll().then(clients => {
+          clients.forEach(client => {
+            client.postMessage({
+              type: 'SW_UPDATE_AVAILABLE'
+            });
+          });
+        });
       })
   );
 });
 
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
-  console.log('[SW] Activating service worker');
+  console.log('[SW] Activating service worker v3');
   const cacheWhitelist = [STATIC_CACHE, RUNTIME_CACHE];
 
   event.waitUntil(
@@ -51,7 +59,19 @@ self.addEventListener('activate', (event) => {
       })
       .then(() => {
         // Take control of all clients immediately
+        console.log('[SW] Service worker activated and taking control');
         return self.clients.claim();
+      })
+      .then(() => {
+        // Notify clients that update is complete
+        return self.clients.matchAll();
+      })
+      .then(clients => {
+        clients.forEach(client => {
+          client.postMessage({
+            type: 'SW_UPDATE_COMPLETE'
+          });
+        });
       })
   );
 });
@@ -126,9 +146,23 @@ function isStaticAsset(url) {
          url.includes('.js');
 }
 
-// Handle iOS PWA updates
+// Handle messages from client (including update requests)
 self.addEventListener('message', (event) => {
+  console.log('[SW] Received message:', event.data);
+  
   if (event.data && event.data.type === 'SKIP_WAITING') {
+    console.log('[SW] Skipping waiting and activating new service worker');
     self.skipWaiting();
+  }
+  
+  if (event.data && event.data.type === 'CHECK_FOR_UPDATE') {
+    // Force a check for updates by attempting to fetch the SW file
+    fetch('/sw.js', { cache: 'no-cache' })
+      .then(() => {
+        console.log('[SW] Update check completed');
+      })
+      .catch(error => {
+        console.error('[SW] Update check failed:', error);
+      });
   }
 });
