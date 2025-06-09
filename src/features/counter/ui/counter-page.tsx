@@ -142,7 +142,9 @@ export const CounterFeature: React.FC = () => {
               aria-label={t.counter.clickToIncrement}
             >
               <div className="text-center">
-                <div className="text-primary text-6xl font-bold">{currentCount}</div>
+                <div className="text-primary inline-block min-w-[120px] font-mono text-6xl font-bold tabular-nums">
+                  {currentCount}
+                </div>
                 <div className="text-muted-foreground mt-2 text-sm">{t.counter.pushUps}</div>
               </div>
             </button>
@@ -156,7 +158,7 @@ export const CounterFeature: React.FC = () => {
                 <div className="text-muted-foreground">{t.counter.time}</div>
               </div>
               <div className="text-center">
-                <div className="font-medium">{currentCount}</div>
+                <div className="font-mono font-medium tabular-nums">{currentCount}</div>
                 <div className="text-muted-foreground">{t.counter.count}</div>
               </div>
             </div>
