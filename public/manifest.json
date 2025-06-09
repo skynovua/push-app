@@ -2,7 +2,6 @@
   "name": "Push-Up Counter",
   "short_name": "PushUp",
   "description": "Simple push-up counter and workout tracker with offline support",
-  "theme_color": "#2563eb",
   "background_color": "#ffffff",
   "display": "standalone",
   "orientation": "portrait-primary",
