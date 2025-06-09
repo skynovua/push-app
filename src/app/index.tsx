@@ -70,13 +70,7 @@ function App() {
   return (
     <ToastProvider>
       <UpdateNotification />
-      <div
-        className="scrollable bg-background min-h-screen"
-        style={{
-          paddingLeft: 'env(safe-area-inset-left, 0px)',
-          paddingRight: 'env(safe-area-inset-right, 0px)',
-        }}
-      >
+      <div className="bg-background min-h-screen">
         {/* Header */}
         <header className="bg-background/95 supports-[backdrop-filter]:bg-background/60 z-50 border-b backdrop-blur">
           <div className="container mx-auto max-w-2xl px-4 py-4">
