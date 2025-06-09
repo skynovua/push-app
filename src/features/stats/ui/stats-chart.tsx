@@ -326,6 +326,7 @@ export const StatsChart: React.FC = () => {
       <Tabs
         value={selectedPeriod}
         onValueChange={(value) => setSelectedPeriod(value as TimePeriod)}
+        className="gap-3"
       >
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="week" className="text-xs sm:text-sm">

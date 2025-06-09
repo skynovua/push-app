@@ -83,7 +83,7 @@ export const WorkoutHistory: React.FC = () => {
         <Card key={session.id} className="border-border/50 border">
           <CardContent className="p-3 sm:p-4">
             {/* Mobile Layout: Stack elements vertically */}
-            <div className="flex flex-col space-y-3 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+            <div className="flex flex-col gap-y-3 sm:flex-row sm:items-center sm:justify-between sm:gap-y-0">
               {/* Main content area */}
               <div className="flex items-center justify-between sm:flex-1">
                 {/* Кількість віджимань */}
@@ -95,9 +95,9 @@ export const WorkoutHistory: React.FC = () => {
                 </div>
 
                 {/* Інформація про сесію */}
-                <div className="mx-3 flex-1 space-y-1 sm:mx-4">
+                <div className="mx-3 flex flex-1 flex-col gap-1 sm:mx-4">
                   {/* Mobile: Show date and time on separate lines */}
-                  <div className="space-y-1 sm:hidden">
+                  <div className="flex flex-col gap-1 sm:hidden">
                     <div className="flex items-center gap-2 text-xs">
                       <Calendar className="text-muted-foreground h-3 w-3 flex-shrink-0" />
                       <span className="truncate">{formatDate(session.date)}</span>
@@ -143,7 +143,7 @@ export const WorkoutHistory: React.FC = () => {
               </div>
 
               {/* Бейджі - на мобільному внизу, на десктопі справа */}
-              <div className="flex flex-wrap gap-1 sm:flex-nowrap sm:gap-2">
+              <div className="flex flex-wrap gap-1 sm:flex-nowrap sm:gap-2 [&:empty]:hidden">
                 {session.goal && session.pushUps >= session.goal && (
                   <Badge
                     variant="secondary"

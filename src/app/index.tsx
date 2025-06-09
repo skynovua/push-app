@@ -73,7 +73,7 @@ function App() {
       <div className="bg-background min-h-screen">
         {/* Header */}
         <header className="bg-background/95 supports-[backdrop-filter]:bg-background/60 z-50 border-b backdrop-blur">
-          <div className="container mx-auto max-w-2xl px-4 py-4">
+          <div className="container mx-auto max-w-3xl px-4 py-4">
             <div className="flex items-center justify-center">
               <h1 className="flex items-center gap-2 text-2xl font-bold">
                 <Activity className="text-primary h-8 w-8" />
@@ -84,14 +84,14 @@ function App() {
         </header>
 
         {/* Main Content */}
-        <main className="container mx-auto max-w-2xl px-6 pb-20">{renderContent()}</main>
+        <main className="container mx-auto max-w-3xl px-6 pb-20">{renderContent()}</main>
 
         {/* Bottom Navigation */}
         <nav
           className="bg-background/95 supports-[backdrop-filter]:bg-background/60 fixed right-0 bottom-0 left-0 border-t backdrop-blur"
           style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
         >
-          <div className="container mx-auto max-w-2xl px-4">
+          <div className="container mx-auto max-w-3xl px-4">
             <div className="flex justify-around py-2">
               {tabs.map((tab) => {
                 const Icon = tab.icon;
