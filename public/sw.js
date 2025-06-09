@@ -166,3 +166,51 @@ self.addEventListener('message', (event) => {
       });
   }
 });
+
+// Handle notification clicks
+self.addEventListener('notificationclick', (event) => {
+  console.log('[SW] Notification clicked:', event.notification.tag);
+  
+  event.notification.close();
+  
+  const action = event.action;
+  const data = event.notification.data;
+  
+  if (action === 'dismiss') {
+    // Just close the notification
+    return;
+  }
+  
+  // Default action or 'open-app' action
+  if (action === 'open-app' || !action) {
+    const urlToOpen = data?.url || '/';
+    
+    event.waitUntil(
+      clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+        // Check if the app is already open
+        for (const client of clientList) {
+          if (client.url.includes(self.location.origin) && 'focus' in client) {
+            client.focus();
+            if (urlToOpen !== '/') {
+              client.navigate(urlToOpen);
+            }
+            return;
+          }
+        }
+        
+        // If no existing client, open a new window
+        if (clients.openWindow) {
+          return clients.openWindow(urlToOpen);
+        }
+      })
+    );
+  }
+});
+
+// Handle notification close
+self.addEventListener('notificationclose', (event) => {
+  console.log('[SW] Notification closed:', event.notification.tag);
+  
+  // You can track notification dismissals here
+  // For example, send analytics data
+});

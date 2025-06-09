@@ -32,6 +32,7 @@ import { Switch } from '@/shared/ui/switch';
 
 // Components
 import { ImportDialog } from './import-dialog';
+import { NotificationSettings } from './notification-settings';
 
 export const SettingsFeature: React.FC = () => {
   const { settings, updateSettings } = useWorkoutStore();
@@ -264,6 +265,9 @@ export const SettingsFeature: React.FC = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Notification Settings */}
+      <NotificationSettings />
 
       {/* Data Management */}
       <Card>
