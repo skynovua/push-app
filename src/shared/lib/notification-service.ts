@@ -141,9 +141,10 @@ class NotificationService {
       }
 
       // Check if reminder is allowed on this day of week
+      // Convert from JavaScript day (0=Sunday) to our system (0=Monday)
       while (
         settings.daysOfWeek.length > 0 &&
-        !settings.daysOfWeek.includes(nextReminder.getDay())
+        !settings.daysOfWeek.includes(this.convertJsDayToOurDay(nextReminder.getDay()))
       ) {
         nextReminder.setDate(nextReminder.getDate() + 1);
       }
@@ -171,6 +172,15 @@ class NotificationService {
       clearTimeout(this.scheduledTimeout);
       this.scheduledTimeout = null;
     }
+  }
+
+  /**
+   * Convert JavaScript day (0=Sunday) to our day system (0=Monday)
+   */
+  private convertJsDayToOurDay(jsDay: number): number {
+    // JavaScript: 0=Sunday, 1=Monday, 2=Tuesday, ..., 6=Saturday
+    // Our system: 0=Monday, 1=Tuesday, 2=Wednesday, ..., 6=Sunday
+    return jsDay === 0 ? 6 : jsDay - 1;
   }
 
   /**

@@ -24,7 +24,7 @@ export const NotificationSettings: React.FC = () => {
   const [reminderSettings, setReminderSettings] = useState<ReminderSettings>({
     enabled: false,
     time: settings.reminderTime || '18:00',
-    daysOfWeek: [1, 2, 3, 4, 5], // Monday to Friday by default
+    daysOfWeek: [0, 1, 2, 3, 4], // Monday to Friday by default (0 = Monday in our new system)
   });
   const [isTestingNotification, setIsTestingNotification] = useState(false);
 
@@ -115,8 +115,9 @@ export const NotificationSettings: React.FC = () => {
     }
   };
 
-  const dayNames = ['Нд', 'Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб'];
-  const dayNamesEn = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  // Days starting from Monday (0 = Monday, 1 = Tuesday, ..., 6 = Sunday)
+  const dayNames = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд'];
+  const dayNamesEn = ['M', 'T', 'W', 'T', 'F', 'S', 'Su'];
   const currentDayNames = settings.language === 'ua' ? dayNames : dayNamesEn;
 
   return (
@@ -234,7 +235,7 @@ export const NotificationSettings: React.FC = () => {
                       <button
                         key={index}
                         onClick={() => handleDayToggle(index)}
-                        className={`h-10 w-10 rounded-full text-sm font-medium transition-colors ${
+                        className={`h-8 w-8 rounded-full text-xs font-medium transition-colors ${
                           reminderSettings.daysOfWeek.includes(index)
                             ? 'bg-primary text-primary-foreground'
                             : 'bg-muted text-muted-foreground hover:bg-muted/80'
