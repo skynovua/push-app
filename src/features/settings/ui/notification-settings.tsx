@@ -35,14 +35,17 @@ export const NotificationSettings: React.FC = () => {
     setPermissionStatus(status);
 
     // Load reminder settings from app settings
-    if (settings.reminderTime) {
-      setReminderSettings((prev) => ({
-        ...prev,
-        time: settings.reminderTime!,
-        enabled: !!settings.reminderTime,
-      }));
-    }
-  }, [settings.reminderTime]);
+    console.warn('Loading settings:', {
+      reminderTime: settings.reminderTime,
+      daysOfWeek: settings.daysOfWeek,
+    });
+    setReminderSettings((prev) => ({
+      ...prev,
+      time: settings.reminderTime || '18:00',
+      enabled: !!settings.reminderTime,
+      daysOfWeek: settings.daysOfWeek || [0, 1, 2, 3, 4], // Monday to Friday by default
+    }));
+  }, [settings.reminderTime, settings.daysOfWeek]);
 
   // Schedule reminders when settings change
   useEffect(() => {
@@ -77,9 +80,10 @@ export const NotificationSettings: React.FC = () => {
     const newSettings = { ...reminderSettings, enabled };
     setReminderSettings(newSettings);
 
-    // Save to app settings
+    // Save to app settings - always preserve daysOfWeek, only toggle reminderTime
     await updateSettings({
       reminderTime: enabled ? newSettings.time : undefined,
+      daysOfWeek: newSettings.daysOfWeek, // Always save days of week
     });
   };
 
@@ -93,12 +97,17 @@ export const NotificationSettings: React.FC = () => {
     }
   };
 
-  const handleDayToggle = (day: number) => {
+  const handleDayToggle = async (day: number) => {
     const newDays = reminderSettings.daysOfWeek.includes(day)
       ? reminderSettings.daysOfWeek.filter((d) => d !== day)
       : [...reminderSettings.daysOfWeek, day].sort();
 
-    setReminderSettings((prev) => ({ ...prev, daysOfWeek: newDays }));
+    const newSettings = { ...reminderSettings, daysOfWeek: newDays };
+    setReminderSettings(newSettings);
+
+    // Save to app settings
+    console.warn('Saving daysOfWeek:', newDays);
+    await updateSettings({ daysOfWeek: newDays });
   };
 
   const handleTestNotification = async () => {

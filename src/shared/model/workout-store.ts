@@ -38,6 +38,8 @@ export const useWorkoutStore = create<WorkoutStore>()(
         darkMode: false,
         autoSave: true,
         language: 'ua' as const,
+        reminderTime: undefined,
+        daysOfWeek: undefined,
       },
 
       // Actions

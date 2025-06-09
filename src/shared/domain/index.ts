@@ -42,6 +42,7 @@ export interface AppSettings {
   soundEnabled: boolean;
   darkMode: boolean;
   reminderTime?: string;
+  daysOfWeek?: number[]; // 0-6, where 0 is Monday
   autoSave: boolean;
   language: 'ua' | 'en';
 }
