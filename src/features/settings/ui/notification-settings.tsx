@@ -6,7 +6,7 @@ import {
   type NotificationPermissionResult,
   type ReminderSettings,
 } from '@/shared/lib/notification-service';
-import { useT } from '@/shared/lib/translation';
+import { useT, useTranslation } from '@/shared/lib/translation';
 import { useWorkoutStore } from '@/shared/model/workout-store';
 import { Badge } from '@/shared/ui/badge';
 import { Button } from '@/shared/ui/button';
@@ -16,6 +16,7 @@ import { Switch } from '@/shared/ui/switch';
 export const NotificationSettings: React.FC = () => {
   const { settings, updateSettings } = useWorkoutStore();
   const t = useT();
+  const { locale } = useTranslation();
 
   const [permissionStatus, setPermissionStatus] = useState<NotificationPermissionResult>({
     granted: false,
@@ -118,7 +119,9 @@ export const NotificationSettings: React.FC = () => {
   // Days starting from Monday (0 = Monday, 1 = Tuesday, ..., 6 = Sunday)
   const dayNames = ['Пн', 'Вт', 'Ср', 'Чт', 'Пт', 'Сб', 'Нд'];
   const dayNamesEn = ['M', 'T', 'W', 'T', 'F', 'S', 'Su'];
-  const currentDayNames = settings.language === 'ua' ? dayNames : dayNamesEn;
+  const currentDayNames = locale === 'ua' ? dayNames : dayNamesEn;
+
+  console.log('currentDayNames:', currentDayNames);
 
   return (
     <Card>
