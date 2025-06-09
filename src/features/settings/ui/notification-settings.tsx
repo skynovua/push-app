@@ -121,8 +121,6 @@ export const NotificationSettings: React.FC = () => {
   const dayNamesEn = ['M', 'T', 'W', 'T', 'F', 'S', 'Su'];
   const currentDayNames = locale === 'ua' ? dayNames : dayNamesEn;
 
-  console.log('currentDayNames:', currentDayNames);
-
   return (
     <Card>
       <CardHeader>
