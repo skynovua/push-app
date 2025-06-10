@@ -3,7 +3,7 @@ export { dbUtils, initializeDefaults } from './database';
 export { showToast } from './toast';
 export { useT, useTranslation } from './translation';
 export { pwaService } from './pwa';
-export { enhancedPushService } from './enhanced-push-service';
+export { localNotificationService } from './local-notification-service';
 export { useTheme } from './use-theme';
 export * from './utils';
 export * from './chart-utils';

@@ -2,16 +2,16 @@ import React, { useEffect, useState } from 'react';
 import { Bell, BellOff, Check, Clock, Settings, Target, Trophy, X, Zap } from 'lucide-react';
 
 import {
-  enhancedPushService,
-  type PushNotificationSettings,
-} from '@/shared/lib/enhanced-push-service';
+  localNotificationService,
+  type LocalNotificationSettings,
+} from '@/shared/lib/local-notification-service';
 import { Badge } from '@/shared/ui/badge';
 import { Button } from '@/shared/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
 import { Switch } from '@/shared/ui/switch';
 
 interface PushNotificationSettingsProps {
-  onSettingsChange?: (settings: PushNotificationSettings) => void;
+  onSettingsChange?: (settings: LocalNotificationSettings) => void;
 }
 
 /**
@@ -23,8 +23,8 @@ interface PushNotificationSettingsProps {
 export const PushNotificationSettingsPanel: React.FC<PushNotificationSettingsProps> = ({
   onSettingsChange,
 }) => {
-  const [settings, setSettings] = useState<PushNotificationSettings>(
-    enhancedPushService.getSettings()
+  const [settings, setSettings] = useState<LocalNotificationSettings>(
+    localNotificationService.getSettings()
   );
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -39,7 +39,7 @@ export const PushNotificationSettingsPanel: React.FC<PushNotificationSettingsPro
     }
 
     // Check subscription status
-    setIsSubscribed(enhancedPushService.isSubscribed());
+    setIsSubscribed(localNotificationService.isNotificationSupported());
   }, []);
 
   /**
@@ -48,7 +48,7 @@ export const PushNotificationSettingsPanel: React.FC<PushNotificationSettingsPro
   const handleEnableNotifications = async (enabled: boolean) => {
     if (enabled) {
       setIsLoading(true);
-      const success = await enhancedPushService.requestPermissionAndSubscribe();
+      const success = await localNotificationService.requestPermission();
 
       if (success) {
         setIsSubscribed(true);
@@ -59,21 +59,19 @@ export const PushNotificationSettingsPanel: React.FC<PushNotificationSettingsPro
       }
       setIsLoading(false);
     } else {
-      const success = await enhancedPushService.unsubscribe();
-      if (success) {
-        setIsSubscribed(false);
-        updateSettings({ enabled: false });
-      }
+      await localNotificationService.clearAllNotifications();
+      setIsSubscribed(false);
+      updateSettings({ enabled: false });
     }
   };
 
   /**
    * Update settings and propagate changes
    */
-  const updateSettings = (newSettings: Partial<PushNotificationSettings>) => {
+  const updateSettings = (newSettings: Partial<LocalNotificationSettings>) => {
     const updatedSettings = { ...settings, ...newSettings };
     setSettings(updatedSettings);
-    enhancedPushService.updateSettings(updatedSettings);
+    localNotificationService.updateSettings(updatedSettings);
     onSettingsChange?.(updatedSettings);
   };
 
@@ -134,7 +132,7 @@ export const PushNotificationSettingsPanel: React.FC<PushNotificationSettingsPro
   const toggleWorkoutDay = (day: number) => {
     const currentDays = settings.workoutReminders.daysOfWeek;
     const newDays = currentDays.includes(day)
-      ? currentDays.filter((d) => d !== day)
+      ? currentDays.filter((d: number) => d !== day)
       : [...currentDays, day].sort();
 
     handleWorkoutReminderChange('daysOfWeek', newDays);
@@ -146,7 +144,7 @@ export const PushNotificationSettingsPanel: React.FC<PushNotificationSettingsPro
   const toggleMotivationalDay = (day: number) => {
     const currentDays = settings.motivational.customDays || [];
     const newDays = currentDays.includes(day)
-      ? currentDays.filter((d) => d !== day)
+      ? currentDays.filter((d: number) => d !== day)
       : [...currentDays, day].sort();
 
     handleMotivationalChange('customDays', newDays);
@@ -226,11 +224,7 @@ export const PushNotificationSettingsPanel: React.FC<PushNotificationSettingsPro
                 variant="outline"
                 size="sm"
                 onClick={() => {
-                  enhancedPushService.sendAchievementNotification({
-                    title: 'Тестове повідомлення',
-                    description: 'Push нотифікації працюють правильно! 🎉',
-                    type: 'milestone',
-                  });
+                  localNotificationService.sendTestNotification();
                 }}
               >
                 📱 Тестувати нотифікацію
@@ -502,7 +496,7 @@ export const PushNotificationSettingsPanel: React.FC<PushNotificationSettingsPro
             <CardContent className="space-y-4">
               <Button
                 variant="outline"
-                onClick={() => enhancedPushService.clearAllNotifications()}
+                onClick={() => localNotificationService.clearAllNotifications()}
                 className="w-full"
               >
                 🗑️ Очистити всі заплановані нотифікації

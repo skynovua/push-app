@@ -1,6 +1,6 @@
-// Enhanced Push Notifications Service for Push-Up Counter App
+// Local Notifications Service for Push-Up Counter App
 
-export interface PushNotificationSettings {
+export interface LocalNotificationSettings {
   enabled: boolean;
   workoutReminders: {
     enabled: boolean;
@@ -52,28 +52,29 @@ export interface ScheduledNotification {
   };
 }
 
-class EnhancedPushService {
-  private static instance: EnhancedPushService;
-  private subscription: PushSubscription | null = null;
+class LocalNotificationService {
+  private static instance: LocalNotificationService;
   private registration: ServiceWorkerRegistration | null = null;
   private scheduledNotifications: Map<string, ScheduledNotification> = new Map();
-  private settings: PushNotificationSettings;
+  private settings: LocalNotificationSettings;
+  private notificationTimers: Map<string, number> = new Map();
+  private dbName = 'PushUpCounterNotifications';
+  private dbVersion = 1;
 
   constructor() {
     this.settings = this.loadSettings();
-    this.loadScheduledNotifications();
     this.init();
   }
 
-  public static getInstance(): EnhancedPushService {
-    if (!EnhancedPushService.instance) {
-      EnhancedPushService.instance = new EnhancedPushService();
+  public static getInstance(): LocalNotificationService {
+    if (!LocalNotificationService.instance) {
+      LocalNotificationService.instance = new LocalNotificationService();
     }
-    return EnhancedPushService.instance;
+    return LocalNotificationService.instance;
   }
 
   /**
-   * Initialize push service and setup service worker
+   * Initialize notification service and setup service worker
    */
   private async init(): Promise<void> {
     try {
@@ -86,73 +87,57 @@ class EnhancedPushService {
           this.handleServiceWorkerMessage.bind(this)
         );
 
-        // Setup existing subscription if any
-        this.subscription = await this.registration.pushManager.getSubscription();
+        // Send notification schedule to service worker
+        await this.syncWithServiceWorker();
       }
+
+      // Load and reschedule notifications
+      await this.loadScheduledNotifications();
+      this.rescheduleNotifications();
     } catch (error) {
-      console.error('Error initializing push service:', error);
+      console.error('Error initializing notification service:', error);
     }
   }
 
   /**
-   * Request push notification permission and subscribe
+   * Request notification permission
    */
-  async requestPermissionAndSubscribe(): Promise<boolean> {
+  async requestPermission(): Promise<boolean> {
     try {
-      // Request notification permission
       const permission = await Notification.requestPermission();
-      if (permission !== 'granted') {
-        throw new Error('Notification permission denied');
-      }
-
-      if (!this.registration) {
-        throw new Error('Service worker not ready');
-      }
-
-      // Check if already subscribed
-      this.subscription = await this.registration.pushManager.getSubscription();
-
-      if (!this.subscription) {
-        // Subscribe to push notifications
-        this.subscription = await this.registration.pushManager.subscribe({
-          userVisibleOnly: true,
-          applicationServerKey: this.getVAPIDPublicKey(),
-        });
-      }
-
-      // Send subscription to your server (in real app)
-      await this.sendSubscriptionToServer(this.subscription);
-
-      return true;
+      return permission === 'granted';
     } catch (error) {
-      console.error('Error requesting push permission:', error);
+      console.error('Error requesting notification permission:', error);
       return false;
     }
   }
 
   /**
-   * Get VAPID public key for push subscription
-   * In production, this should come from environment variables
+   * Check if notifications are supported and permission granted
    */
-  private getVAPIDPublicKey(): string {
-    // Use environment variable in production, fallback to development key
-    return (
-      process.env.VITE_VAPID_PUBLIC_KEY ||
-      'BEl62iUYgUivxIkv69yViEuiBIa40HI80NwQRAQY5zMOJ2UUczF-UtVlQGgbgQ'
-    );
+  isNotificationSupported(): boolean {
+    return 'Notification' in window && Notification.permission === 'granted';
   }
 
   /**
-   * Send subscription to server for push delivery
+   * Send notification schedule to service worker for background processing
    */
-  private async sendSubscriptionToServer(subscription: PushSubscription): Promise<void> {
-    // In a real app, send this to your backend server
-    // For now, we'll store it locally for demo purposes
-    localStorage.setItem('push-subscription', JSON.stringify(subscription.toJSON()));
-    // Use console.warn for non-error logging to satisfy ESLint
-    if (process.env.NODE_ENV === 'development') {
-      console.warn('Push subscription stored locally:', subscription.toJSON());
-    }
+  private async syncWithServiceWorker(): Promise<void> {
+    if (!this.registration) return;
+
+    const notifications = Array.from(this.scheduledNotifications.values());
+    const serializedNotifications = notifications.map((notification) => ({
+      ...notification,
+      scheduledTime: notification.scheduledTime.toISOString(),
+    }));
+
+    this.registration.active?.postMessage({
+      type: 'SYNC_NOTIFICATIONS',
+      data: {
+        notifications: serializedNotifications,
+        settings: this.settings,
+      },
+    });
   }
 
   /**
@@ -168,6 +153,9 @@ class EnhancedPushService {
       case 'NOTIFICATION_ACTION':
         this.handleNotificationAction(data);
         break;
+      case 'NOTIFICATION_SHOWN':
+        this.handleNotificationShown(data);
+        break;
     }
   }
 
@@ -179,20 +167,17 @@ class EnhancedPushService {
 
     switch (notificationType) {
       case 'workout-reminder':
-        // Navigate to counter page
-        window.location.href = '/';
+        this.navigateToApp('/');
         break;
       case 'goal-reminder':
-        // Navigate to stats page
-        window.location.href = '/?tab=stats';
+        this.navigateToApp('/?tab=stats');
         break;
       case 'achievement':
-        // Show achievement modal or navigate to stats
         this.showAchievementDetails(data);
         break;
       default:
         if (url) {
-          window.location.href = url as string;
+          this.navigateToApp(url as string);
         }
     }
   }
@@ -205,10 +190,10 @@ class EnhancedPushService {
 
     switch (action) {
       case 'start-workout':
-        window.location.href = '/';
+        this.navigateToApp('/');
         break;
       case 'view-stats':
-        window.location.href = '/?tab=stats';
+        this.navigateToApp('/?tab=stats');
         break;
       case 'snooze':
         this.snoozeNotification(notificationId as string);
@@ -220,13 +205,44 @@ class EnhancedPushService {
   }
 
   /**
-   * Show achievement details (could be a modal or page navigation)
+   * Handle when notification is shown
+   */
+  private handleNotificationShown(data: Record<string, unknown>): void {
+    const { notificationId } = data;
+
+    // If it's a recurring notification, schedule the next occurrence
+    const notification = this.scheduledNotifications.get(notificationId as string);
+    if (notification?.recurring) {
+      this.scheduleNextRecurrence(notification);
+    }
+  }
+
+  /**
+   * Navigate to app or open if closed
+   */
+  private navigateToApp(url: string): void {
+    if ('clients' in self) {
+      // Running in service worker context
+      return;
+    }
+
+    // Check if app is already open
+    if (document.visibilityState === 'visible') {
+      // App is open, navigate
+      window.location.href = url;
+    } else {
+      // App might be closed, try to focus and navigate
+      window.focus();
+      window.location.href = url;
+    }
+  }
+
+  /**
+   * Show achievement details
    */
   private showAchievementDetails(data: Record<string, unknown>): void {
-    // Implementation depends on your app's routing/modal system
-    if (process.env.NODE_ENV === 'development') {
-      console.warn('Achievement unlocked:', data);
-    }
+    // Navigate to stats with achievement data
+    this.navigateToApp(`/?tab=stats&achievement=${encodeURIComponent(JSON.stringify(data))}`);
   }
 
   /**
@@ -245,23 +261,76 @@ class EnhancedPushService {
    * Schedule a notification for future delivery
    */
   async scheduleNotification(notification: ScheduledNotification): Promise<void> {
+    if (!this.isNotificationSupported()) {
+      console.warn('Notifications not supported or permission not granted');
+      return;
+    }
+
     this.scheduledNotifications.set(notification.id, notification);
 
     const delay = notification.scheduledTime.getTime() - Date.now();
 
-    if (delay > 0) {
-      // For immediate scheduling (within the session)
-      setTimeout(() => {
-        this.showLocalNotification(notification.template);
-      }, delay);
+    // Clear existing timer if any
+    const existingTimer = this.notificationTimers.get(notification.id);
+    if (existingTimer) {
+      clearTimeout(existingTimer);
     }
 
-    // For persistent scheduling across sessions, you'd typically use:
-    // 1. Web Background Sync API
-    // 2. Server-side push notifications
-    // 3. Service worker scheduling
+    if (delay > 0) {
+      // Schedule for immediate delivery
+      const timerId = window.setTimeout(() => {
+        this.showLocalNotification(notification.template);
+        this.notificationTimers.delete(notification.id);
+      }, delay);
 
-    this.saveScheduledNotifications();
+      this.notificationTimers.set(notification.id, timerId);
+    }
+
+    // Save to persistent storage
+    await this.saveScheduledNotifications();
+    await this.syncWithServiceWorker();
+  }
+
+  /**
+   * Schedule next recurrence of a recurring notification
+   */
+  private scheduleNextRecurrence(notification: ScheduledNotification): void {
+    if (!notification.recurring) return;
+
+    const nextTime = this.calculateNextRecurrence(notification);
+    if (nextTime) {
+      const nextNotification: ScheduledNotification = {
+        ...notification,
+        scheduledTime: nextTime,
+      };
+      this.scheduleNotification(nextNotification);
+    }
+  }
+
+  /**
+   * Calculate next recurrence time
+   */
+  private calculateNextRecurrence(notification: ScheduledNotification): Date | null {
+    if (!notification.recurring) return null;
+
+    const currentTime = notification.scheduledTime;
+
+    switch (notification.recurring.type) {
+      case 'daily':
+        return new Date(currentTime.getTime() + 24 * 60 * 60 * 1000);
+
+      case 'weekly':
+        return new Date(currentTime.getTime() + 7 * 24 * 60 * 60 * 1000);
+
+      case 'monthly': {
+        const nextMonth = new Date(currentTime);
+        nextMonth.setMonth(nextMonth.getMonth() + 1);
+        return nextMonth;
+      }
+
+      default:
+        return null;
+    }
   }
 
   /**
@@ -280,13 +349,24 @@ class EnhancedPushService {
         badge: template.badge || '/icon-192x192.png',
         data: {
           notificationType: template.type,
-          actions: template.actions,
+          notificationId: template.id,
           ...template.data,
         },
+        actions: template.actions?.map((action) => ({
+          action: action.action,
+          title: action.title,
+          icon: action.icon,
+        })),
         requireInteraction: template.requireInteraction,
         silent: template.silent,
         tag: template.id,
       } as NotificationOptions);
+
+      // Notify service worker that notification was shown
+      this.registration.active?.postMessage({
+        type: 'NOTIFICATION_SHOWN',
+        data: { notificationId: template.id },
+      });
     } catch (error) {
       console.error('Error showing notification:', error);
     }
@@ -295,16 +375,17 @@ class EnhancedPushService {
   /**
    * Update notification settings
    */
-  updateSettings(newSettings: Partial<PushNotificationSettings>): void {
+  updateSettings(newSettings: Partial<LocalNotificationSettings>): void {
     this.settings = { ...this.settings, ...newSettings };
     this.saveSettings();
     this.rescheduleNotifications();
+    this.syncWithServiceWorker();
   }
 
   /**
    * Get current notification settings
    */
-  getSettings(): PushNotificationSettings {
+  getSettings(): LocalNotificationSettings {
     return { ...this.settings };
   }
 
@@ -312,7 +393,12 @@ class EnhancedPushService {
    * Reschedule all notifications based on current settings
    */
   private rescheduleNotifications(): void {
+    // Clear existing timers
+    this.notificationTimers.forEach((timerId) => clearTimeout(timerId));
+    this.notificationTimers.clear();
     this.scheduledNotifications.clear();
+
+    if (!this.settings.enabled) return;
 
     if (this.settings.workoutReminders.enabled) {
       this.scheduleWorkoutReminders();
@@ -334,7 +420,7 @@ class EnhancedPushService {
     const { time, daysOfWeek, customMessage } = this.settings.workoutReminders;
     const [hours, minutes] = time.split(':').map(Number);
 
-    daysOfWeek.forEach((dayOfWeek) => {
+    daysOfWeek.forEach((dayOfWeek: number) => {
       const notificationTime = this.getNextDateTime(dayOfWeek, hours, minutes);
 
       const template: NotificationTemplate = {
@@ -372,6 +458,11 @@ class EnhancedPushService {
     // Schedule daily goal reminders
     const reminderTime = new Date();
     reminderTime.setHours(24 - timeBeforeDeadline, 0, 0, 0);
+
+    // If time has passed today, schedule for tomorrow
+    if (reminderTime <= new Date()) {
+      reminderTime.setDate(reminderTime.getDate() + 1);
+    }
 
     const template: NotificationTemplate = {
       id: 'goal-reminder-daily',
@@ -417,7 +508,7 @@ class EnhancedPushService {
         daysToSchedule = [0, 1, 2, 3, 4, 5, 6]; // All days
         break;
       case 'weekly':
-        daysToSchedule = [1]; // Mondays
+        daysToSchedule = [1]; // Tuesdays
         break;
       case 'custom':
         daysToSchedule = customDays || [];
@@ -427,7 +518,7 @@ class EnhancedPushService {
     if (time) {
       const [hours, minutes] = time.split(':').map(Number);
 
-      daysToSchedule.forEach((dayOfWeek) => {
+      daysToSchedule.forEach((dayOfWeek: number) => {
         const messageIndex = dayOfWeek % motivationalMessages.length;
         const message = motivationalMessages[messageIndex];
         const notificationTime = this.getNextDateTime(dayOfWeek, hours, minutes);
@@ -519,8 +610,8 @@ class EnhancedPushService {
   /**
    * Load settings from localStorage
    */
-  private loadSettings(): PushNotificationSettings {
-    const stored = localStorage.getItem('push-notification-settings');
+  private loadSettings(): LocalNotificationSettings {
+    const stored = localStorage.getItem('local-notification-settings');
     if (stored) {
       try {
         return JSON.parse(stored);
@@ -558,13 +649,84 @@ class EnhancedPushService {
    * Save settings to localStorage
    */
   private saveSettings(): void {
-    localStorage.setItem('push-notification-settings', JSON.stringify(this.settings));
+    localStorage.setItem('local-notification-settings', JSON.stringify(this.settings));
   }
 
   /**
-   * Save scheduled notifications to localStorage
+   * Save scheduled notifications to IndexedDB
    */
-  private saveScheduledNotifications(): void {
+  private async saveScheduledNotifications(): Promise<void> {
+    try {
+      const db = await this.openDB();
+      const transaction = db.transaction(['notifications'], 'readwrite');
+      const store = transaction.objectStore('notifications');
+
+      const notifications = Array.from(this.scheduledNotifications.values());
+      const serialized = notifications.map((notification) => ({
+        ...notification,
+        scheduledTime: notification.scheduledTime.toISOString(),
+      }));
+
+      const request = store.put({ id: 'scheduled', data: serialized });
+      await new Promise<void>((resolve, reject) => {
+        request.onsuccess = () => resolve();
+        request.onerror = () => reject(request.error);
+      });
+    } catch (error) {
+      console.error('Error saving scheduled notifications:', error);
+      // Fallback to localStorage
+      this.saveScheduledNotificationsToLocalStorage();
+    }
+  }
+
+  /**
+   * Load scheduled notifications from IndexedDB
+   */
+  private async loadScheduledNotifications(): Promise<void> {
+    try {
+      const db = await this.openDB();
+      const transaction = db.transaction(['notifications'], 'readonly');
+      const store = transaction.objectStore('notifications');
+
+      const request = store.get('scheduled');
+      const result = await new Promise<{ id: string; data: unknown } | undefined>(
+        (resolve, reject) => {
+          request.onsuccess = () => resolve(request.result);
+          request.onerror = () => reject(request.error);
+        }
+      );
+
+      if (result?.data) {
+        const data = result.data as Array<{
+          id: string;
+          template: NotificationTemplate;
+          scheduledTime: string;
+          recurring?: {
+            type: 'daily' | 'weekly' | 'monthly';
+            daysOfWeek?: number[];
+          };
+        }>;
+
+        data.forEach((item) => {
+          this.scheduledNotifications.set(item.id, {
+            id: item.id,
+            template: item.template,
+            scheduledTime: new Date(item.scheduledTime),
+            recurring: item.recurring,
+          });
+        });
+      }
+    } catch (error) {
+      console.error('Error loading scheduled notifications from IndexedDB:', error);
+      // Fallback to localStorage
+      this.loadScheduledNotificationsFromLocalStorage();
+    }
+  }
+
+  /**
+   * Fallback: Save to localStorage
+   */
+  private saveScheduledNotificationsToLocalStorage(): void {
     const serialized = Array.from(this.scheduledNotifications.entries()).map(
       ([id, notification]) => ({
         id,
@@ -578,9 +740,9 @@ class EnhancedPushService {
   }
 
   /**
-   * Load scheduled notifications from localStorage
+   * Fallback: Load from localStorage
    */
-  private loadScheduledNotifications(): void {
+  private loadScheduledNotificationsFromLocalStorage(): void {
     const stored = localStorage.getItem('scheduled-notifications');
     if (stored) {
       try {
@@ -608,39 +770,76 @@ class EnhancedPushService {
   }
 
   /**
+   * Open IndexedDB connection
+   */
+  private openDB(): Promise<IDBDatabase> {
+    return new Promise((resolve, reject) => {
+      const request = indexedDB.open(this.dbName, this.dbVersion);
+
+      request.onerror = () => reject(request.error);
+      request.onsuccess = () => resolve(request.result);
+
+      request.onupgradeneeded = (event) => {
+        const db = (event.target as IDBOpenDBRequest).result;
+
+        if (!db.objectStoreNames.contains('notifications')) {
+          db.createObjectStore('notifications', { keyPath: 'id' });
+        }
+      };
+    });
+  }
+
+  /**
    * Clear all scheduled notifications
    */
-  clearAllNotifications(): void {
+  async clearAllNotifications(): Promise<void> {
+    // Clear timers
+    this.notificationTimers.forEach((timerId) => clearTimeout(timerId));
+    this.notificationTimers.clear();
+
+    // Clear memory
     this.scheduledNotifications.clear();
-    localStorage.removeItem('scheduled-notifications');
-  }
 
-  /**
-   * Get subscription status
-   */
-  isSubscribed(): boolean {
-    return !!this.subscription;
-  }
-
-  /**
-   * Unsubscribe from push notifications
-   */
-  async unsubscribe(): Promise<boolean> {
+    // Clear IndexedDB
     try {
-      if (this.subscription) {
-        await this.subscription.unsubscribe();
-        this.subscription = null;
-        localStorage.removeItem('push-subscription');
-        this.clearAllNotifications();
-        return true;
-      }
-      return false;
+      const db = await this.openDB();
+      const transaction = db.transaction(['notifications'], 'readwrite');
+      const store = transaction.objectStore('notifications');
+      await store.delete('scheduled');
     } catch (error) {
-      console.error('Error unsubscribing:', error);
-      return false;
+      console.error('Error clearing IndexedDB:', error);
     }
+
+    // Clear localStorage fallback
+    localStorage.removeItem('scheduled-notifications');
+
+    // Update service worker
+    await this.syncWithServiceWorker();
+  }
+
+  /**
+   * Get notification permission status
+   */
+  getPermissionStatus(): NotificationPermission {
+    return Notification.permission;
+  }
+
+  /**
+   * Test notification (for settings page)
+   */
+  async sendTestNotification(): Promise<void> {
+    const template: NotificationTemplate = {
+      id: `test-${Date.now()}`,
+      type: 'motivational',
+      title: '🧪 Тестова нотифікація',
+      body: 'Якщо ви бачите це повідомлення, нотифікації працюють правильно!',
+      actions: [{ action: 'dismiss', title: '👍 Супер!', icon: '/icon-192x192.png' }],
+      requireInteraction: false,
+    };
+
+    await this.showLocalNotification(template);
   }
 }
 
 // Export singleton instance
-export const enhancedPushService = EnhancedPushService.getInstance();
+export const localNotificationService = LocalNotificationService.getInstance();

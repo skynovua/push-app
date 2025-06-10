@@ -1,7 +1,7 @@
-// Enhanced service worker for PWA functionality with iOS optimizations
-const CACHE_NAME = 'pushup-counter-v3';
-const STATIC_CACHE = 'pushup-static-v3';
-const RUNTIME_CACHE = 'pushup-runtime-v3';
+// Enhanced service worker for PWA functionality with local notifications
+const CACHE_NAME = 'pushup-counter-v4';
+const STATIC_CACHE = 'pushup-static-v4';
+const RUNTIME_CACHE = 'pushup-runtime-v4';
 
 // Essential files to cache for offline functionality
 const urlsToCache = [
@@ -16,9 +16,14 @@ const urlsToCache = [
   '/apple-touch-icon.png'
 ];
 
+// Local notification storage
+let notificationSchedule = [];
+let notificationSettings = {};
+let activeTimers = new Map();
+
 // Install event - cache essential resources
 self.addEventListener('install', (event) => {
-  console.log('[SW] Installing service worker v3');
+  console.log('[SW] Installing service worker v4 with local notifications');
   event.waitUntil(
     caches.open(STATIC_CACHE)
       .then((cache) => {
@@ -26,28 +31,22 @@ self.addEventListener('install', (event) => {
         return cache.addAll(urlsToCache);
       })
       .then(() => {
-        // Don't force activation immediately - wait for user confirmation
-        console.log('[SW] Service worker installed, waiting for activation');
-        // Send message to client about update availability
-        self.clients.matchAll().then(clients => {
-          clients.forEach(client => {
-            client.postMessage({
-              type: 'SW_UPDATE_AVAILABLE'
-            });
-          });
-        });
+        console.log('[SW] Service worker installed');
+        // Take control immediately for new features
+        return self.skipWaiting();
       })
   );
 });
 
-// Activate event - clean up old caches
+// Activate event - clean up old caches and setup notifications
 self.addEventListener('activate', (event) => {
-  console.log('[SW] Activating service worker v3');
+  console.log('[SW] Activating service worker v4');
   const cacheWhitelist = [STATIC_CACHE, RUNTIME_CACHE];
 
   event.waitUntil(
-    caches.keys()
-      .then((cacheNames) => {
+    Promise.all([
+      // Clean up old caches
+      caches.keys().then((cacheNames) => {
         return Promise.all(
           cacheNames.map((cacheName) => {
             if (cacheWhitelist.indexOf(cacheName) === -1) {
@@ -56,23 +55,12 @@ self.addEventListener('activate', (event) => {
             }
           })
         );
-      })
-      .then(() => {
-        // Take control of all clients immediately
-        console.log('[SW] Service worker activated and taking control');
-        return self.clients.claim();
-      })
-      .then(() => {
-        // Notify clients that update is complete
-        return self.clients.matchAll();
-      })
-      .then(clients => {
-        clients.forEach(client => {
-          client.postMessage({
-            type: 'SW_UPDATE_COMPLETE'
-          });
-        });
-      })
+      }),
+      // Take control of all clients
+      self.clients.claim(),
+      // Initialize notification system
+      initializeNotificationSystem()
+    ])
   );
 });
 
@@ -108,7 +96,7 @@ self.addEventListener('fetch', (event) => {
 
             // Clone response for caching
             const responseToCache = response.clone();
-            
+
             // Determine which cache to use
             const cacheToUse = isStaticAsset(event.request.url) ? STATIC_CACHE : RUNTIME_CACHE;
 
@@ -124,7 +112,7 @@ self.addEventListener('fetch', (event) => {
             if (event.request.destination === 'document') {
               return caches.match('/index.html');
             }
-            
+
             // Return a basic offline response for other requests
             return new Response('Offline', {
               status: 503,
@@ -137,49 +125,259 @@ self.addEventListener('fetch', (event) => {
 
 // Helper function to determine if asset should be cached long-term
 function isStaticAsset(url) {
-  return url.includes('/assets/') || 
-         url.includes('.png') || 
-         url.includes('.jpg') || 
-         url.includes('.svg') || 
-         url.includes('.ico') ||
-         url.includes('.css') ||
-         url.includes('.js');
+  return url.includes('/assets/') ||
+    url.includes('.png') ||
+    url.includes('.jpg') ||
+    url.includes('.svg') ||
+    url.includes('.ico') ||
+    url.includes('.css') ||
+    url.includes('.js');
 }
 
-// Handle messages from client (including update requests)
+// Initialize notification scheduling system
+async function initializeNotificationSystem() {
+  try {
+    console.log('[SW] Initializing notification system');
+
+    // Load notification data from IndexedDB
+    const db = await openNotificationDB();
+    const transaction = db.transaction(['schedule'], 'readonly');
+    const store = transaction.objectStore('schedule');
+    const request = store.get('current');
+
+    request.onsuccess = () => {
+      if (request.result) {
+        notificationSchedule = request.result.notifications || [];
+        notificationSettings = request.result.settings || {};
+        console.log('[SW] Loaded notification schedule:', notificationSchedule.length, 'notifications');
+        scheduleAllNotifications();
+      }
+    };
+  } catch (error) {
+    console.error('[SW] Error initializing notifications:', error);
+  }
+}
+
+// Schedule all notifications based on current time
+function scheduleAllNotifications() {
+  console.log('[SW] Scheduling notifications');
+
+  // Clear existing timers
+  activeTimers.forEach(timerId => clearTimeout(timerId));
+  activeTimers.clear();
+
+  const now = Date.now();
+
+  notificationSchedule.forEach(notification => {
+    const scheduledTime = new Date(notification.scheduledTime).getTime();
+    const delay = scheduledTime - now;
+
+    if (delay > 0) {
+      const timerId = setTimeout(() => {
+        showScheduledNotification(notification);
+      }, delay);
+
+      activeTimers.set(notification.id, timerId);
+      console.log('[SW] Scheduled notification:', notification.id, 'in', delay, 'ms');
+    } else if (notification.recurring) {
+      // Reschedule recurring notifications that have passed
+      const nextTime = calculateNextRecurrence(notification);
+      if (nextTime) {
+        notification.scheduledTime = nextTime.toISOString();
+        const nextDelay = nextTime.getTime() - now;
+
+        if (nextDelay > 0) {
+          const timerId = setTimeout(() => {
+            showScheduledNotification(notification);
+          }, nextDelay);
+
+          activeTimers.set(notification.id, timerId);
+          console.log('[SW] Rescheduled recurring notification:', notification.id, 'in', nextDelay, 'ms');
+        }
+      }
+    }
+  });
+}
+
+// Calculate next recurrence for recurring notifications
+function calculateNextRecurrence(notification) {
+  if (!notification.recurring) return null;
+
+  const currentTime = new Date(notification.scheduledTime);
+
+  switch (notification.recurring.type) {
+    case 'daily':
+      return new Date(currentTime.getTime() + 24 * 60 * 60 * 1000);
+    case 'weekly':
+      return new Date(currentTime.getTime() + 7 * 24 * 60 * 60 * 1000);
+    case 'monthly':
+      const nextMonth = new Date(currentTime);
+      nextMonth.setMonth(nextMonth.getMonth() + 1);
+      return nextMonth;
+    default:
+      return null;
+  }
+}
+
+// Show a scheduled notification
+async function showScheduledNotification(notification) {
+  try {
+    console.log('[SW] Showing scheduled notification:', notification.id);
+
+    const { template } = notification;
+
+    await self.registration.showNotification(template.title, {
+      body: template.body,
+      icon: template.icon || '/icon-192x192.png',
+      badge: template.badge || '/icon-192x192.png',
+      data: {
+        notificationType: template.type,
+        notificationId: template.id,
+        ...template.data,
+      },
+      actions: template.actions?.map(action => ({
+        action: action.action,
+        title: action.title,
+        icon: action.icon,
+      })),
+      requireInteraction: template.requireInteraction || false,
+      silent: template.silent || false,
+      tag: template.id,
+    });
+
+    // Remove timer
+    activeTimers.delete(notification.id);
+
+    // Send message to clients
+    const clients = await self.clients.matchAll();
+    clients.forEach(client => {
+      client.postMessage({
+        type: 'NOTIFICATION_SHOWN',
+        data: { notificationId: notification.id }
+      });
+    });
+
+    // If recurring, schedule next occurrence
+    if (notification.recurring) {
+      const nextTime = calculateNextRecurrence(notification);
+      if (nextTime) {
+        notification.scheduledTime = nextTime.toISOString();
+        await saveNotificationSchedule();
+
+        const delay = nextTime.getTime() - Date.now();
+        if (delay > 0) {
+          const timerId = setTimeout(() => {
+            showScheduledNotification(notification);
+          }, delay);
+
+          activeTimers.set(notification.id, timerId);
+          console.log('[SW] Scheduled next recurrence for:', notification.id, 'in', delay, 'ms');
+        }
+      }
+    }
+
+  } catch (error) {
+    console.error('[SW] Error showing notification:', error);
+  }
+}
+
+// Save notification schedule to IndexedDB
+async function saveNotificationSchedule() {
+  try {
+    const db = await openNotificationDB();
+    const transaction = db.transaction(['schedule'], 'readwrite');
+    const store = transaction.objectStore('schedule');
+
+    await store.put({
+      id: 'current',
+      notifications: notificationSchedule,
+      settings: notificationSettings,
+      lastUpdate: Date.now()
+    });
+  } catch (error) {
+    console.error('[SW] Error saving notification schedule:', error);
+  }
+}
+
+// Open IndexedDB for notifications
+function openNotificationDB() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open('PushUpCounterNotifications', 1);
+
+    request.onerror = () => reject(request.error);
+    request.onsuccess = () => resolve(request.result);
+
+    request.onupgradeneeded = (event) => {
+      const db = event.target.result;
+
+      if (!db.objectStoreNames.contains('schedule')) {
+        const store = db.createObjectStore('schedule', { keyPath: 'id' });
+        store.createIndex('lastUpdate', 'lastUpdate', { unique: false });
+      }
+    };
+  });
+}
+
+// Handle messages from client
 self.addEventListener('message', (event) => {
   console.log('[SW] Received message:', event.data);
-  
-  if (event.data && event.data.type === 'SKIP_WAITING') {
-    console.log('[SW] Skipping waiting and activating new service worker');
-    self.skipWaiting();
-  }
-  
-  if (event.data && event.data.type === 'CHECK_FOR_UPDATE') {
-    // Force a check for updates by attempting to fetch the SW file
-    fetch('/sw.js', { cache: 'no-cache' })
-      .then(() => {
-        console.log('[SW] Update check completed');
-      })
-      .catch(error => {
-        console.error('[SW] Update check failed:', error);
-      });
+
+  const { type, data } = event.data || {};
+
+  switch (type) {
+    case 'SYNC_NOTIFICATIONS':
+      handleNotificationSync(data);
+      break;
+    case 'SKIP_WAITING':
+      console.log('[SW] Skipping waiting and activating new service worker');
+      self.skipWaiting();
+      break;
+    case 'CHECK_FOR_UPDATE':
+      // Force a check for updates
+      fetch('/sw.js', { cache: 'no-cache' })
+        .then(() => console.log('[SW] Update check completed'))
+        .catch(error => console.error('[SW] Update check failed:', error));
+      break;
   }
 });
+
+// Handle notification sync from client
+async function handleNotificationSync(data) {
+  try {
+    console.log('[SW] Syncing notifications from client');
+
+    notificationSchedule = data.notifications.map(notification => ({
+      ...notification,
+      scheduledTime: notification.scheduledTime,
+    }));
+
+    notificationSettings = data.settings;
+
+    // Save to IndexedDB
+    await saveNotificationSchedule();
+
+    // Reschedule all notifications
+    scheduleAllNotifications();
+
+    console.log('[SW] Notification sync completed:', notificationSchedule.length, 'notifications');
+  } catch (error) {
+    console.error('[SW] Error syncing notifications:', error);
+  }
+}
 
 // Handle notification clicks
 self.addEventListener('notificationclick', (event) => {
   console.log('[SW] Notification clicked:', event.notification.tag, 'Action:', event.action);
-  
+
   event.notification.close();
-  
+
   const action = event.action;
   const data = event.notification.data || {};
   const notificationType = data.notificationType;
-  
+
   // Send message to clients about notification interaction
   event.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+    self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
       // Notify all clients about the notification click
       clientList.forEach(client => {
         client.postMessage({
@@ -192,7 +390,7 @@ self.addEventListener('notificationclick', (event) => {
           }
         });
       });
-      
+
       // Handle different actions
       switch (action) {
         case 'start-workout':
@@ -222,100 +420,38 @@ self.addEventListener('notificationclick', (event) => {
       }
     })
   );
-  
-  // Helper function to open app page
-  function openAppPage(url) {
-    return clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
-      // Check if the app is already open
-      for (const client of clientList) {
-        if (client.url.includes(self.location.origin) && 'focus' in client) {
-          client.focus();
-          if (url !== '/') {
-            client.navigate(url);
-          }
-          return;
-        }
-      }
-      
-      // If no existing client, open a new window
-      if (clients.openWindow) {
-        return clients.openWindow(url);
-      }
-    });
-  }
 });
 
-// Handle push events (for server-sent push notifications)
-self.addEventListener('push', (event) => {
-  console.log('[SW] Push event received');
-  
-  let notificationData = {
-    title: '💪 Push-Up Counter',
-    body: 'Ви отримали нове повідомлення!',
-    icon: '/icon-192x192.png',
-    badge: '/icon-192x192.png',
-    data: {}
-  };
-  
-  if (event.data) {
-    try {
-      const pushData = event.data.json();
-      notificationData = {
-        ...notificationData,
-        ...pushData
-      };
-    } catch (error) {
-      console.error('[SW] Error parsing push data:', error);
-      notificationData.body = event.data.text() || notificationData.body;
-    }
-  }
-  
-  event.waitUntil(
-    (async () => {
-      try {
-        // Try to show notification immediately
-        await self.registration.showNotification(notificationData.title, {
-          body: notificationData.body,
-          icon: notificationData.icon,
-          badge: notificationData.badge,
-          data: notificationData.data,
-          actions: notificationData.actions,
-          requireInteraction: notificationData.requireInteraction,
-          silent: notificationData.silent,
-          tag: notificationData.tag || 'push-notification',
-          timestamp: Date.now()
-        });
-        
-        // Log successful notification delivery
-        console.log('[SW] Push notification delivered successfully');
-        
-      } catch (error) {
-        console.error('[SW] Error showing push notification:', error);
-        
-        // If showing notification fails, queue it for later
-        await queueNotificationForLater(notificationData);
-        
-        // Register background sync to retry later
-        try {
-          await self.registration.sync.register('send-notification');
-        } catch (syncError) {
-          console.error('[SW] Error registering background sync:', syncError);
+// Helper function to open app page
+function openAppPage(url) {
+  return self.clients.matchAll({ type: 'window', includeUncontrolled: true }).then((clientList) => {
+    // Check if the app is already open
+    for (const client of clientList) {
+      if (client.url.includes(self.location.origin) && 'focus' in client) {
+        client.focus();
+        if (url !== '/') {
+          client.navigate(url);
         }
+        return;
       }
-    })()
-  );
-});
+    }
+
+    // If no existing client, open a new window
+    if (self.clients.openWindow) {
+      return self.clients.openWindow(url);
+    }
+  });
+}
 
 // Handle notification close events
 self.addEventListener('notificationclose', (event) => {
   console.log('[SW] Notification closed:', event.notification.tag);
-  
-  // Track notification dismissal for analytics
+
   const data = event.notification.data || {};
-  
+
   // Send message to clients about notification dismissal
   event.waitUntil(
-    clients.matchAll({ type: 'window' }).then((clientList) => {
+    self.clients.matchAll({ type: 'window' }).then((clientList) => {
       clientList.forEach(client => {
         client.postMessage({
           type: 'NOTIFICATION_DISMISSED',
@@ -328,120 +464,4 @@ self.addEventListener('notificationclose', (event) => {
       });
     })
   );
-});
-
-// Background sync for offline notifications
-self.addEventListener('sync', (event) => {
-  console.log('[SW] Background sync:', event.tag);
-  
-  if (event.tag === 'send-notification') {
-    event.waitUntil(sendQueuedNotifications());
-  }
-});
-
-async function sendQueuedNotifications() {
-  try {
-    // Get queued notifications from IndexedDB or local storage
-    const notifications = await getQueuedNotifications();
-    
-    for (const notification of notifications) {
-      await self.registration.showNotification(notification.title, notification.options);
-    }
-    
-    // Clear queued notifications after sending
-    await clearQueuedNotifications();
-  } catch (error) {
-    console.error('[SW] Error sending queued notifications:', error);
-  }
-}
-
-async function getQueuedNotifications() {
-  try {
-    // Open IndexedDB for persistent notification storage
-    const db = await openNotificationDB();
-    const transaction = db.transaction(['notifications'], 'readonly');
-    const store = transaction.objectStore('notifications');
-    const request = store.getAll();
-    
-    return new Promise((resolve, reject) => {
-      request.onsuccess = () => resolve(request.result || []);
-      request.onerror = () => reject(request.error);
-    });
-  } catch (error) {
-    console.error('[SW] Error getting queued notifications:', error);
-    return [];
-  }
-}
-
-async function clearQueuedNotifications() {
-  try {
-    // Clear sent notifications from IndexedDB
-    const db = await openNotificationDB();
-    const transaction = db.transaction(['notifications'], 'readwrite');
-    const store = transaction.objectStore('notifications');
-    const request = store.clear();
-    
-    return new Promise((resolve, reject) => {
-      request.onsuccess = () => resolve();
-      request.onerror = () => reject(request.error);
-    });
-  } catch (error) {
-    console.error('[SW] Error clearing queued notifications:', error);
-  }
-}
-
-async function openNotificationDB() {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open('NotificationQueue', 1);
-    
-    request.onerror = () => reject(request.error);
-    request.onsuccess = () => resolve(request.result);
-    
-    request.onupgradeneeded = (event) => {
-      const db = event.target.result;
-      if (!db.objectStoreNames.contains('notifications')) {
-        const store = db.createObjectStore('notifications', { keyPath: 'id', autoIncrement: true });
-        store.createIndex('timestamp', 'timestamp', { unique: false });
-        store.createIndex('type', 'type', { unique: false });
-      }
-    };
-  });
-}
-
-async function queueNotificationForLater(notificationData) {
-  try {
-    const db = await openNotificationDB();
-    const transaction = db.transaction(['notifications'], 'readwrite');
-    const store = transaction.objectStore('notifications');
-    
-    const notification = {
-      ...notificationData,
-      timestamp: Date.now(),
-      queued: true
-    };
-    
-    const request = store.add(notification);
-    
-    return new Promise((resolve, reject) => {
-      request.onsuccess = () => resolve();
-      request.onerror = () => reject(request.error);
-    });
-  } catch (error) {
-    console.error('[SW] Error queueing notification:', error);
-  }
-}
-        if (clients.openWindow) {
-          return clients.openWindow(urlToOpen);
-        }
-      })
-    );
-  }
-});
-
-// Handle notification close
-self.addEventListener('notificationclose', (event) => {
-  console.log('[SW] Notification closed:', event.notification.tag);
-  
-  // You can track notification dismissals here
-  // For example, send analytics data
 });
