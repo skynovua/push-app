@@ -33,7 +33,6 @@ import { Switch } from '@/shared/ui/switch';
 import { PushNotificationSettingsPanel } from '../../pwa/ui/push-notification-settings';
 // Components
 import { ImportDialog } from './import-dialog';
-import { NotificationSettings } from './notification-settings';
 
 export const SettingsFeature: React.FC = () => {
   const { settings, updateSettings } = useWorkoutStore();
@@ -269,9 +268,6 @@ export const SettingsFeature: React.FC = () => {
 
       {/* Push Notification Settings */}
       <PushNotificationSettingsPanel />
-
-      {/* Legacy Notification Settings */}
-      <NotificationSettings />
 
       {/* Data Management */}
       <Card>

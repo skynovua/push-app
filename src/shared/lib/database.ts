@@ -83,8 +83,6 @@ export const dbUtils = {
         darkMode: false,
         autoSave: true,
         language: 'ua',
-        reminderTime: undefined,
-        daysOfWeek: undefined,
       } as AppSettings)
     );
   },
