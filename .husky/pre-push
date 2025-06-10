@@ -10,8 +10,8 @@ fi
 # Get list of changed files in the commits being pushed
 CHANGED_FILES=$(git diff --name-only origin/$(git rev-parse --abbrev-ref HEAD)..HEAD)
 
-# Filter only TypeScript/JavaScript files
-TS_JS_FILES=$(echo "$CHANGED_FILES" | grep -E '\.(ts|tsx|js|jsx)$' || true)
+# Filter only TypeScript/JavaScript files that still exist
+TS_JS_FILES=$(echo "$CHANGED_FILES" | grep -E '\.(ts|tsx|js|jsx)$' | xargs -I {} sh -c 'test -f "{}" && echo "{}"' || true)
 
 if [ -z "$TS_JS_FILES" ]; then
   echo "📝 No TypeScript/JavaScript files changed, skipping checks"
