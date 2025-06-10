@@ -1,16 +1,53 @@
-# Run comprehensive checks before push
+# Run checks before push - only on changed files
 echo "🔍 Running pre-push checks..."
 
-# Type checking
+# Allow skipping checks with SKIP_PUSH_CHECKS=1
+if [ "$SKIP_PUSH_CHECKS" = "1" ]; then
+  echo "⚠️  Skipping pre-push checks (SKIP_PUSH_CHECKS=1)"
+  exit 0
+fi
+
+# Get list of changed files in the commits being pushed
+CHANGED_FILES=$(git diff --name-only origin/$(git rev-parse --abbrev-ref HEAD)..HEAD)
+
+# Filter only TypeScript/JavaScript files
+TS_JS_FILES=$(echo "$CHANGED_FILES" | grep -E '\.(ts|tsx|js|jsx)$' || true)
+
+if [ -z "$TS_JS_FILES" ]; then
+  echo "📝 No TypeScript/JavaScript files changed, skipping checks"
+  exit 0
+fi
+
+echo "📁 Checking files:"
+echo "$TS_JS_FILES" | sed 's/^/  - /'
+
+# Type checking on changed files
 echo "🔧 Checking TypeScript types..."
-npm run type-check
+if ! npm run type-check; then
+  echo "❌ Type check failed"
+  exit 1
+fi
 
-# Linting
-echo "🧹 Running ESLint..."
-npm run lint
+# Linting only changed files
+if [ -n "$TS_JS_FILES" ]; then
+  echo "🧹 Running ESLint on changed files..."
+  echo "$TS_JS_FILES" | xargs npx eslint
+  if [ $? -ne 0 ]; then
+    echo "❌ ESLint failed"
+    exit 1
+  fi
+fi
 
-# Format checking
-echo "✨ Checking code formatting..."
-npm run format:check
+# Format checking only changed files
+if [ -n "$TS_JS_FILES" ]; then
+  echo "✨ Checking code formatting on changed files..."
+  echo "$TS_JS_FILES" | xargs npx prettier --check
+  if [ $? -ne 0 ]; then
+    echo "❌ Format check failed"
+    echo "💡 Run 'npm run format' to fix formatting issues"
+    exit 1
+  fi
+fi
 
 echo "✅ All pre-push checks passed!"
+echo "💡 To skip checks: SKIP_PUSH_CHECKS=1 git push"
