@@ -154,7 +154,7 @@ export const CounterFeature: React.FC = () => {
           {isActive || currentCount > 0 ? (
             <div className="flex justify-center gap-6 text-sm">
               <div className="text-center">
-                <div className="font-medium">{formatTime(elapsedTime)}</div>
+                <div className="font-medium tabular-nums">{formatTime(elapsedTime)}</div>
                 <div className="text-muted-foreground">{t.counter.time}</div>
               </div>
               <div className="text-center">

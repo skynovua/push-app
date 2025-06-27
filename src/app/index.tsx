@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Activity, BarChart3, Settings } from 'lucide-react';
 
 import { UpdateNotification } from '@/features/pwa/ui/update-notification';
-import { initializeDefaults, pwaService, useT } from '@/shared/lib';
+import { initializeDefaults, useT } from '@/shared/lib';
 import { useWorkoutStore } from '@/shared/model';
 // Shared
 import { Button } from '@/shared/ui/button';
@@ -32,8 +32,6 @@ function App() {
       await initializeDefaults();
       await loadSettings();
       await loadTodayStats(); // Load today's push-ups count
-      // Register service worker for PWA functionality
-      await pwaService.registerServiceWorker();
     };
 
     initialize();
@@ -88,7 +86,7 @@ function App() {
 
         {/* Bottom Navigation */}
         <nav
-          className="bg-background/95 supports-[backdrop-filter]:bg-background/60 fixed bottom-0 left-0 right-0 border-t backdrop-blur"
+          className="bg-background/95 supports-[backdrop-filter]:bg-background/60 fixed right-0 bottom-0 left-0 border-t backdrop-blur"
           style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
         >
           <div className="container mx-auto max-w-3xl px-4">

@@ -122,6 +122,13 @@ class PWAService {
   async registerServiceWorker(): Promise<void> {
     if ('serviceWorker' in navigator) {
       try {
+        // Check if service worker file exists (only in production)
+        const response = await fetch('/sw.js', { method: 'HEAD' });
+        if (!response.ok) {
+          // Service worker doesn't exist (development mode)
+          return;
+        }
+
         this.registration = await navigator.serviceWorker.register('/sw.js');
 
         // Listen for updates
@@ -141,6 +148,10 @@ class PWAService {
 
         // Success - service worker registered
       } catch (error) {
+        // Silently fail in development mode when sw.js doesn't exist
+        if (import.meta.env.DEV) {
+          return;
+        }
         console.error('Service Worker registration failed:', error);
       }
     }
@@ -469,7 +480,7 @@ class PWAService {
 
 export const pwaService = new PWAService();
 
-// Auto-register service worker when module loads
-if (typeof window !== 'undefined') {
+// Auto-register service worker when module loads (only in production)
+if (typeof window !== 'undefined' && !import.meta.env.DEV) {
   pwaService.registerServiceWorker();
 }
