@@ -30,8 +30,6 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/shared/ui/card';
 import { IOSPWAStatus } from '@/shared/ui/ios-pwa-status';
 import { Switch } from '@/shared/ui/switch';
 
-import { PushNotificationSettingsPanel } from '../../pwa/ui/push-notification-settings';
-// Components
 import { ImportDialog } from './import-dialog';
 
 export const SettingsFeature: React.FC = () => {
@@ -266,9 +264,6 @@ export const SettingsFeature: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Push Notification Settings */}
-      <PushNotificationSettingsPanel />
-
       {/* Data Management */}
       <Card>
         <CardHeader>
@@ -336,7 +331,7 @@ export const SettingsFeature: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Статистика бази даних */}
+      {/* Statistics */}
       <Card>
         <CardHeader>
           <CardTitle>{t.settings.databaseStats}</CardTitle>
