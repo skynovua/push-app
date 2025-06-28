@@ -48,7 +48,9 @@ export const useWorkoutStore = create<WorkoutStore>()(
 
           // Play sound if enabled
           if (state.settings.soundEnabled) {
-            playClickSound();
+            playClickSound().catch(() => {
+              // Silent fail - audio is not critical
+            });
           }
         }
       },
@@ -147,27 +149,66 @@ export const useWorkoutStore = create<WorkoutStore>()(
   )
 );
 
-// Audio feedback function
-const playClickSound = () => {
+// Audio feedback function with better error handling
+let audioContext: AudioContext | null = null;
+let isAudioEnabled = true;
+
+const initAudioContext = async (): Promise<AudioContext | null> => {
+  if (!isAudioEnabled) return null;
+
+  try {
+    if (!audioContext) {
+      audioContext = new (window.AudioContext ||
+        (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
+    }
+
+    // Resume context if suspended (required by browser policies)
+    if (audioContext.state === 'suspended') {
+      await audioContext.resume();
+    }
+
+    return audioContext;
+  } catch (error) {
+    console.warn('Failed to initialize AudioContext:', error);
+    isAudioEnabled = false;
+    return null;
+  }
+};
+
+const playClickSound = async () => {
+  try {
+    // Try Web Audio API first
+    const context = await initAudioContext();
+
+    if (context && context.state === 'running') {
+      const oscillator = context.createOscillator();
+      const gainNode = context.createGain();
+
+      oscillator.connect(gainNode);
+      gainNode.connect(context.destination);
+
+      oscillator.frequency.setValueAtTime(800, context.currentTime);
+      gainNode.gain.setValueAtTime(0.1, context.currentTime);
+      gainNode.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.1);
+
+      oscillator.start();
+      oscillator.stop(context.currentTime + 0.1);
+      return;
+    }
+  } catch (error) {
+    console.warn('Web Audio API failed, trying fallback:', error);
+  }
+
+  // Fallback to simple audio beep using data URI
   try {
     const audio = new Audio();
     audio.volume = 0.3;
-    // Create a simple click sound using Web Audio API
-    const audioContext = new (window.AudioContext ||
-      (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext)();
-    const oscillator = audioContext.createOscillator();
-    const gainNode = audioContext.createGain();
-
-    oscillator.connect(gainNode);
-    gainNode.connect(audioContext.destination);
-
-    oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
-    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
-
-    oscillator.start();
-    oscillator.stop(audioContext.currentTime + 0.1);
-  } catch (error) {
-    console.warn('Audio playback failed:', error);
+    // Simple beep sound as data URI
+    audio.src =
+      'data:audio/wav;base64,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';
+    await audio.play();
+  } catch (fallbackError) {
+    // Silent fail for audio - not critical for app functionality
+    console.warn('All audio methods failed:', fallbackError);
   }
 };
