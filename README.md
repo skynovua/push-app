@@ -5,7 +5,23 @@ A modern Progressive Web Application for tracking push-up workouts, built with R
 ## ✨ Features
 
 - **🎯 Push-Up Counter**: Large, easy-to-tap button for counting push-ups
-- **⏱️ Workout Timer**: Track your workout duration automatically
+- \*```bash
+
+# Automatic version bump based on conventional commits
+
+pnpm run release
+
+# Specific version type
+
+pnpm run release:patch # 1.0.0 -> 1.0.1
+pnpm run release:minor # 1.0.0 -> 1.1.0  
+pnpm run release:major # 1.0.0 -> 2.0.0
+
+# Dry run to see what would be released
+
+pnpm run release:dry
+
+````Timer**: Track your workout duration automatically
 - **📊 Statistics & Analytics**: View your progress with interactive charts
 - **🏆 Progress Tracking**: Daily goals and achievement system
 - **🌙 Dark/Light Theme**: Toggle between themes for comfort
@@ -29,7 +45,7 @@ A modern Progressive Web Application for tracking push-up workouts, built with R
 ### Prerequisites
 
 - Node.js 18+
-- npm or yarn
+- pnpm (recommended) or npm/yarn
 
 ### Installation
 
@@ -39,20 +55,20 @@ git clone <your-repo-url>
 cd push-app
 
 # Install dependencies
-npm install
+pnpm install
 
 # Start development server
-npm run dev
-```
+pnpm run dev
+````
 
 ### Building for Production
 
 ```bash
 # Build the application
-npm run build
+pnpm run build
 
 # Preview the production build
-npm run preview
+pnpm run preview
 ```
 
 ## 📱 PWA Installation
@@ -150,14 +166,14 @@ For detailed migration information, see [TAILWIND_V4_MIGRATION.md](./TAILWIND_V4
 ### Vercel (Recommended)
 
 ```bash
-npm install -g vercel
+pnpm install -g vercel
 vercel --prod
 ```
 
 ### Netlify
 
 ```bash
-npm run build
+pnpm run build
 # Upload dist/ folder to Netlify
 ```
 
@@ -165,20 +181,20 @@ npm run build
 
 ```bash
 # Run tests
-npm run test
+pnpm run test
 
 # Run tests with coverage
-npm run test:coverage
+pnpm run test:coverage
 ```
 
 ### Manual Build and Preview
 
 ```bash
 # Build for production
-npm run build
+pnpm run build
 
 # Preview production build locally
-npm run preview
+pnpm run preview
 ```
 
 ### Environment Variables

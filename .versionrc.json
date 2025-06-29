@@ -61,6 +61,7 @@
   "userUrlFormat": "{{host}}/{{user}}",
   "releaseCommitMessageFormat": "chore(release): {{currentTag}}",
   "scripts": {
+    "prerelease": "pnpm run check",
     "postrelease": "echo 'Release completed! Don\\'t forget to push: git push --follow-tags origin main'"
   }
 }
