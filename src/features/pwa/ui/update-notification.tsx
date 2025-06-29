@@ -85,7 +85,7 @@ export const UpdateNotification: React.FC<UpdateNotificationProps> = ({ onClose 
 
   return (
     <div
-      className={`fixed ${isMobile ? 'bottom-4 left-4 right-4' : 'left-4 right-4 top-4'} z-50 mx-auto max-w-sm`}
+      className={`fixed ${isMobile ? 'right-4 bottom-4 left-4' : 'top-4 right-4 left-4'} z-50 mx-auto max-w-sm`}
     >
       <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-lg backdrop-blur-sm dark:border-gray-700 dark:bg-gray-800">
         <div className="flex items-start justify-between gap-3">

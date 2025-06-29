@@ -136,7 +136,7 @@ jobs:
           else
             npm run release:patch
           fi
-          
+
           # Get the new version
           NEW_VERSION=$(node -p "require('./package.json').version")
           echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
@@ -165,15 +165,15 @@ jobs:
           release_name: Release v${{ steps.release.outputs.version }}
           body: |
             ## What's Changed
-            
+
             See [CHANGELOG.md](https://github.com/${{ github.repository }}/blob/main/CHANGELOG.md) for detailed changes.
-            
+
             ## Installation
-            
+
             Visit [Push-Up Counter PWA](https://${{ github.repository_owner }}.github.io/${{ github.event.repository.name }}/) to use the application.
-            
+
             ## Download
-            
+
             You can also download the build artifacts below.
           draft: false
           prerelease: false
