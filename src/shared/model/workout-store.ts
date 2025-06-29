@@ -37,7 +37,7 @@ export const useWorkoutStore = create<WorkoutStore>()(
         soundEnabled: true,
         darkMode: false,
         autoSave: true,
-        language: 'ua' as const,
+        language: 'ua',
       },
 
       // Actions
@@ -50,6 +50,7 @@ export const useWorkoutStore = create<WorkoutStore>()(
           if (state.settings.soundEnabled) {
             playClickSound().catch(() => {
               // Silent fail - audio is not critical
+              console.warn('Failed to play click sound');
             });
           }
         }

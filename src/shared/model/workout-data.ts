@@ -31,15 +31,11 @@ export const useWorkoutData = () => {
     }
   };
 
-  const refreshData = () => {
-    loadSessions();
-  };
-
   // Функції видалення
   const deleteSession = async (sessionId: string) => {
     try {
       await dbUtils.deleteWorkoutSession(sessionId);
-      await refreshData();
+      await loadSessions();
       return true;
     } catch (error) {
       console.error('Error deleting session:', error);
@@ -50,7 +46,7 @@ export const useWorkoutData = () => {
   const deleteMultipleSessions = async (sessionIds: string[]) => {
     try {
       await dbUtils.deleteMultipleSessions(sessionIds);
-      await refreshData();
+      await loadSessions();
       return true;
     } catch (error) {
       console.error('Error deleting multiple sessions:', error);
@@ -61,7 +57,7 @@ export const useWorkoutData = () => {
   const deleteSessionsByDate = async (date: Date) => {
     try {
       await dbUtils.deleteSessionsByDate(date);
-      await refreshData();
+      await loadSessions();
       return true;
     } catch (error) {
       console.error('Error deleting sessions by date:', error);
@@ -76,7 +72,7 @@ export const useWorkoutData = () => {
       setSessions([]);
       setLoading(false);
       // Потім оновлюємо дані
-      await refreshData();
+      await loadSessions();
       return true;
     } catch (error) {
       console.error('Error clearing all data:', error);
@@ -387,7 +383,7 @@ export const useWorkoutData = () => {
     sessions,
     dailyStats,
     loading,
-    refreshData,
+    refreshData: loadSessions,
     // Функції видалення
     deleteSession,
     deleteMultipleSessions,

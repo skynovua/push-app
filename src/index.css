@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@plugin 'tailwindcss-animate';
 
 @custom-variant dark (&:is(.dark *));
 
@@ -70,24 +71,24 @@
 }
 
 .dark {
-  --background: oklch(9% 0.02 240);
-  --foreground: oklch(98% 0.01 240);
-  --card: oklch(12% 0.03 240);
-  --card-foreground: oklch(98% 0.01 240);
-  --popover: oklch(12% 0.03 240);
-  --popover-foreground: oklch(98% 0.01 240);
+  --background: oklch(16% 0.02 240);
+  --foreground: oklch(96% 0.01 240);
+  --card: oklch(20% 0.03 240);
+  --card-foreground: oklch(96% 0.01 240);
+  --popover: oklch(20% 0.03 240);
+  --popover-foreground: oklch(96% 0.01 240);
   --primary: oklch(70% 0.2 255);
-  --primary-foreground: oklch(9% 0.02 240);
-  --secondary: oklch(18% 0.03 240);
-  --secondary-foreground: oklch(95% 0.01 240);
-  --muted: oklch(18% 0.03 240);
-  --muted-foreground: oklch(70% 0.02 240);
-  --accent: oklch(22% 0.04 240);
-  --accent-foreground: oklch(98% 0.01 240);
-  --destructive: oklch(55% 0.2 25);
-  --destructive-foreground: oklch(98% 0.01 240);
-  --border: oklch(28% 0.04 240);
-  --input: oklch(22% 0.04 240);
+  --primary-foreground: oklch(16% 0.02 240);
+  --secondary: oklch(25% 0.03 240);
+  --secondary-foreground: oklch(92% 0.01 240);
+  --muted: oklch(25% 0.03 240);
+  --muted-foreground: oklch(68% 0.02 240);
+  --accent: oklch(30% 0.04 240);
+  --accent-foreground: oklch(96% 0.01 240);
+  --destructive: oklch(58% 0.2 25);
+  --destructive-foreground: oklch(96% 0.01 240);
+  --border: oklch(35% 0.04 240);
+  --input: oklch(30% 0.04 240);
   --ring: oklch(70% 0.2 255);
 
   /* Chart colors - improved contrast and vibrancy for dark theme */

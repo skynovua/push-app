@@ -103,7 +103,10 @@ export const CounterFeature: React.FC = () => {
         <CardHeader className="pb-3">
           <div className="flex items-center justify-between">
             <CardTitle className="text-lg">{t.counter.dailyProgress}</CardTitle>
-            <Badge variant={todayPushUps + currentCount >= dailyGoal ? 'default' : 'secondary'}>
+            <Badge
+              className="tabular-nums"
+              variant={todayPushUps + currentCount >= dailyGoal ? 'default' : 'secondary'}
+            >
               {todayPushUps + currentCount}/{dailyGoal}
             </Badge>
           </div>
@@ -116,7 +119,7 @@ export const CounterFeature: React.FC = () => {
             <span>{dailyGoal}</span>
           </div>
           {todayPushUps > 0 && (
-            <div className="text-muted-foreground text-center text-xs">
+            <div className="text-muted-foreground text-center text-xs tabular-nums">
               {t.counter.totalToday}: {todayPushUps} + {currentCount} ={' '}
               {todayPushUps + currentCount}
             </div>
