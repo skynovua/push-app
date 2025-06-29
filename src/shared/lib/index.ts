@@ -4,5 +4,6 @@ export { showToast } from './toast';
 export { useT, useTranslation } from './translation';
 export { pwaService } from './pwa';
 export { useTheme } from './use-theme';
+export { useMediaQuery } from './use-media-query';
 export * from './utils';
 export * from './chart-utils';

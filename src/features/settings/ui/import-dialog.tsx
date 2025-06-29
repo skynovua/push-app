@@ -10,12 +10,13 @@ import {
   Button,
   Card,
   CardContent,
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogDescription,
+  ResponsiveDialogFooter,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTitle,
+  ResponsiveDialogTrigger,
 } from '@/shared/ui';
 
 interface ImportDialogProps {
@@ -114,24 +115,24 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ trigger }) => {
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
+    <ResponsiveDialog open={isOpen} onOpenChange={setIsOpen}>
+      <ResponsiveDialogTrigger asChild>
         {trigger || (
           <Button variant="outline" className="flex items-center gap-2">
             <Upload className="h-4 w-4" />
             {t.settings.importData}
           </Button>
         )}
-      </DialogTrigger>
+      </ResponsiveDialogTrigger>
 
-      <DialogContent className="max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+      <ResponsiveDialogContent>
+        <ResponsiveDialogHeader>
+          <ResponsiveDialogTitle className="flex items-center justify-center gap-2">
             <Upload className="h-5 w-5" />
             {t.settings.importData}
-          </DialogTitle>
-          <DialogDescription>{t.settings.importDescription}</DialogDescription>
-        </DialogHeader>
+          </ResponsiveDialogTitle>
+          <ResponsiveDialogDescription>{t.settings.importDescription}</ResponsiveDialogDescription>
+        </ResponsiveDialogHeader>
 
         <div className="space-y-4">
           {/* Зона для перетягування файлів */}
@@ -169,6 +170,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ trigger }) => {
                       <div className="space-y-1">
                         <div className="flex gap-2">
                           <Badge variant="secondary">
+                            ``
                             {importResult.imported} {t.settings.importSessionsAdded}
                           </Badge>
                           {importResult.duplicates > 0 && (
@@ -201,14 +203,14 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ trigger }) => {
             onChange={handleFileChange}
             className="hidden"
           />
-
-          <div className="flex justify-end gap-2">
-            <Button variant="outline" onClick={handleClose}>
-              {t.common.close}
-            </Button>
-          </div>
         </div>
-      </DialogContent>
-    </Dialog>
+
+        <ResponsiveDialogFooter className="pt-2">
+          <Button variant="outline" onClick={handleClose} className="w-full">
+            {t.common.close}
+          </Button>
+        </ResponsiveDialogFooter>
+      </ResponsiveDialogContent>
+    </ResponsiveDialog>
   );
 };

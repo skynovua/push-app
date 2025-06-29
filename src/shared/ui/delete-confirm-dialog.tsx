@@ -3,13 +3,14 @@ import { AlertTriangle, Trash2 } from 'lucide-react';
 
 import { Button } from './button';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from './dialog';
+  ResponsiveDialog,
+  ResponsiveDialogContent,
+  ResponsiveDialogDescription,
+  ResponsiveDialogFooter,
+  ResponsiveDialogHeader,
+  ResponsiveDialogTitle,
+  ResponsiveDialogTrigger,
+} from './responsive-dialog';
 
 interface DeleteConfirmDialogProps {
   title: string;
@@ -34,30 +35,35 @@ export const DeleteConfirmDialog: React.FC<DeleteConfirmDialogProps> = ({
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>{children}</DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+    <ResponsiveDialog open={open} onOpenChange={setOpen}>
+      <ResponsiveDialogTrigger asChild>{children}</ResponsiveDialogTrigger>
+      <ResponsiveDialogContent>
+        <ResponsiveDialogHeader>
+          <ResponsiveDialogTitle className="flex items-center gap-2">
             {destructive ? (
               <AlertTriangle className="text-destructive h-5 w-5" />
             ) : (
               <Trash2 className="h-5 w-5" />
             )}
             {title}
-          </DialogTitle>
-          <DialogDescription>{description}</DialogDescription>
-        </DialogHeader>
-        <div className="mt-6 flex justify-end gap-3">
-          <Button variant="outline" onClick={() => setOpen(false)}>
-            Скасувати
-          </Button>
-          <Button variant={destructive ? 'destructive' : 'default'} onClick={handleConfirm}>
+          </ResponsiveDialogTitle>
+          <ResponsiveDialogDescription>{description}</ResponsiveDialogDescription>
+        </ResponsiveDialogHeader>
+
+        <ResponsiveDialogFooter className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+          <Button
+            variant={destructive ? 'destructive' : 'default'}
+            onClick={handleConfirm}
+            className="w-full"
+          >
             <Trash2 className="mr-2 h-4 w-4" />
             Видалити
           </Button>
-        </div>
-      </DialogContent>
-    </Dialog>
+          <Button variant="outline" onClick={() => setOpen(false)} className="w-full">
+            Скасувати
+          </Button>
+        </ResponsiveDialogFooter>
+      </ResponsiveDialogContent>
+    </ResponsiveDialog>
   );
 };
