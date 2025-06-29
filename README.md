@@ -198,6 +198,62 @@ To use a custom domain:
 2. Update `base` in `vite.config.ts` to `'/'`
 3. Configure DNS settings with your domain provider
 
+## 🏷️ Versioning & Releases
+
+This project follows [Semantic Versioning](https://semver.org/) (SemVer) and uses [Conventional Commits](https://www.conventionalcommits.org/).
+
+### Version Format
+
+- **MAJOR** version: incompatible API changes
+- **MINOR** version: new functionality in a backward compatible manner
+- **PATCH** version: backward compatible bug fixes
+
+### Commit Message Format
+
+```
+<type>[optional scope]: <description>
+
+[optional body]
+
+[optional footer(s)]
+```
+
+**Types:**
+
+- `feat`: new feature
+- `fix`: bug fix
+- `docs`: documentation changes
+- `style`: formatting, missing semicolons, etc.
+- `refactor`: code refactoring
+- `perf`: performance improvements
+- `test`: adding tests
+- `build`: build system changes
+- `ci`: CI configuration changes
+- `chore`: maintenance tasks
+
+### Creating Releases
+
+```bash
+# Automatic version bump based on conventional commits
+npm run release
+
+# Specific version type
+npm run release:patch  # 1.0.0 -> 1.0.1
+npm run release:minor  # 1.0.0 -> 1.1.0
+npm run release:major  # 1.0.0 -> 2.0.0
+
+# Dry run to see what would be released
+npm run release:dry
+```
+
+### Release Process
+
+1. **Automatic**: Push to `main` branch triggers release workflow if conventional commits are detected
+2. **Manual**: Use GitHub Actions "Release" workflow with version type selection
+3. **Quality Gates**: All tests, linting, and builds must pass before release
+4. **Changelog**: Automatically updated based on commit messages
+5. **GitHub Release**: Created with build artifacts and release notes
+
 ## 📝 Contributing
 
 1. Fork the repository
