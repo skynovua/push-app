@@ -1,5 +1,7 @@
 # 💪 Push-Up Counter PWA
 
+<!-- fix: minor formatting adjustment to trigger patch release -->
+
 A modern Progressive Web Application for tracking push-up workouts, built with React, TypeScript, and Tailwind CSS.
 
 ## ✨ Features
