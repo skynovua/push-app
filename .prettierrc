@@ -5,7 +5,10 @@
   "printWidth": 100,
   "tabWidth": 2,
   "useTabs": false,
-  "plugins": ["@ianvs/prettier-plugin-sort-imports", "prettier-plugin-tailwindcss"],
+  "plugins": [
+    "@ianvs/prettier-plugin-sort-imports",
+    "prettier-plugin-tailwindcss"
+  ],
   "importOrder": [
     "^(react/(.*)$)|^(react$)",
     "^(next/(.*)$)|^(next$)",
@@ -17,7 +20,17 @@
     "",
     "^[./]"
   ],
-  "importOrderParserPlugins": ["typescript", "jsx"],
+  "importOrderParserPlugins": [
+    "typescript",
+    "jsx"
+  ],
   "importOrderTypeScriptVersion": "5.0.0",
-  "tailwindFunctions": ["clsx", "cn", "cva"]
+  "tailwindFunctions": [
+    "clsx",
+    "cn",
+    "cva"
+  ],
+  "endOfLine": "lf",
+  "insertFinalNewline": true,
+  "trimTrailingWhitespace": true
 }

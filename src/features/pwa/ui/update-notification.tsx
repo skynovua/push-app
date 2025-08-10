@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Download, RefreshCw, X } from 'lucide-react';
 
 import { pwaService } from '@/shared/lib/pwa';
-import { useT } from '@/shared/lib/translation';
+import { useTranslation } from '@/shared/lib/translation';
 
 interface UpdateNotificationProps {
   onClose?: () => void;
@@ -13,7 +13,7 @@ export const UpdateNotification: React.FC<UpdateNotificationProps> = ({ onClose 
   const [isUpdating, setIsUpdating] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   const [hasShownNotification, setHasShownNotification] = useState(false);
-  const t = useT();
+  const { t } = useTranslation();
 
   useEffect(() => {
     // Check if mobile device
@@ -36,8 +36,8 @@ export const UpdateNotification: React.FC<UpdateNotificationProps> = ({ onClose 
         // Try to show native notification on mobile
         if (isMobile) {
           pwaService.showMobileUpdateNotification(
-            t.updates.updateAvailable,
-            t.updates.updateAvailableBody
+            t('updates.updateAvailable'),
+            t('updates.updateAvailableBody')
           );
         }
       }
@@ -48,8 +48,8 @@ export const UpdateNotification: React.FC<UpdateNotificationProps> = ({ onClose 
       setIsVisible(false);
       setIsUpdating(false);
       // Show success notification
-      pwaService.showNotification(t.updates.updateInstalled, {
-        body: t.updates.updateInstalledBody,
+      pwaService.showNotification(t('updates.updateInstalled'), {
+        body: t('updates.updateInstalledBody'),
         tag: 'app-update',
       });
     });
@@ -95,14 +95,14 @@ export const UpdateNotification: React.FC<UpdateNotificationProps> = ({ onClose 
             </div>
             <div className="flex-1">
               <h3 className="text-sm font-medium text-gray-900 dark:text-gray-100">
-                {t.updates.updateAvailable}
+                {t('updates.updateAvailable')}
               </h3>
               <p className="mt-1 text-xs text-gray-600 dark:text-gray-400">
-                {t.updates.updateAvailableBody}
+                {t('updates.updateAvailableBody')}
               </p>
               {isMobile && (
                 <p className="mt-1 text-xs text-blue-600 dark:text-blue-400">
-                  {t.updates.pullToRefresh}
+                  {t('updates.pullToRefresh')}
                 </p>
               )}
               <div className={`mt-3 flex gap-2 ${isMobile ? 'flex-col' : 'flex-row'}`}>
@@ -114,12 +114,12 @@ export const UpdateNotification: React.FC<UpdateNotificationProps> = ({ onClose 
                   {isUpdating ? (
                     <>
                       <RefreshCw className="h-3 w-3 animate-spin" />
-                      {t.updates.updating}
+                      {t('updates.updating')}
                     </>
                   ) : (
                     <>
                       <Download className="h-3 w-3" />
-                      {t.updates.update}
+                      {t('updates.update')}
                     </>
                   )}
                 </button>
@@ -127,7 +127,7 @@ export const UpdateNotification: React.FC<UpdateNotificationProps> = ({ onClose 
                   onClick={handleClose}
                   className={`rounded-md bg-gray-100 px-3 py-2 text-xs font-medium text-gray-700 transition-colors hover:bg-gray-200 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600 ${isMobile ? 'w-full' : ''}`}
                 >
-                  {t.updates.later}
+                  {t('updates.later')}
                 </button>
               </div>
             </div>

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Activity, BarChart3, Settings } from 'lucide-react';
 
 import { UpdateNotification } from '@/features/pwa/ui/update-notification';
-import { initializeDefaults, useT } from '@/shared/lib';
+import { initializeDefaults, useTranslation } from '@/shared/lib';
 import { useWorkoutStore } from '@/shared/model';
 // Shared
 import { Button } from '@/shared/ui/button';
@@ -24,7 +24,7 @@ function App() {
     }
   });
   const { loadSettings, loadTodayStats } = useWorkoutStore();
-  const t = useT();
+  const { t } = useTranslation();
 
   useEffect(() => {
     // Initialize database and load settings
@@ -47,9 +47,9 @@ function App() {
   };
 
   const tabs = [
-    { id: 'counter' as Tab, label: t.counter.title, icon: Activity },
-    { id: 'stats' as Tab, label: t.common.stats, icon: BarChart3 },
-    { id: 'settings' as Tab, label: t.common.settings, icon: Settings },
+    { id: 'counter' as Tab, label: t('counter.title'), icon: Activity },
+    { id: 'stats' as Tab, label: t('common.stats'), icon: BarChart3 },
+    { id: 'settings' as Tab, label: t('common.settings'), icon: Settings },
   ];
 
   const renderContent = () => {

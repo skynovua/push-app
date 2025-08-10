@@ -3,7 +3,7 @@ import { Activity, BarChart3, Calendar, TrendingUp } from 'lucide-react';
 import { Bar, BarChart, CartesianGrid, Line, LineChart, XAxis, YAxis } from 'recharts';
 
 import type { PeriodStats, TimePeriod } from '@/shared/domain';
-import { createPushUpChartConfig, formatPushUpTooltip, useT } from '@/shared/lib';
+import { createPushUpChartConfig, formatPushUpTooltip, useTranslation } from '@/shared/lib';
 import { useWorkoutData } from '@/shared/model';
 // Shared imports
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/shared/ui/card';
@@ -12,16 +12,16 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/shared/ui/tabs';
 
 export const StatsChart: React.FC = () => {
   const { getStatsForPeriod, sessions } = useWorkoutData();
-  const t = useT();
+  const { t } = useTranslation();
   const [selectedPeriod, setSelectedPeriod] = useState<TimePeriod>('week');
 
   const currentStats = getStatsForPeriod(selectedPeriod);
 
   // Chart configuration for shadcn/ui charts
   const chartConfig = createPushUpChartConfig({
-    totalPushUps: t.stats.totalPushUps,
-    sessionsCount: t.stats.sessionsCount,
-    pushUps: t.stats.pushUps,
+    totalPushUps: t('stats.totalPushUps'),
+    sessionsCount: t('stats.sessionsCount'),
+    pushUps: t('stats.pushUps'),
   });
 
   const getTotalForPeriod = (stats: PeriodStats[]) => {
@@ -175,8 +175,8 @@ export const StatsChart: React.FC = () => {
                 <ChartTooltipContent
                   formatter={(value, name) =>
                     formatPushUpTooltip(value as number, name as string, {
-                      sessionsCount: t.stats.sessionsCount,
-                      pushUps: t.stats.pushUps,
+                      sessionsCount: t('stats.sessionsCount'),
+                      pushUps: t('stats.pushUps'),
                     })
                   }
                 />
@@ -222,8 +222,8 @@ export const StatsChart: React.FC = () => {
               <ChartTooltipContent
                 formatter={(value, name) =>
                   formatPushUpTooltip(value as number, name as string, {
-                    sessionsCount: t.stats.sessionsCount,
-                    pushUps: t.stats.pushUps,
+                    sessionsCount: t('stats.sessionsCount'),
+                    pushUps: t('stats.pushUps'),
                   })
                 }
               />
@@ -259,7 +259,9 @@ export const StatsChart: React.FC = () => {
                 <TrendingUp className="text-primary h-5 w-5" />
               </div>
               <div className="space-y-1">
-                <p className="text-muted-foreground text-sm font-medium">{t.stats.totalPushUps}</p>
+                <p className="text-muted-foreground text-sm font-medium">
+                  {t('stats.totalPushUps')}
+                </p>
                 <p className="text-2xl font-bold tracking-tight">{total}</p>
               </div>
             </div>
@@ -274,7 +276,7 @@ export const StatsChart: React.FC = () => {
               </div>
               <div className="space-y-1">
                 <p className="text-muted-foreground text-sm font-medium">
-                  {selectedPeriod === 'allTime' ? 'Середньо за день' : t.stats.averagePerDay}
+                  {selectedPeriod === 'allTime' ? 'Середньо за день' : t('stats.averagePerDay')}
                 </p>
                 <p className="text-2xl font-bold tracking-tight">{average}</p>
               </div>
@@ -289,7 +291,9 @@ export const StatsChart: React.FC = () => {
                 <Calendar className="h-5 w-5 text-blue-500" />
               </div>
               <div className="space-y-1">
-                <p className="text-muted-foreground text-sm font-medium">{t.stats.totalSessions}</p>
+                <p className="text-muted-foreground text-sm font-medium">
+                  {t('stats.totalSessions')}
+                </p>
                 <p className="text-2xl font-bold tracking-tight">{totalSessions}</p>
               </div>
             </div>
@@ -319,8 +323,8 @@ export const StatsChart: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="mb-2 text-2xl font-bold">{t.stats.title}</h2>
-        <p className="text-muted-foreground">{t.stats.yourProgress}</p>
+        <h2 className="mb-2 text-2xl font-bold">{t('stats.title')}</h2>
+        <p className="text-muted-foreground">{t('stats.yourProgress')}</p>
       </div>
 
       <Tabs
@@ -330,16 +334,16 @@ export const StatsChart: React.FC = () => {
       >
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="week" className="text-xs sm:text-sm">
-            {t.stats.timePeriods.week}
+            {t('stats.timePeriods.week')}
           </TabsTrigger>
           <TabsTrigger value="month" className="text-xs sm:text-sm">
-            {t.stats.timePeriods.month}
+            {t('stats.timePeriods.month')}
           </TabsTrigger>
           <TabsTrigger value="year" className="text-xs sm:text-sm">
-            {t.stats.timePeriods.year}
+            {t('stats.timePeriods.year')}
           </TabsTrigger>
           <TabsTrigger value="allTime" className="text-xs sm:text-sm">
-            {t.stats.timePeriods.allTime}
+            {t('stats.timePeriods.allTime')}
           </TabsTrigger>
         </TabsList>
 
@@ -351,9 +355,9 @@ export const StatsChart: React.FC = () => {
                 <div className="bg-primary/10 rounded-md p-1.5">
                   <TrendingUp className="text-primary h-4 w-4" />
                 </div>
-                {t.stats.chartTitles.week}
+                {t('stats.chartTitles.week')}
               </CardTitle>
-              <CardDescription className="text-sm">{t.stats.periodLabels.week}</CardDescription>
+              <CardDescription className="text-sm">{t('stats.periodLabels.week')}</CardDescription>
             </CardHeader>
             <CardContent className="p-6">{renderChart(currentStats, 'week')}</CardContent>
           </Card>
@@ -367,9 +371,9 @@ export const StatsChart: React.FC = () => {
                 <div className="bg-primary/10 rounded-md p-1.5">
                   <TrendingUp className="text-primary h-4 w-4" />
                 </div>
-                {t.stats.chartTitles.month}
+                {t('stats.chartTitles.month')}
               </CardTitle>
-              <CardDescription className="text-sm">{t.stats.periodLabels.month}</CardDescription>
+              <CardDescription className="text-sm">{t('stats.periodLabels.month')}</CardDescription>
             </CardHeader>
             <CardContent className="p-6">{renderChart(currentStats, 'month')}</CardContent>
           </Card>
@@ -383,9 +387,9 @@ export const StatsChart: React.FC = () => {
                 <div className="bg-primary/10 rounded-md p-1.5">
                   <TrendingUp className="text-primary h-4 w-4" />
                 </div>
-                {t.stats.chartTitles.year}
+                {t('stats.chartTitles.year')}
               </CardTitle>
-              <CardDescription className="text-sm">{t.stats.periodLabels.year}</CardDescription>
+              <CardDescription className="text-sm">{t('stats.periodLabels.year')}</CardDescription>
             </CardHeader>
             <CardContent className="p-6">{renderChart(currentStats, 'year')}</CardContent>
           </Card>
@@ -399,9 +403,11 @@ export const StatsChart: React.FC = () => {
                 <div className="rounded-md bg-orange-500/10 p-1.5">
                   <BarChart3 className="h-4 w-4 text-orange-500" />
                 </div>
-                {t.stats.chartTitles.allTime}
+                {t('stats.chartTitles.allTime')}
               </CardTitle>
-              <CardDescription className="text-sm">{t.stats.periodLabels.allTime}</CardDescription>
+              <CardDescription className="text-sm">
+                {t('stats.periodLabels.allTime')}
+              </CardDescription>
             </CardHeader>
             <CardContent className="p-6">{renderChart(currentStats, 'allTime')}</CardContent>
           </Card>

@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import { AlertCircle, CheckCircle, FileText, Upload } from 'lucide-react';
 
 import type { ImportResult } from '@/shared/domain';
-import { useT } from '@/shared/lib';
+import { useTranslation } from '@/shared/lib';
 import { useToast } from '@/shared/lib/toast';
 import { useWorkoutData } from '@/shared/model';
 import {
@@ -30,7 +30,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ trigger }) => {
   const [dragOver, setDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const t = useT();
+  const { t } = useTranslation();
   const { importData } = useWorkoutData();
   const { addToast } = useToast();
 
@@ -41,8 +41,8 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ trigger }) => {
     if (!file.name.endsWith('.json')) {
       addToast({
         type: 'error',
-        title: t.settings.importError,
-        description: t.settings.importInvalidFile,
+        title: t('settings.importError'),
+        description: t('settings.importInvalidFile'),
       });
       return;
     }
@@ -57,20 +57,20 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ trigger }) => {
       if (result.success) {
         addToast({
           type: 'success',
-          title: t.settings.importSuccess,
-          description: `${result.imported} ${t.settings.importSessionsAdded}${result.duplicates > 0 ? `, ${result.duplicates} ${t.settings.importDuplicates}` : ''}`,
+          title: t('settings.importSuccess'),
+          description: `${result.imported} ${t('settings.importSessionsAdded')}${result.duplicates > 0 ? `, ${result.duplicates} ${t('settings.importDuplicates')}` : ''}`,
         });
       } else {
         addToast({
           type: 'error',
-          title: t.settings.importError,
+          title: t('settings.importError'),
           description: result.errors.join(', '),
         });
       }
     } catch (error) {
       addToast({
         type: 'error',
-        title: t.settings.importError,
+        title: t('settings.importError'),
         description: `${error}`,
       });
     } finally {
@@ -120,7 +120,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ trigger }) => {
         {trigger || (
           <Button variant="outline" className="flex items-center gap-2">
             <Upload className="h-4 w-4" />
-            {t.settings.importData}
+            {t('settings.importData')}
           </Button>
         )}
       </ResponsiveDialogTrigger>
@@ -129,9 +129,11 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ trigger }) => {
         <ResponsiveDialogHeader>
           <ResponsiveDialogTitle className="flex items-center justify-center gap-2">
             <Upload className="h-5 w-5" />
-            {t.settings.importData}
+            {t('settings.importData')}
           </ResponsiveDialogTitle>
-          <ResponsiveDialogDescription>{t.settings.importDescription}</ResponsiveDialogDescription>
+          <ResponsiveDialogDescription>
+            {t('settings.importDescription')}
+          </ResponsiveDialogDescription>
         </ResponsiveDialogHeader>
 
         <div className="space-y-4">
@@ -149,7 +151,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ trigger }) => {
             <FileText className="text-muted-foreground mx-auto mb-4 h-12 w-12" />
             <p className="text-muted-foreground mb-4 text-sm">Перетягніть JSON файл сюди або</p>
             <Button variant="outline" onClick={openFileDialog} disabled={importing}>
-              {importing ? 'Імпортування...' : t.settings.importButton}
+              {importing ? 'Імпортування...' : t('settings.importButton')}
             </Button>
           </div>
 
@@ -164,18 +166,18 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ trigger }) => {
                     <AlertCircle className="mt-0.5 h-5 w-5 text-red-500" />
                   )}
                   <div className="flex-1 space-y-2">
-                    <h4 className="font-medium">{t.settings.importResults}</h4>
+                    <h4 className="font-medium">{t('settings.importResults')}</h4>
 
                     {importResult.success ? (
                       <div className="space-y-1">
                         <div className="flex gap-2">
                           <Badge variant="secondary">
                             ``
-                            {importResult.imported} {t.settings.importSessionsAdded}
+                            {importResult.imported} {t('settings.importSessionsAdded')}
                           </Badge>
                           {importResult.duplicates > 0 && (
                             <Badge variant="outline">
-                              {importResult.duplicates} {t.settings.importDuplicates}
+                              {importResult.duplicates} {t('settings.importDuplicates')}
                             </Badge>
                           )}
                         </div>
@@ -207,7 +209,7 @@ export const ImportDialog: React.FC<ImportDialogProps> = ({ trigger }) => {
 
         <ResponsiveDialogFooter className="pt-2">
           <Button variant="outline" onClick={handleClose} className="w-full">
-            {t.common.close}
+            {t('common.close')}
           </Button>
         </ResponsiveDialogFooter>
       </ResponsiveDialogContent>

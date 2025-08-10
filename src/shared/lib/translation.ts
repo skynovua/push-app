@@ -1,35 +1,29 @@
-import { create } from 'zustand';
+// Native i18next translation hook wrapper
+// Comments are in English per project guidelines
+import { useTranslation as useI18NextTranslation } from 'react-i18next';
 
-import { detectLocale, locales, type Locale, type Translations } from '../locales';
+import type { Locale } from '../locales';
 
-interface TranslationState {
-  locale: Locale;
-  setLocale: (locale: Locale) => void;
-  t: Translations;
-}
+import './i18n';
 
-const getStoredLocale = (): Locale => {
-  const stored = localStorage.getItem('app-language');
-  if (stored && (stored === 'ua' || stored === 'en')) {
-    return stored as Locale;
-  }
-  return detectLocale();
-};
+/**
+ * Hook returning native i18next t, current locale and setter.
+ */
+export const useTranslation = () => {
+  const { i18n: i18nextInstance, t } = useI18NextTranslation();
 
-export const useTranslation = create<TranslationState>((set) => ({
-  locale: getStoredLocale(),
-  setLocale: (locale: Locale) => {
-    localStorage.setItem('app-language', locale);
-    set({
-      locale,
-      t: locales[locale],
-    });
-  },
-  t: locales[getStoredLocale()],
-}));
+  const setLocale = (locale: Locale) => {
+    try {
+      localStorage.setItem('app-language', locale);
+    } catch {
+      // ignore storage errors
+    }
+    i18nextInstance.changeLanguage(locale);
+  };
 
-// Helper hook to get current translations
-export const useT = () => {
-  const t = useTranslation((state) => state.t);
-  return t;
+  return {
+    locale: i18nextInstance.language as Locale,
+    setLocale,
+    t, // use as t('namespace.key')
+  };
 };

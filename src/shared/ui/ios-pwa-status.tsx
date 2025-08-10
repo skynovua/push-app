@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { AlertTriangle, CheckCircle, Download, Smartphone, Wifi, WifiOff } from 'lucide-react';
 
-import { pwaService, useT } from '@/shared/lib';
+import { pwaService, useTranslation } from '@/shared/lib';
 // Shared imports
 import { Badge } from '@/shared/ui/badge';
 import { Button } from '@/shared/ui/button';
@@ -28,7 +28,7 @@ export const IOSPWAStatus: React.FC<IOSPWAStatusProps> = ({ onInstallClick }) =>
   const [deviceInfo, setDeviceInfo] = useState<{ model: string; version: string } | null>(null);
   const [canInstall, setCanInstall] = useState(false);
 
-  const t = useT();
+  const { t } = useTranslation();
 
   // === Effects ===
 
@@ -92,9 +92,9 @@ export const IOSPWAStatus: React.FC<IOSPWAStatusProps> = ({ onInstallClick }) =>
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center gap-2 text-lg">
           <Smartphone className="h-5 w-5" />
-          {t.settings.iosPwaStatus}
+          {t('settings.iosPwaStatus')}
           <Badge variant={isStandalone ? 'default' : 'secondary'}>
-            {isStandalone ? t.settings.appInstalled : t.settings.webVersion}
+            {isStandalone ? t('settings.appInstalled') : t('settings.webVersion')}
           </Badge>
         </CardTitle>
       </CardHeader>
@@ -104,10 +104,10 @@ export const IOSPWAStatus: React.FC<IOSPWAStatusProps> = ({ onInstallClick }) =>
         {deviceInfo && (
           <div className="text-muted-foreground text-sm">
             <p>
-              <strong>{t.settings.deviceLabel}:</strong> {deviceInfo.model}
+              <strong>{t('settings.deviceLabel')}:</strong> {deviceInfo.model}
             </p>
             <p>
-              <strong>{t.settings.iosVersionLabel}:</strong> {deviceInfo.version}
+              <strong>{t('settings.iosVersionLabel')}:</strong> {deviceInfo.version}
             </p>
           </div>
         )}
@@ -118,13 +118,13 @@ export const IOSPWAStatus: React.FC<IOSPWAStatusProps> = ({ onInstallClick }) =>
             <CardContent>
               <p className="flex items-center gap-2 text-sm">
                 <CheckCircle className="h-4 w-4 text-green-600" />
-                {t.settings.pwaInstalled}
+                {t('settings.pwaInstalled')}
               </p>
               <ul className="text-muted-foreground mt-2 list-inside list-disc text-sm">
-                <li>{t.settings.pwaFeatures.fullscreen}</li>
-                <li>{t.settings.pwaFeatures.faster}</li>
-                <li>{t.settings.pwaFeatures.offline}</li>
-                <li>{t.settings.pwaFeatures.native}</li>
+                <li>{t('settings.pwaFeatures.fullscreen')}</li>
+                <li>{t('settings.pwaFeatures.faster')}</li>
+                <li>{t('settings.pwaFeatures.offline')}</li>
+                <li>{t('settings.pwaFeatures.native')}</li>
               </ul>
             </CardContent>
           </Card>
@@ -133,14 +133,14 @@ export const IOSPWAStatus: React.FC<IOSPWAStatusProps> = ({ onInstallClick }) =>
             <div className="bg-accent rounded-lg p-3">
               <p className="text-accent-foreground flex items-center gap-2 text-sm">
                 <AlertTriangle className="h-4 w-4 text-amber-600" />
-                {t.settings.installSuggestion}
+                {t('settings.installSuggestion')}
               </p>
             </div>
 
             {canInstall && (
               <Button onClick={handleInstall} className="w-full" variant="default">
                 <Download className="mr-2 h-4 w-4" />
-                {t.settings.showInstallInstructions}
+                {t('settings.showInstallInstructions')}
               </Button>
             )}
           </div>
@@ -149,30 +149,30 @@ export const IOSPWAStatus: React.FC<IOSPWAStatusProps> = ({ onInstallClick }) =>
         {/* System Status */}
         <div className="text-muted-foreground space-y-1 text-xs">
           <p className="flex items-center gap-2">
-            <strong>{t.settings.networkStatus}:</strong>
+            <strong>{t('settings.networkStatus')}:</strong>
             {(pwaService.isOnline ? pwaService.isOnline() : navigator.onLine) ? (
               <>
                 <Wifi className="h-3 w-3 text-green-600" />
-                {t.settings.online}
+                {t('settings.online')}
               </>
             ) : (
               <>
                 <WifiOff className="h-3 w-3 text-red-600" />
-                {t.settings.offline}
+                {t('settings.offline')}
               </>
             )}
           </p>
           <p className="flex items-center gap-2">
-            <strong>{t.settings.serviceWorkerStatus}:</strong>
+            <strong>{t('settings.serviceWorkerStatus')}:</strong>
             {navigator.serviceWorker ? (
               <>
                 <CheckCircle className="h-3 w-3 text-green-600" />
-                {t.settings.supported}
+                {t('settings.supported')}
               </>
             ) : (
               <>
                 <AlertTriangle className="h-3 w-3 text-red-600" />
-                {t.settings.notSupported}
+                {t('settings.notSupported')}
               </>
             )}
           </p>
